@@ -19,6 +19,10 @@ export default function createLinkPlugin() {
   let newContent = null
   const entityKeyObj = {}
 
+
+  let tagStartPos = 0
+  let tagEndPos = 0
+
   function linkStrategy(contentBlock, callback, contentState) {
     contentBlock.findEntityRanges(
       function (character) {
@@ -58,68 +62,68 @@ export default function createLinkPlugin() {
       metaArr.forEach(function (item, index) {
         const styleArr = item.getStyle().toArray()
         console.log(styleArr)
-    
-       // const itemEntityKey = item.getEntity()
-        // if (styleArr&&styleArr.length>0) {
-        //   const entityType = newContent.getEntity(itemEntityKey).getType()
 
-        //   if (entityType.indexOf("mention") >= 0) {
+        // const itemEntityKey = item.getEntity()
+        if (styleArr && styleArr.length > 0) {
+          // const entityType = newContent.getEntity(itemEntityKey).getType()
 
-        //     newSelection = newSelection.merge({
-        //       anchorKey: blockKey,
-        //       anchorOffset: index,
-        //       focusKey: blockKey,
-        //       focusOffset: index + 1,
-        //       isBackward: false,
-        //       hasFocus: false,
-        //     })
-        //     newContent = Modifier.removeInlineStyle(newContent, newSelection, "linkTagOn")
-        //     newContent = Modifier.removeInlineStyle(newContent, newSelection, "linkTagOff")
-        //   }
-        // }
+          if (styleArr.includes("linkTagOn") || styleArr.includes("linkTagOff")) {
+
+            newSelection = newSelection.merge({
+              anchorKey: blockKey,
+              anchorOffset: index,
+              focusKey: blockKey,
+              focusOffset: index + 1,
+              isBackward: false,
+              hasFocus: false,
+            })
+            newContent = Modifier.removeInlineStyle(newContent, newSelection, "linkTagOn")
+            newContent = Modifier.removeInlineStyle(newContent, newSelection, "linkTagOff")
+          }
+        }
       })
 
-      // let matchArr;
-      // while ((matchArr = regx.exec(blockText)) !== null) {
+      let matchArr;
+      while ((matchArr = regx.exec(blockText)) !== null) {
 
-      //   const start = matchArr.index;
-      //   const end = matchArr.index + matchArr[0].length;
-      //   const contentLenth = end - start;
-      //   const contentFocusAt = anchorFocusOffset - start;
+        const start = matchArr.index;
+        const end = matchArr.index + matchArr[0].length;
+        const contentLenth = end - start;
+        const contentFocusAt = anchorFocusOffset - start;
 
-      //   const mentionOn = hasfocus && (blockKey === anchorFocusKey) && (contentFocusAt > 0) && (contentFocusAt <= contentLenth)
-      //   const mentionOff = !mentionOn
+        const mentionOn = hasfocus && (blockKey === anchorFocusKey) && (contentFocusAt > 0) && (contentFocusAt <= contentLenth)
+        const mentionOff = !mentionOn
 
-      //   if (mentionOn) {
+        if (mentionOn) {
 
-      //     tagStartPos = start
-      //     tagEndPos = end
+          tagStartPos = start
+          tagEndPos = end
 
-      //     newSelection = newSelection.merge({
-      //       anchorKey: blockKey,
-      //       focusKey: blockKey,
-      //       anchorOffset: start + 1,
-      //       focusOffset: end,//  start + 2,
-      //       isBackward: false,
-      //       hasFocus: false,
-      //     })
-      //     newContent = Modifier.applyInlineStyle(newContent, newSelection, "linkTagOn")
-      //   }
-      //   else if (mentionOff) {
-      //     tagStartPos = start
-      //     tagEndPos = end
+          newSelection = newSelection.merge({
+            anchorKey: blockKey,
+            focusKey: blockKey,
+            anchorOffset: start + 1,
+            focusOffset: end,//  start + 2,
+            isBackward: false,
+            hasFocus: false,
+          })
+          newContent = Modifier.applyInlineStyle(newContent, newSelection, "linkTagOn")
+        }
+        else if (mentionOff) {
+          tagStartPos = start
+          tagEndPos = end
 
-      //     newSelection = newSelection.merge({
-      //       anchorKey: blockKey,
-      //       focusKey: blockKey,
-      //       anchorOffset: start + 1,
-      //       focusOffset: end,//start + 2,
-      //       isBackward: false,
-      //       hasFocus: false,
-      //     })
-      //     newContent = Modifier.applyInlineStyle(newContent, newSelection, "linkTagOff")
-      //   }
-      // }
+          newSelection = newSelection.merge({
+            anchorKey: blockKey,
+            focusKey: blockKey,
+            anchorOffset: start + 1,
+            focusOffset: end,//start + 2,
+            isBackward: false,
+            hasFocus: false,
+          })
+          newContent = Modifier.applyInlineStyle(newContent, newSelection, "linkTagOff")
+        }
+      }
     })
 
     editorState = EditorState.push(editorState, newContent, "change-inline-style");
