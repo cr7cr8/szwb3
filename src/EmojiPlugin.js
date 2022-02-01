@@ -60,6 +60,7 @@ export default function createImagePlugin() {
       editorState.getSelection(),
       text,
     )
+  
 
     let newSelection = editorState.getSelection().merge({
 
