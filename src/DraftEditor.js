@@ -15,6 +15,7 @@ import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
 import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight } from '@mui/icons-material';
 
+import { blue, red } from '@mui/material/colors';
 
 import Editor from "draft-js-plugins-editor";
 import Immutable from 'immutable';
@@ -51,6 +52,8 @@ export default function DraftEditor() {
 
   // const [currentBlockKey, setCurrentBlockKey] = useState(null)
   const specialBakcSpace = useRef(false)
+
+  console.log(theme.isLight)
 
   return (
     <>
@@ -111,6 +114,27 @@ export default function DraftEditor() {
 
           }}
           plugins={[mentionPlugin, personPlugin, emojiPlugin, imagePlugin, linkPlugin]}
+
+          customStyleFn={function (style, block) {
+            const styleNameArr = style.toArray();
+            const styleObj = {}
+
+            styleNameArr.forEach(item => {
+              if (item === "linkTagOn") {
+                styleObj.color = blue[500]
+                styleObj.textDecoration = "underline"
+              }
+              if (item === "linkTagOff") {
+                styleObj.color = blue[500]
+              }
+
+            })
+            if (styleNameArr.length > 0) {
+              return styleObj
+            }
+
+          }}
+
           blockRendererFn={function (block) {
 
             const text = block.getText()
@@ -152,6 +176,8 @@ export default function DraftEditor() {
 
 
           }}
+
+
 
           blockRenderMap={
             Immutable.Map({

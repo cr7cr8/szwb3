@@ -61,14 +61,10 @@ export default function createLinkPlugin() {
 
       metaArr.forEach(function (item, index) {
         const styleArr = item.getStyle().toArray()
-        console.log(styleArr)
+     
 
-        // const itemEntityKey = item.getEntity()
         if (styleArr && styleArr.length > 0) {
-          // const entityType = newContent.getEntity(itemEntityKey).getType()
-
           if (styleArr.includes("linkTagOn") || styleArr.includes("linkTagOff")) {
-
             newSelection = newSelection.merge({
               anchorKey: blockKey,
               anchorOffset: index,
@@ -130,11 +126,6 @@ export default function createLinkPlugin() {
     editorState = EditorState.acceptSelection(editorState, oldSelection);
     return editorState
 
-
-
-
-
-
   }
 
 
@@ -149,12 +140,8 @@ export default function createLinkPlugin() {
         setEditorState = setEditorState_
         newContent = newState.getCurrentContent()
 
-
-
         editorState = taggingLink()
-
         return editorState
-
       },
 
 

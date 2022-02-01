@@ -4,7 +4,7 @@ import {
   RichUtils, Modifier, convertFromHTML, AtomicBlockUtils
 } from 'draft-js';
 
-import { ThemeProvider, useTheme, createTheme,  } from '@mui/material/styles';
+import { ThemeProvider, useTheme, createTheme, } from '@mui/material/styles';
 
 import { Button, CssBaseline, Switch } from '@mui/material';
 import { arrowFunctionExpression } from '@babel/types';
@@ -15,6 +15,7 @@ import { arrowFunctionExpression } from '@babel/types';
 
 
 export default function ThemeContextProvider(props) {
+
 
   const [sizeObj, setSizeObj] = useState(props.sizeObj || { xs: "5rem", sm: "4rem", md: "3rem", lg: "1.5rem", xl: "1.5rem" })
 
@@ -61,8 +62,9 @@ export default function ThemeContextProvider(props) {
         setMode,
         scaleSizeObj,
         addingSizeObj,
-
-
+        mode,
+        isLight: mode === "light",
+        isDark: mode === "dark",
       }),
     [mode],
   );
