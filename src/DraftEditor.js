@@ -53,7 +53,7 @@ export default function DraftEditor() {
   // const [currentBlockKey, setCurrentBlockKey] = useState(null)
   const specialBakcSpace = useRef(false)
 
-  console.log(theme.isLight)
+  // console.log(theme.isLight)
 
   return (
     <>
@@ -406,13 +406,18 @@ export default function DraftEditor() {
               e.preventDefault()
               e.stopPropagation()
 
+
+              const blockType = editorState.getCurrentContent().getBlockForKey(currentBlockKey).getType()
+              if (blockType === "imageBlock") { return }
+
+
               const data = editorState.getCurrentContent().getBlockForKey(currentBlockKey).getData().toObject()
 
 
 
               const newContent = Modifier.setBlockData(
                 editorState.getCurrentContent(),
-                editorState.getSelection(), // SelectionState.createEmpty(currentBlockKey),
+                SelectionState.createEmpty(currentBlockKey),//  editorState.getSelection(), // SelectionState.createEmpty(currentBlockKey),
                 Immutable.Map({ isSmallFont: !Boolean(data.isSmallFont) })
               )
 

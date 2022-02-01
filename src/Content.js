@@ -36,7 +36,7 @@ const useSize = (target) => {
 
 
   useResizeObserver(target, (entry) => setSize(entry.contentRect))
-  console.log(size)
+  //console.log(size)
   return size
 }
 
@@ -74,7 +74,7 @@ function toPreHtml(editorState, theme) {
 
         }
 
-        console.log(styleNameSet.toArray())
+      
         if (styleNameSet.toArray().includes("linkTagOn")) {
           //  styleObj.style = { color: blue[800] }
           styleObj.attributes["data-type"] = "link"
@@ -294,7 +294,7 @@ function toHtml(preHtml, theme, target) {
 export default function Content({ editorState, ...props }) {
 
   const theme = useTheme()
-  const target = useRef(null)
+  //const target = useRef(null)
 
 
   // const size = useSize(target)
@@ -330,7 +330,8 @@ export default function Content({ editorState, ...props }) {
       overflow: "hidden",
       "& p": { fontSize: theme.sizeObj }
     }}
-      ref={target}>
+     // ref={target}
+     >
       <Masonry columns={finalCol} spacing={finalCol === 1 ? 1 : 1} >
         {postArr.map((item, index) => {
           const num = Number(Math.random() * 100).toFixed(0)
@@ -411,7 +412,7 @@ export function LinkTag({ linkAdd }) {
 
   // console.log(linkAdd.match(/(\/\/)([a-z0-9\-._~%]+)/))
 
-  console.log(linkAdd)
+
 
 
   const [content, setContent] = useState("")
