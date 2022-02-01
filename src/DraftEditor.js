@@ -402,8 +402,9 @@ export default function DraftEditor() {
 
           <Stack direction="row" sx={{ width: "10px", flexGrow: 1, bgcolor: "pink", }}>
 
-            <IconButton size="small" onClick={function () {
-
+            <IconButton size="small" onClick={function (e) {
+              e.preventDefault()
+              e.stopPropagation()
 
               const data = editorState.getCurrentContent().getBlockForKey(currentBlockKey).getData().toObject()
 

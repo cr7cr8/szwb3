@@ -13,7 +13,7 @@ import Immutable from "immutable"
 
 import { AvatarChip } from "./PeopleList"
 
-import { Container, Grid, Paper, Typography, Box, Chip, Avatar } from '@mui/material';
+import { Container, Grid, Paper, Typography, Box, Chip, Avatar, Link } from '@mui/material';
 
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -21,6 +21,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import useResizeObserver from '@react-hook/resize-observer';
 import Masonry from '@mui/lab/Masonry';
 
+import { blue, red } from '@mui/material/colors';
 
 
 const useSize = (target) => {
@@ -62,6 +63,33 @@ function toPreHtml(editorState, theme) {
       //     }
       //   } 
       // },
+
+      inlineStyleFn: function (styleNameSet) {
+
+        const styleObj = {
+
+          element: "span",
+          style: {},
+          attributes: {}
+
+        }
+
+        console.log(styleNameSet.toArray())
+        if (styleNameSet.toArray().includes("linkTagOn")) {
+          //  styleObj.style = { color: blue[800] }
+          styleObj.attributes["data-type"] = "link"
+        }
+        if (styleNameSet.toArray().includes("linkTagOff")) {
+          //    styleObj.style = { color: blue[800] }
+          styleObj.attributes["data-type"] = "link"
+        }
+
+
+
+        return styleObj
+
+      },
+
 
       entityStyleFn: function (entity) {
         const { type, data, mutablity } = entity.toObject()
@@ -171,6 +199,16 @@ function toHtml(preHtml, theme, target) {
 
             return <AvatarChip name={personName} key={index} isSmall={true} />
           }
+          else if (child.name === "span" && child.attribs["data-type"] === "link") {
+            const element = convertNodeToElement(child)
+            const linkAdd = reactElementToJSXString(<>{element}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
+
+            // return <a href={linkAdd} style={{ color: blue[800], textDecoration:"none" }} >{linkAdd}</a >
+            return <LinkTag linkAdd={linkAdd} key={index} />
+          }
+
+
+
 
           return convertNodeToElement(child, index, transformFn)
         })
@@ -189,6 +227,13 @@ function toHtml(preHtml, theme, target) {
           {element}
         </Box>
 
+      }
+      else if (node.name === "span" && node.attribs["data-type"] === "link") {
+        const element = convertNodeToElement(node)
+        const linkAdd = reactElementToJSXString(<>{element}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
+
+        // return <a href={linkAdd} style={{ color: blue[800], textDecoration:"none" }} >{linkAdd}</a >
+        return <LinkTag linkAdd={linkAdd} key={index} />
       }
       else if (node.name === "object" && node.attribs["data-type"] === "image-block") {
         // console.log(node.attribs["data-bgiamge"], index)
@@ -236,14 +281,14 @@ function toHtml(preHtml, theme, target) {
 
 
 
-const Item = styled(Paper)(({ theme }) => ({
-  ...theme.typography.body2,
-  color: theme.palette.text.secondary,
-  border: '1px solid black',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
+// const Item = styled(Paper)(({ theme }) => ({
+//   ...theme.typography.body2,
+//   color: theme.palette.text.secondary,
+//   border: '1px solid black',
+//   display: 'flex',
+//   alignItems: 'center',
+//   justifyContent: 'center',
+// }));
 
 
 export default function Content({ editorState, ...props }) {
@@ -268,11 +313,11 @@ export default function Content({ editorState, ...props }) {
 
 
 
-  const preHtml = toPreHtml(editorState)
+  const preHtml = toPreHtml(editorState, theme)
 
   // console.log(preHtml)
 
-   const postArr = [preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml];
+  const postArr = [preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml];
   //const postArr = [preHtml, preHtml];
   const finalCol = Math.min(col, postArr.length)
 
@@ -326,7 +371,7 @@ export function PostFrame({ preHtml, bgcolor, num, ...props }) {
     <Box sx={{
       bgcolor,
       boxShadow: 3,
-      "& > div:not(.image-frame)":{
+      "& > div:not(.image-frame)": {
         paddingLeft: "4px",
         paddingRight: "4px",
       },
@@ -360,6 +405,53 @@ export function PostFrame({ preHtml, bgcolor, num, ...props }) {
 
 
 
+export function LinkTag({ linkAdd }) {
+
+  const theme = useTheme()
+
+  // console.log(linkAdd.match(/(\/\/)([a-z0-9\-._~%]+)/))
+
+  console.log(linkAdd)
+
+
+  const [content, setContent] = useState("")
+
+  //return linkAdd
+
+  return (
+    <Box
+      component="span"
+      target="_blank"
+      //  key={index}
+      sx={{
+        color: theme.isLight ? blue[500] : blue[800],
+        cursor: "pointer",
+        textDecoration: "none",
+        "&:hover": { textDecoration: "underline" }
+      }}
+
+      onClick={function (e) {
+        setContent(
+          <Link href={linkAdd} target="_blank" rel="noopener" s
+            sx={{
+              color: theme.isLight ? blue[500] : blue[800],
+              cursor: "pointer",
+              textDecoration: "none",
+              "&:hover": { textDecoration: "underline" }
+            }}
+          >
+            {linkAdd}
+          </Link>
+        )
+      }}
+    >
+      {content || linkAdd.match(/(\/\/)([a-z0-9\-._~%]+)/)[2]}
+    </Box >
+  )
+}
+
+
+
 export function Images({ imgDataArr, target, ...props }) {
 
   const theme = useTheme()
@@ -370,7 +462,7 @@ export function Images({ imgDataArr, target, ...props }) {
   // const imageArr = data.imgDataArr
   const numOfImage = imgDataArr ? imgDataArr.length : 0
 
- // console.log(numOfImage)
+  // console.log(numOfImage)
 
   const height = useMemo(function () {
     const width = size ? size.width : 0
@@ -443,7 +535,7 @@ export function Images({ imgDataArr, target, ...props }) {
 
     width: "100%",
     height,
-   // bgcolor: "pink",
+    // bgcolor: "pink",
 
     ...numOfImage > 0 && {
       "& > *:nth-type(1)": {
