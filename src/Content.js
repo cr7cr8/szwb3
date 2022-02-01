@@ -423,7 +423,7 @@ export function LinkTag({ linkAdd }) {
       target="_blank"
       //  key={index}
       sx={{
-        color: theme.isLight ? blue[500] : blue[800],
+        color: theme.isLight ? blue[600] : blue[800],
         cursor: "pointer",
         textDecoration: "none",
         "&:hover": { textDecoration: "underline" }
@@ -433,7 +433,7 @@ export function LinkTag({ linkAdd }) {
         setContent(
           <Link href={linkAdd} target="_blank" rel="noopener" s
             sx={{
-              color: theme.isLight ? blue[500] : blue[800],
+              color: theme.isLight ? blue[600] : blue[800],
               cursor: "pointer",
               textDecoration: "none",
               "&:hover": { textDecoration: "underline" }
