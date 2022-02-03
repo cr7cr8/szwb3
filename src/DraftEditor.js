@@ -13,7 +13,7 @@ import EditingBlock from "./EditingBlock"
 import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button } from '@mui/material';
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
-import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight } from '@mui/icons-material';
+import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart } from '@mui/icons-material';
 
 import { blue, red } from '@mui/material/colors';
 
@@ -26,6 +26,7 @@ import createPersonPlugin from './PersonPlugin';
 import createEmojiPlugin from './EmojiPlugin';
 import createImagePlugin from './ImagePlugin';
 import createLinkPlugin from './LinkPlugin';
+import createVotePlugin from './VotePlugin';
 
 import PeopleList from './PeopleList';
 
@@ -39,6 +40,7 @@ const { personPlugin } = createPersonPlugin()
 const { emojiPlugin, EmojiComp } = createEmojiPlugin()
 const { imagePlugin, markingImageBlock, ImageBlock } = createImagePlugin()
 const { linkPlugin } = createLinkPlugin()
+const { votePlugin, markingVoteBlock, VoteBlock } = createVotePlugin()
 
 
 export default function DraftEditor() {
@@ -113,7 +115,7 @@ export default function DraftEditor() {
             setShadowValue(3)
 
           }}
-          plugins={[mentionPlugin, personPlugin, emojiPlugin, imagePlugin, linkPlugin]}
+          plugins={[mentionPlugin, personPlugin, emojiPlugin, imagePlugin, linkPlugin, votePlugin]}
 
           customStyleFn={function (style, block) {
             const styleNameArr = style.toArray();
@@ -127,7 +129,6 @@ export default function DraftEditor() {
               if (item === "linkTagOff") {
                 styleObj.color = blue[500]
               }
-
             })
             if (styleNameArr.length > 0) {
               return styleObj
@@ -143,36 +144,26 @@ export default function DraftEditor() {
             const blockKey = block.getKey()
             const selection = editorState.getSelection()
 
-
-            //   console.log("==>", imageObj[blockKey])
-
-
             if (type === "imageBlock") {
-              // console.log(">>>", blockKey)
-
-
               return {
-
                 component: ImageBlock,
                 editable: false,
                 props: {
                   blockKey,
                   markingImageBlock,
-                  // imageBlockObj,
-                  // setImageBlockObj,
-                  // editorRef,
-                  // //blockKey: block.getKey(),
-                  // currentBlockKey,
-                  // setCurrentBlockKey,
-                  // editorState,
-                  // setEditorState,
-                  // className: "image-block",
-                  //   clasName: "image-block"
-
                 },
               }
             }
-
+            else if (type === "voteBlock") {
+              return {
+                component: VoteBlock,
+                editable: false,
+                props: {
+                  blockKey,
+                  markingVoteBlock,
+                },
+              }
+            }
 
 
           }}
@@ -187,6 +178,7 @@ export default function DraftEditor() {
                 wrapper: <EditingBlock
                   editorRef={editorRef}
                   markingImageBlock={markingImageBlock}
+                  markingVoteBlock={markingVoteBlock}
                 />
               },
             })
@@ -387,6 +379,9 @@ export default function DraftEditor() {
             const block = contentState.getBlockForKey(selectionState.getStartKey());
             //    console.log(block.getType())
             if (block.getType() === "imageBlock") {
+              return "handled"
+            }
+            else if (block.getType() === "voteBlock") {
               return "handled"
             }
             // else if (checkShowing()) {

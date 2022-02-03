@@ -22,7 +22,8 @@ import useResizeObserver from '@react-hook/resize-observer';
 import Masonry from '@mui/lab/Masonry';
 
 import { blue, red } from '@mui/material/colors';
-
+import Lightbox from 'react-image-lightbox';
+import 'react-image-lightbox/style.css';
 
 const useSize = (target) => {
   const [size, setSize] = React.useState()
@@ -74,7 +75,7 @@ function toPreHtml(editorState, theme) {
 
         }
 
-      
+
         if (styleNameSet.toArray().includes("linkTagOn")) {
           //  styleObj.style = { color: blue[800] }
           styleObj.attributes["data-type"] = "link"
@@ -185,6 +186,8 @@ function toHtml(preHtml, theme, target) {
 
   // console.log(preHtml)
 
+  const allImageArr = []
+
   return ReactHtmlParser(preHtml, {
     transform: function transformFn(node, index) {
 
@@ -238,13 +241,22 @@ function toHtml(preHtml, theme, target) {
       else if (node.name === "object" && node.attribs["data-type"] === "image-block") {
         // console.log(node.attribs["data-bgiamge"], index)
 
+
+
         const data = JSON.parse(unescape(node.attribs["data-block_data"]))
+
+        if (data.imgDataArr) {
+          data.imgDataArr.forEach(img => {
+            allImageArr.push(img)
+          })
+        }
+
         // console.log(data)
         // arr.push({ bg: node.attribs["data-bgiamge"], row: index, node })
         //  console.log(data)
 
         if (Array.isArray(data.imgDataArr) && data.imgDataArr.length > 0) {
-          return <Images imgDataArr={data.imgDataArr} target={target} key={index} />
+          return <Images imgDataArr={data.imgDataArr} target={target} key={index} allImageArr={allImageArr} />
         }
         else {
           return null
@@ -317,7 +329,7 @@ export default function Content({ editorState, ...props }) {
 
   // console.log(preHtml)
 
-  const postArr = [preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml, preHtml];
+  const postArr = [preHtml];
   //const postArr = [preHtml, preHtml];
   const finalCol = Math.min(col, postArr.length)
 
@@ -330,8 +342,8 @@ export default function Content({ editorState, ...props }) {
       overflow: "hidden",
       "& p": { fontSize: theme.sizeObj }
     }}
-     // ref={target}
-     >
+    // ref={target}
+    >
       <Masonry columns={finalCol} spacing={finalCol === 1 ? 1 : 1} >
         {postArr.map((item, index) => {
           const num = Number(Math.random() * 100).toFixed(0)
@@ -358,9 +370,7 @@ export function PostFrame({ preHtml, bgcolor, num, ...props }) {
   const theme = useTheme()
   const target = useRef(null)
 
-  const random1 = Number.parseFloat(Math.random() * 255).toFixed(0)
-  const random2 = Number.parseFloat(Math.random() * 255).toFixed(0)
-  const random3 = Number.parseFloat(Math.random() * 255).toFixed(0)
+
 
   const [height, setHeight] = useState("auto")
 
@@ -391,9 +401,9 @@ export function PostFrame({ preHtml, bgcolor, num, ...props }) {
     }}
 
       onClick={function () {
-        //     setHeight(pre => { return pre === "auto" ? 100 + Math.random() * 500 : "auto" })
-        setHeight(pre => { return Number(100 + Math.random() * 600).toFixed(0) + "px" })
-        // setHeight(pre => { return "0px" })
+
+        //  setHeight(pre => { return Number(100 + Math.random() * 600).toFixed(0) + "px" })
+
       }}
 
       ref={target}>
@@ -417,7 +427,7 @@ export function LinkTag({ linkAdd }) {
 
   const [content, setContent] = useState("")
 
-   
+
   return (
     <Box
       component="span"
@@ -452,12 +462,12 @@ export function LinkTag({ linkAdd }) {
 
 
 
-export function Images({ imgDataArr, target, ...props }) {
+export function Images({ imgDataArr, allImageArr, target, ...props }) {
 
   const theme = useTheme()
   const size = useSize(target)
 
-
+  // console.log(allImageArr)
 
   // const imageArr = data.imgDataArr
   const numOfImage = imgDataArr ? imgDataArr.length : 0
@@ -572,10 +582,37 @@ export function Images({ imgDataArr, target, ...props }) {
 
   }
 
+
+  const [photoIndex, setPhotoIndex] = useState(0)
+  const [isOpen, setIsOpen] = useState(false)
+  const images = allImageArr.length > 0 ? allImageArr : []
+
+  const lightBox = images.length > 0
+    ? <Lightbox
+      mainSrc={images[photoIndex]?.imgUrl}
+      nextSrc={images[(photoIndex + 1) % images.length]?.imgUrl}
+      prevSrc={images[(photoIndex + images.length - 1) % images.length]?.imgUrl}
+      onCloseRequest={() => { setIsOpen(false); }}
+      onMovePrevRequest={() =>
+        setPhotoIndex(
+          pre => (pre + images.length - 1) % images.length,
+        )
+      }
+      onMoveNextRequest={() =>
+        setPhotoIndex(
+          pre => (pre + images.length + 1) % images.length,
+        )
+      }
+    />
+    : <></>
+
+
+
   return (
 
     <Box className="image-frame" sx={cssObj}>
 
+      {isOpen && lightBox}
       {imgDataArr.map((pic, index) => {
         return (
 
@@ -591,7 +628,19 @@ export function Images({ imgDataArr, target, ...props }) {
           >
 
 
-            <img src={pic.imgSnap} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
+            <img src={pic.imgSnap} style={{ objectFit: "cover", width: "100%", height: "100%" }}
+              onClick={function (e) {
+
+                const pos = images.findIndex(function (img) {
+                  return img.imgSnap === e.target.src
+                })
+
+                if (pos >= 0) {
+                  setIsOpen(true)
+                  setPhotoIndex(pos)
+                }
+              }}
+            />
           </Box>
         )
 

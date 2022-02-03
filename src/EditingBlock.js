@@ -14,12 +14,12 @@ import {
 } from "react-device-detect";
 import { Context } from './ContextProvider';
 import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box } from '@mui/material';
-import { ImageOutlined } from '@mui/icons-material';
+import { ImageOutlined, StackedBarChart } from '@mui/icons-material';
 import { Scale } from '@mui/icons-material';
 
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
-export default function EditingBlock({ markingImageBlock, children, ...props }) {
+export default function EditingBlock({ markingImageBlock, markingVoteBlock, children, ...props }) {
 
   //const arr = [[props.children[0]]]
 
@@ -50,7 +50,7 @@ export default function EditingBlock({ markingImageBlock, children, ...props }) 
         const blockType = editorState.getCurrentContent().getBlockForKey(block.key).getType()
         const blockData = editorState.getCurrentContent().getBlockForKey(block.key).getData().toObject()
 
-     
+
 
         //  console.log(blockData.toObject())
 
@@ -76,7 +76,7 @@ export default function EditingBlock({ markingImageBlock, children, ...props }) 
 
             sx={{
               //     boxSizing: "border-box",
-               ...(blockData.isSmallFont) && { fontSize: theme.scaleSizeObj(0.8) },
+              ...(blockData.isSmallFont) && { fontSize: theme.scaleSizeObj(0.8) },
               ...(blockType === "unstyled") && { "& > div": { textAlign: "left", width: "100%" } },
               ...(blockType === "centerBlock") && { "& > div": { textAlign: "center", width: "100%" } },
               ...(blockType === "rightBlock") && { "& > div": { textAlign: "right", width: "100%" } },
@@ -113,8 +113,8 @@ export default function EditingBlock({ markingImageBlock, children, ...props }) 
             <IconButton sx={{
               fontSize: "2rem", width: "2.5rem", height: "2.5rem", position: "absolute",
               ...(blockType === "rightBlock") ? { left: 0 } : { right: 0 },
-              opacity: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3)) ? 1 : 0,
-              transform: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3)) ? "scale(1)" : "scale(0)",
+              opacity: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3)&& (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? 1 : 0,
+              transform: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3)&& (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? "scale(1)" : "scale(0)",
               transition: "opacity, 300ms"
               // backgroundColor: "pink"
 
@@ -129,6 +129,33 @@ export default function EditingBlock({ markingImageBlock, children, ...props }) 
             >
               <ImageOutlined fontSize="large" />
             </IconButton>
+
+            <IconButton sx={{
+              fontSize: "2rem", width: "2.5rem", height: "2.5rem", position: "absolute",
+              ...(blockType === "rightBlock") ? { left: 0 } : { right: 0 },
+              opacity: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3) && (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? 1 : 0,
+              transform: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3) && (blockType !== "imageBlock") && (blockType !== "voteBlock"))
+                ? `scale(1) translateX(${blockType === "rightBlock" ? "100%" : "-100%"})`
+                : `scale(0)`,
+              transition: "opacity, 300ms"
+
+
+              // backgroundColor: "pink"
+
+            }}
+              size="small"
+
+              contentEditable={false} suppressContentEditableWarning={true}
+              onClick={function () {
+                // setEmojiIndex(index)
+                //markingImageBlock(blockKey)
+                markingVoteBlock(blockKey)
+              }}
+            >
+              <StackedBarChart fontSize="large" sx={{ transform: "rotate(90deg) scaleX(-1)" }} />
+            </IconButton>
+
+
             {block}
           </Box>
         )
