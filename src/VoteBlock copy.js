@@ -4,7 +4,7 @@ import { EditorState, ContentState, ContentBlock, CharacterMetadata, SelectionSt
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
 import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Button, Typography, Slider, TextField, Select, Popover, MenuItem, FormControl, InputLabel, FormHelperText } from '@mui/material';
-import { HourglassBottomRounded, KeyboardArrowUpIcon } from "@mui/icons-material"
+import { KeyboardArrowUpIcon } from "@mui/icons-material"
 
 import { Context } from "./ContextProvider";
 import Cropper from 'react-easy-crop';
@@ -15,23 +15,17 @@ import { Crop, DoneRounded, Close, AddCircleOutline, RemoveCircleOutline, } from
 
 import useResizeObserver from '@react-hook/resize-observer';
 
-// Array.prototype.insert = function (index, item) {
-//   this.splice(index, 0, item);
-//   return this
-// };  //NEVER declear or USE IT , CONFLICT WITH mulitavatar !!!
-
 
 export default function VoteBlock(props) {
-
 
   const theme = useTheme()
   const { editorState, setEditorState, voteArr, setVoteArr, voteTopic, setVoteTopic } = useContext(Context)
 
-  const { readOnly, setReadOnly, markingVoteBlock } = props.blockProps
+  const { readOnly, setReadOnly } = props.blockProps
 
   useEffect(function () {
     if (voteArr.length === 0) {
-      setVoteArr([""])
+      setVoteArr(["Choice 0"])
     }
 
 
@@ -40,14 +34,9 @@ export default function VoteBlock(props) {
 
   return (
     <Box sx={{
-      // bgcolor: "pink", 
-      display: "flex", justifyContent: "flex-start", flexDirection: "column",
+      bgcolor: "pink", display: "flex", justifyContent: "flex-start", flexDirection: "column",
       alignItems: "flex-start",
-      gap: "8px",
-
-
-      backgroundColor: theme.palette.action.disabledBackground,
-
+      gap: "4px",
       position: "relative",
 
       "& label": { fontSize: theme.scaleSizeObj(0.8) },
@@ -64,7 +53,7 @@ export default function VoteBlock(props) {
         size="small"
         contentEditable={false} suppressContentEditableWarning={true}
         onClick={function () {
-          markingVoteBlock(props.block.getKey(), true)
+
         }}
       >
         <Close fontSize="large" sx={{ "&:hover": { bgcolor: "rgba(255,255,255,0.5)", borderRadius: "1000px" } }} />
@@ -72,17 +61,15 @@ export default function VoteBlock(props) {
 
       <TextField contentEditable={false} suppressContentEditableWarning={true}
         id="outlined-textarea"
-        label={voteTopic ? "" : "Eneter Topic"}
+        label="Vote topic"
         multiline={true}
         value={voteTopic}
         onChange={function (e) {
           setVoteTopic(e.target.value)
         }}
-        placeholder="Enter Topic"
+        // placeholder="Placeholder"
         sx={{
-          width: "100%",
-          bgcolor: theme.palette.background.default,
-          alignItems: "center",
+          width: "100%", bgcolor: "skyblue", alignItems: "center",
           "& > div": { width: "100%" },
         }}
         variant="filled"
@@ -104,57 +91,16 @@ export default function VoteBlock(props) {
       {voteArr.map(function (item, index, arr) {
 
         return (
-          <Box sx={{
-            width: "100%", //bgcolor: "orange",
-            display: "flex", alignItems: "center",
-          }} key={index}>
+          <Box sx={{ width: "100%", bgcolor: "orange", display: "flex", alignItems: "center" }} key={index}>
             <TextField contentEditable={false} suppressContentEditableWarning={true}
-              id={"outlined-textarea" + index}
+              id="outlined-textarea"
               label={"Choice " + (index + 1)}
-              onKeyDown={function (e) {
-
-                if (e.code === "Enter" || e.code === "NumpadEnter") {
-                  voteArr.splice(index + 1, 0, "")
-                  setVoteArr(pre => {
-                    return [...voteArr]
-                  })
-                  setTimeout(() => {
-                    document.getElementById("outlined-textarea" + (index + 1)).focus()
-                  }, 0);
-                }
-                else if (e.code === "ArrowUp") {
-                  setTimeout(() => {
-                    document.getElementById("outlined-textarea" + (Math.max(0, index - 1))).focus()
-                  }, 0);
-                }
-                else if (e.code === "ArrowDown") {
-                  setTimeout(() => {
-                    document.getElementById("outlined-textarea" + (Math.min(voteArr.length - 1, index + 1))).focus()
-                  }, 0);
-                }
-                else if (e.code === "Backspace") {
-
-                  if ((!e.target.value) && (voteArr.length > 1)) {
-                    voteArr.splice(index, 1)
-                    setVoteArr(voteArr)
-                    setTimeout(() => {
-                      document.getElementById("outlined-textarea" + (Math.max(0, index - 1))).focus()
-                    }, 0);
-                  }
-
-                }
-              }}
               sx={{
-                width: "90%",
-                transform: "translateX(8px)",
-                //   bgcolor: "skyblue", 
-                bgcolor: theme.palette.background.default,
-                alignItems: "center",
+                width: "100%",
+                bgcolor: "skyblue", alignItems: "center",
                 "& > div": { width: "100%" },
 
-
               }}
-              placeholder={"Choice " + (index + 1)}
               value={voteArr[index]}
               onFocus={function (e) {
                 setReadOnly(true)
@@ -179,8 +125,6 @@ export default function VoteBlock(props) {
 
             {voteArr.length !== 1 && <IconButton sx={{
               fontSize: "2rem", width: "2.5rem", height: "2.5rem",
-              position: "absolute",
-              right: 0,
             }}
               disabled={voteArr.length <= 1}
               size="small"
@@ -192,8 +136,6 @@ export default function VoteBlock(props) {
                     return pos !== index
                   })
                 })
-
-
 
               }}
             >
@@ -219,7 +161,7 @@ export default function VoteBlock(props) {
                 contentEditable={false} suppressContentEditableWarning={true}
                 onClick={function () {
                   setVoteArr(pre => {
-                    return [...pre, ""]
+                    return [...pre, "Choice " + pre.length]
                   })
 
                 }}
@@ -248,118 +190,162 @@ export default function VoteBlock(props) {
 
 function TimeBar() {
 
-  // const theme = useTheme()
-  const { pollDuration, setPollDuration } = useContext(Context)
+  const [days, setDays] = useState(7)
+  const [hours, setHours] = useState(0)
+  const [mins, setMins] = useState(0)
 
 
 
+  const [height, setHeight] = useState(0)
 
-  return (
+  function handleClick() {
+
+    setHeight(pre => {
+
+      return pre === 0 ? "3rem" : 0
+
+    })
 
 
+  }
+
+
+  return <Box sx={{ width: "100%", bgcolor: "orange", }}>
+
+    <Box sx={{ width: "100%", display: "flex", justifyContent: "space-around" }}>
+      <Button variant="contained" onClick={handleClick}>Aa</Button>
+      <Button variant="contained" onClick={handleClick}>Aa</Button>
+      <Button variant="contained" onClick={handleClick}>Aa</Button>
+    </Box>
 
 
     <Box sx={{
-      width: "100%", height: "5rem",
+      width: "600px", height,
       display: "flex",
-      justifyContent: "space-around", alignItems: "center",
+      justifyContent: "center", alignItems: "center",
       overflow: "hidden",
       transition: "height, 300ms",
-      // bgcolor: "yellow",
-      position: "relative",
+      bgcolor: "yellow"
     }}>
-      <Typography variant='h6' sx={{
-        position: "absolute", transform: "translateY(-50%)",
-        right: 10, color: "text.secondary",
-
-      }}>Poll duration {`${pollDuration.d}d${pollDuration.h}h${pollDuration.m}m`}</Typography>
       <Slider
         size="medium"
-        valueLabelDisplay="auto"
         //       value={zoom}
-        valueLabelFormat={function (numOfMins_) {
-          return numOfMins_ + "days"
-        }}
-        onChange={(e, value) => { setPollDuration(pre => { return { ...pre, d: value } }) }}
-        min={0}
-        max={7}
-        step={1}
-        marks={true}
-        value={pollDuration.d}
-        //   value={200}
+        min={1}
+        max={3}
+        step={0.1}
         aria-labelledby="Zoom"
         //  classes={{ root: classes.slider }}
         //  onChange={(e, zoom) => setZoom(zoom)}
         sx={{
-
+          //  padding: '22px 0px',
+          //  marginLeft: "",
+          //  marginLeft: "20px",
+          //  marginRight: "20px",
+          // position: "absolute",
+          // bottom: 0,
+          // left: 0,
+          // right: 0,
           m: "auto, auto",
-          width: "20%",
+          width: "90%",
           color: "skyblue",
-          transform: "translateY(10px)"
 
         }}
       />
-
-
-      <Slider
-        size="medium"
-        valueLabelDisplay="auto"
-        //       value={zoom}
-        valueLabelFormat={function (numOfMins_) {
-          return numOfMins_ + " hours"
-        }}
-        onChange={(e, value) => { setPollDuration(pre => { return { ...pre, h: value } }) }}
-        min={0}
-        max={23}
-        step={1}
-        marks={true}
-        value={pollDuration.h}
-        //   value={200}
-        aria-labelledby="Zoom"
-        //  classes={{ root: classes.slider }}
-        //  onChange={(e, zoom) => setZoom(zoom)}
-        sx={{
-
-          m: "auto, auto",
-          width: "30%",
-          color: "skyblue",
-          transform: "translateY(10px)"
-
-        }}
-      />
-
-      <Slider
-        size="medium"
-        valueLabelDisplay="auto"
-        //       value={zoom}
-        valueLabelFormat={function (numOfMins_) {
-          return numOfMins_ + "mins"
-        }}
-        onChange={(e, value) => { setPollDuration(pre => { return { ...pre, m: value } }) }}
-        min={0}
-        max={59}
-        step={1}
-        marks={true}
-        value={pollDuration.m}
-        //   value={200}
-        aria-labelledby="Zoom"
-        //  classes={{ root: classes.slider }}
-        //  onChange={(e, zoom) => setZoom(zoom)}
-        sx={{
-
-          m: "auto, auto",
-          width: "40%",
-          color: "skyblue",
-          transform: "translateY(10px)"
-
-        }}
-      />
-
-
-
     </Box>
-  )
 
+
+    {/* <Button variant="contained"  onClick={handleClick}>Aa</Button>
+    <Popover
+   //   id={id}
+      open={open}
+      anchorEl={anchorEl}
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'left',
+      }}
+    >
+      <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+    </Popover> */}
+
+
+  </Box>
+
+
+
+
+  return <Box sx={{ width: "100%", bgcolor: "orange", display: "flex", justifyContent: "space-around" }}>
+    <Select
+      //    onMouseOver={function(){alert("111")}}
+      // onClick={function () { alert("ffff") }}
+      labelId="demo-simple-select-readonly-label"
+      id="demo-simple-select-readonly"
+      value={days}
+
+      onChange={function (e) {
+        console.log(e.target.value)
+        setDays(e.target.value)
+      }}
+    //      inputProps={{ readOnly: true }}
+    >
+
+      <MenuItem value={1}> 1 Day</MenuItem>
+      <MenuItem value={2}> 2 Days</MenuItem>
+      <MenuItem value={3}> 3 Days</MenuItem>
+      <MenuItem value={4}> 4 Days</MenuItem>
+      <MenuItem value={5}> 5 Days</MenuItem>
+      <MenuItem value={6}> 6 Days</MenuItem>
+      <MenuItem value={7}> 7 Days</MenuItem>
+    </Select>
+
+    <Select
+      //   onMouseOver={function(){alert("222")}}
+      // onClick={function () { alert("ffff") }}
+      labelId="demo-simple-select-readonly-label"
+      id="demo-simple-select-readonly"
+      value={hours}
+
+      onChange={function (e) {
+        console.log(e.target.value)
+        setHours(e.target.value)
+      }}
+    //      onChange={handleChange}
+    //      inputProps={{ readOnly: true }}
+    >
+      {[...new Array(24)].map((item, index) => {
+        return <MenuItem value={index} key={index}>{index} Hours</MenuItem>
+      })}
+    </Select>
+
+    <Select
+      //   onMouseOver={function(){alert("222")}}
+      // onClick={function () { alert("ffff") }}
+      labelId="demo-simple-select-readonly-label"
+      id="demo-simple-select-readonly"
+      value={mins}
+
+      onChange={function (e) {
+        console.log(e.target.value)
+        setMins(e.target.value)
+      }}
+    //      onChange={handleChange}
+    //      inputProps={{ readOnly: true }}
+    >
+      {[...new Array(59)].map((item, index) => {
+
+        return <MenuItem value={index} key={index}>{index} Mins</MenuItem>
+
+
+      })}
+
+
+
+
+    </Select>
+
+
+
+  </Box>
 
 
 }

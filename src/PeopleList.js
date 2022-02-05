@@ -10,12 +10,17 @@ import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
+
+//import multiavatar from '@multiavatar/multiavatar';
 
 import multiavatar from '@multiavatar/multiavatar';
 
 import { Context } from "./ContextProvider"
+
 
 export default function PeopleList({ tabIndex, setShowing, setTabName, nameList, insertMention, blockType, ...props }) {
 
@@ -25,7 +30,7 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
   //const { sizeObj, peopleList } = useContext(Context)
 
 
-
+  console.log(nameList)
 
 
   const inTab = tabIndex % nameList.length
@@ -66,26 +71,31 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
 
       {nameList.map((name, index) => {
 
-        if (inTab === index) { setTabName(name) }
+         if (inTab === index) { setTabName(name) }
 
         return <AvatarChip name={name} insertMention={insertMention.bind(null, name)} inTab={inTab} index={index} key={index} />
 
-    
 
-      })
-      }
+
+      })}
+
     </Stack>
 
   )
 
 }
 
-export function AvatarChip({ name, inTab = 0, index = 0, isSmall = false, insertMention = () => { }, ...props }) {
+export function AvatarChip({ name="aaa", inTab = 0, index = 0, isSmall = false, insertMention = () => { }, ...props }) {
 
   const theme = useTheme()
 
-  return <Chip
-    //  key={index}
+  
+
+
+
+
+  return (<Chip
+    key={index}
     clickable={true}
     avatar={
       <Avatar alt={name}
@@ -115,8 +125,8 @@ export function AvatarChip({ name, inTab = 0, index = 0, isSmall = false, insert
 
         : theme.palette.panelColor,
 
-      height: theme.scaleSizeObj(isSmall?0.8:1),
-      fontSize: theme.scaleSizeObj(isSmall?0.8:1),
+      height: theme.scaleSizeObj(isSmall ? 0.8 : 1),
+      fontSize: theme.scaleSizeObj(isSmall ? 0.8 : 1),
 
       "&:hover": {
         boxShadow: 5,
@@ -136,7 +146,7 @@ export function AvatarChip({ name, inTab = 0, index = 0, isSmall = false, insert
 
 
   />
-
+  )
 
 }
 

@@ -6,7 +6,7 @@ import { Container, Grid, Paper, Typography, Box } from '@mui/material';
 
 import { Context } from "./ContextProvider"
 
-import VoteBlock from "./VoteBlock";
+//import VoteBlock from "./VoteBlock";
 
 
 export default function createVotePlugin() {
@@ -48,24 +48,25 @@ export default function createVotePlugin() {
 
 
 
+  return "hihihi"
 
   return {
 
 
    
 
-    votePlugin: {
-      onChange: function (newState, { setEditorState: setEditorState_ }) {
+    // votePlugin: {
+    //   onChange: function (newState, { setEditorState: setEditorState_ }) {
 
-        editorState = newState
-        setEditorState = setEditorState_
-        newContent = newState.getCurrentContent()
-        return editorState
+    //     editorState = newState
+    //     setEditorState = setEditorState_
+    //     newContent = newState.getCurrentContent()
+    //     return editorState
 
-      }
-    },
-     VoteBlock,
-     markingVoteBlock,
+    //   }
+    // },
+    // VoteBlock,
+    // markingVoteBlock,
   }
 
 

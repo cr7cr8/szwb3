@@ -19,11 +19,18 @@ import { Scale } from '@mui/icons-material';
 
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
-export default function EditingBlock({ markingImageBlock, markingVoteBlock, children, ...props }) {
+export default function EditingBlock({ VoteBlock, readOnly, setReadOnly, markingImageBlock, markingVoteBlock, children, ...props }) {
 
   //const arr = [[props.children[0]]]
 
   const { currentBlockKey, editorState, imageBlockNum } = useContext(Context)
+
+
+  const hasVoteBlock = Boolean(editorState.getCurrentContent().getBlocksAsArray().filter(block => {
+    return block.getType() === "voteBlock"
+  }).length);
+
+
 
 
   const selection = editorState.getSelection()
@@ -60,10 +67,14 @@ export default function EditingBlock({ markingImageBlock, markingVoteBlock, chil
 
         if (blockType === "imageBlock") {
           //  return <div className="image-block">{block}</div>
-
           return <Box key={blockKey} sx={{ "& + &": { paddingTop: "2px" } }}>{block}</Box>
         }
+        else if (blockType === "voteBlock") {
+          //   return <VoteBlock readOnly={readOnly} setReadOnly={setReadOnly} />
+          return <Box key={blockKey} sx={{ "& + &": { paddingTop: "2px" } }}>{block}</Box>
 
+
+        }
         return (
           <Box
 
@@ -113,8 +124,8 @@ export default function EditingBlock({ markingImageBlock, markingVoteBlock, chil
             <IconButton sx={{
               fontSize: "2rem", width: "2.5rem", height: "2.5rem", position: "absolute",
               ...(blockType === "rightBlock") ? { left: 0 } : { right: 0 },
-              opacity: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3)&& (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? 1 : 0,
-              transform: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3)&& (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? "scale(1)" : "scale(0)",
+              opacity: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3) && (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? 1 : 0,
+              transform: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3) && (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? "scale(1)" : "scale(0)",
               transition: "opacity, 300ms"
               // backgroundColor: "pink"
 
@@ -133,12 +144,12 @@ export default function EditingBlock({ markingImageBlock, markingVoteBlock, chil
             <IconButton sx={{
               fontSize: "2rem", width: "2.5rem", height: "2.5rem", position: "absolute",
               ...(blockType === "rightBlock") ? { left: 0 } : { right: 0 },
-              opacity: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3) && (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? 1 : 0,
-              transform: (isCurrentRow && !Boolean(currentBlockText) && (imageBlockNum < 3) && (blockType !== "imageBlock") && (blockType !== "voteBlock"))
+              opacity: (isCurrentRow && !Boolean(currentBlockText) && (blockType !== "imageBlock") && (blockType !== "voteBlock")) ? 1 : 0,
+              transform: (isCurrentRow && !Boolean(currentBlockText) && (blockType !== "imageBlock") && (blockType !== "voteBlock"))
                 ? `scale(1) translateX(${blockType === "rightBlock" ? "100%" : "-100%"})`
                 : `scale(0)`,
-              transition: "opacity, 300ms"
-
+              transition: "opacity, 300ms",
+              ...hasVoteBlock && { transform: "scale(0)" }
 
               // backgroundColor: "pink"
 

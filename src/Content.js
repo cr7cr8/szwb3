@@ -5,7 +5,7 @@ import { EditorState, ContentState, ContentBlock, CharacterMetadata, SelectionSt
 import { stateToHTML } from 'draft-js-export-html';
 import ReactHtmlParser, { processNodes, convertNodeToElement, htmlparser2, } from 'react-html-parser';
 import reactElementToJSXString from 'react-element-to-jsx-string';
-import multiavatar from '@multiavatar/multiavatar';
+//import multiavatar from '@multiavatar/multiavatar';
 
 import { ThemeProvider, useTheme, createTheme, styled } from '@mui/material/styles';
 
@@ -171,7 +171,12 @@ function toPreHtml(editorState, theme) {
           return `<object  data-type="image-block"  data-block_key="${key}" data-block_data="${data}" >` + escape(block.getText()) + '</object>'
         },
 
-
+        voteBlock: function (block) {
+          const data = escape(JSON.stringify(block.getData().toObject()))
+          const type = block.getType()
+          const key = block.getKey()
+          return `<object  data-type="vote-block"  data-block_key="${key}" data-block_data="${data}" >` + escape(block.getText()) + '</object>'
+        },
 
 
 
@@ -283,6 +288,11 @@ function toHtml(preHtml, theme, target) {
         const personName = reactElementToJSXString(<>{element}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
         return <AvatarChip name={personName} key={index} />
       }
+      else if (node.name === "object" && node.attribs["data-type"] === "vote-block") {
+        const data = JSON.parse(unescape(node.attribs["data-block_data"]))
+        const blockKey = node.attribs["data-block_key"]
+        console.log(data,blockKey)
+      }
 
       //  return null
     }
@@ -332,6 +342,8 @@ export default function Content({ editorState, ...props }) {
   const postArr = [preHtml];
   //const postArr = [preHtml, preHtml];
   const finalCol = Math.min(col, postArr.length)
+
+
 
 
   return (

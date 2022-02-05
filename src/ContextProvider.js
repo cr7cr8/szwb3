@@ -30,21 +30,84 @@ export function useEditorState() {
 export function ContextProvider({ editorState, setEditorState, ...props }) {
 
 
-
+  const [peopleList, setPeopleList] = useState(["TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
 
 
   const [currentBlockKey, setCurrentBlockKey] = useState("ddd")
 
   const theme = useTheme()
 
-  
-  const [peopleList, setPeopleList] = useState(["TonyCerl", "JimWil", "大发发", "Jimberg","m大Gsd哈"])
 
-  
+
+
+
 
 
   const [imageObj, setImageObj] = useState({})
+  const [voteArr, setVoteArr] = useState([])
+
+  const [voteTopic, setVoteTopic] = useState("")
+  const [pollDuration, setPollDuration] = useState({ d: 3, h: 0, m: 0 })
+
+
   const imageBlockNum = editorState.getCurrentContent().getBlocksAsArray().filter(block => block.getType() === "imageBlock").length
+
+  useEffect(function () {
+
+
+    editorState.getCurrentContent().getBlocksAsArray().forEach(block => {
+
+
+
+
+      if (block.getType() === "voteBlock") {
+        const blockKey = block.getKey()
+
+
+
+        let es = null
+
+        const contentState = editorState.getCurrentContent();
+        const currentBlock = contentState.getBlockForKey(blockKey);
+        let newSelection = SelectionState.createEmpty(blockKey)
+        newSelection = newSelection.merge({
+          focusKey: blockKey,
+          focusOffset: 0,
+          anchorOffset: blockKey,
+          anchorOffset: 0,
+          hasFocus: false
+        });
+
+
+        const newContent = Modifier.setBlockData(
+          editorState.getCurrentContent(),
+          newSelection,//  SelectionState.createEmpty(newKey),
+          Immutable.Map({ voteDataObj: { voteArr, voteTopic, pollDuration } })
+        )
+
+        es = EditorState.push(es || editorState, newContent, 'change-block-data');
+        if (es) {
+          setEditorState(es)
+        }
+
+
+
+
+
+
+
+      }
+
+    })
+
+
+
+
+
+  }, [voteArr, voteTopic, pollDuration])
+
+
+
 
   useEffect(function () {
     let es = null
@@ -91,6 +154,9 @@ export function ContextProvider({ editorState, setEditorState, ...props }) {
       peopleList, setPeopleList,
       currentBlockKey, setCurrentBlockKey,
       imageObj, setImageObj,
+      voteArr, setVoteArr,
+      voteTopic, setVoteTopic,
+      pollDuration, setPollDuration,
       imageBlockNum,
     }}>
       <Switch

@@ -5,7 +5,7 @@ import { EditorState, ContentState, ContentBlock, CharacterMetadata, SelectionSt
 import { Container, Grid, Paper, Typography, Box, Avatar } from '@mui/material';
 import PeopleList from './PeopleList';
 
-import multiavatar from '@multiavatar/multiavatar';
+//import multiavatar from '@multiavatar/multiavatar';
 import { Context } from "./ContextProvider"
 import { useTheme } from '@mui/private-theming';
 

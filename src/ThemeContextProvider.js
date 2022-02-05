@@ -4,9 +4,9 @@ import {
   RichUtils, Modifier, convertFromHTML, AtomicBlockUtils
 } from 'draft-js';
 
-import { ThemeProvider, useTheme, createTheme, } from '@mui/material/styles';
+import { ThemeProvider, useTheme, createTheme, experimental_sx as sx } from '@mui/material/styles';
 
-import { Button, CssBaseline, Switch } from '@mui/material';
+import { Button, CssBaseline, Switch, Typography } from '@mui/material';
 import { arrowFunctionExpression } from '@babel/types';
 
 
@@ -17,7 +17,7 @@ import { arrowFunctionExpression } from '@babel/types';
 export default function ThemeContextProvider(props) {
 
 
-  const [sizeObj, setSizeObj] = useState(props.sizeObj || { xs: "5rem", sm: "4rem", md: "3rem", lg: "1.5rem", xl: "1.5rem" })
+  const [sizeObj, setSizeObj] = useState(props.sizeObj || { xs: "2rem", sm: "5rem", md: "2rem", lg: "1.5rem", xl: "1.5rem" })
 
 
   const scaleSizeObj = useCallback((factor = 1) => {
@@ -65,6 +65,47 @@ export default function ThemeContextProvider(props) {
         mode,
         isLight: mode === "light",
         isDark: mode === "dark",
+        components: {
+          MuiTypography: {
+            styleOverrides: {
+              root: ({ ownerState, theme, ...props }) => {
+               //alert(JSON.stringify(props))
+                return [
+                  ownerState.variant === 'body2' &&
+                  sx({
+                    fontSize: theme.sizeObj,
+                  }),
+
+                ]
+              }
+            }
+          },
+          MuiButton:{
+            defaultProps:{
+              variant:"contained",
+              disableRipple:false,
+            }
+          },
+          MuiPaper:{
+            defaultProps:{
+
+            },
+
+            styleOverrides: {
+              root: ({ ownerState, theme, ...props }) => {
+             
+                return [
+                //  ownerState.variant === 'body2' &&
+                  sx({
+                    fontSize: theme.sizeObj,
+                  }),
+
+                ]
+              }
+            }
+          }
+
+        }
       }),
     [mode],
   );

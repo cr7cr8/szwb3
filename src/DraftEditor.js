@@ -13,7 +13,7 @@ import EditingBlock from "./EditingBlock"
 import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button } from '@mui/material';
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
-import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart } from '@mui/icons-material';
+import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined } from '@mui/icons-material';
 
 import { blue, red } from '@mui/material/colors';
 
@@ -28,10 +28,8 @@ import createImagePlugin from './ImagePlugin';
 import createLinkPlugin from './LinkPlugin';
 import createVotePlugin from './VotePlugin';
 
-import PeopleList from './PeopleList';
 
-
-
+//console.log(createVotePlugin())
 
 const { hasCommandModifier } = KeyBindingUtil;
 
@@ -57,6 +55,12 @@ export default function DraftEditor() {
 
   // console.log(theme.isLight)
 
+  const [readOnly, setReadOnly] = useState(false)
+
+
+
+
+
   return (
     <>
 
@@ -65,7 +69,8 @@ export default function DraftEditor() {
       }}
 
         sx={{
-          fontSize: theme.sizeObj, bgcolor: 'background.default',
+          //  fontSize: theme.sizeObj, 
+          bgcolor: 'background.default',
 
           boxShadow: shadowValue
 
@@ -75,7 +80,7 @@ export default function DraftEditor() {
 
         <Editor
           ref={function (element) { editorRef.current = element; }}
-
+          readOnly={readOnly}
           editorState={editorState}
           onChange={(newState) => {
 
@@ -115,7 +120,16 @@ export default function DraftEditor() {
             setShadowValue(3)
 
           }}
-          plugins={[mentionPlugin, personPlugin, emojiPlugin, imagePlugin, linkPlugin, votePlugin]}
+          plugins={[
+            mentionPlugin,
+            personPlugin,
+            emojiPlugin,
+            imagePlugin,
+            linkPlugin,
+            votePlugin,
+
+
+          ]}
 
           customStyleFn={function (style, block) {
             const styleNameArr = style.toArray();
@@ -161,6 +175,8 @@ export default function DraftEditor() {
                 props: {
                   blockKey,
                   markingVoteBlock,
+                  readOnly,
+                  setReadOnly,
                 },
               }
             }
@@ -179,6 +195,9 @@ export default function DraftEditor() {
                   editorRef={editorRef}
                   markingImageBlock={markingImageBlock}
                   markingVoteBlock={markingVoteBlock}
+                  VoteBlock={VoteBlock}
+                  readOnly={readOnly}
+                  setReadOnly={setReadOnly}
                 />
               },
             })
@@ -462,22 +481,22 @@ export default function DraftEditor() {
               <FormatAlignRight fontSize="large" />
             </IconButton>
 
+            <IconButton size="small" onClick={function () {
+              setEditorState(addEmptyBlock(editorState))
+              // const es = RichUtils.toggleBlockType(
+              //   editorState, // write type to editorState
+              //   "rightBlock"
+              // )
+              // setTimeout(() => {
+              //   setEditorState(EditorState.forceSelection(es, es.getSelection()))
+              // }, 0);
+            }}>
+              <HorizontalSplitOutlined fontSize="large" />
+            </IconButton>
 
 
 
 
-            {/* const newContent = Modifier.setBlockData(
-          editorState.getCurrentContent(),
-          newSelection,//  SelectionState.createEmpty(newKey),
-          Immutable.Map({ imgDataArr: imageObj[blockKey] })
-        )
-
-        es = EditorState.push(es || editorState, newContent, 'change-block-data');
-      }
-    })
-    if (es) {
-      setEditorState(es)
-    } */}
 
 
           </Stack>
@@ -486,6 +505,9 @@ export default function DraftEditor() {
 
 
         </Stack>
+
+
+
 
       </Paper>
 
@@ -689,3 +711,27 @@ function deleteBlock2(store, blockKey) {
   return EditorState.forceSelection(newState, newSelection);
 }
 
+
+
+
+
+const addEmptyBlock = (editorState) => {
+  const newBlock = new ContentBlock({
+    key: String(Math.random()).substring(2, 6),
+    type: 'unstyled',
+    text: '',
+    characterList: Immutable.List()
+  })
+
+  console.log(newBlock.key)
+  const contentState = editorState.getCurrentContent()
+  const newBlockMap = contentState.getBlockMap().set(newBlock.key, newBlock)
+
+  return EditorState.push(
+    editorState,
+    ContentState
+      .createFromBlockArray(newBlockMap.toArray())
+      .set('selectionBefore', contentState.getSelectionBefore())
+      .set('selectionAfter', contentState.getSelectionAfter())
+  )
+}

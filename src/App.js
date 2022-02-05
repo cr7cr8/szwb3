@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useContext, useCal
 import logo from './logo.svg';
 import './App.css';
 
-import { Container, Grid } from '@mui/material';
 
 import ThemeContextProvider from "./ThemeContextProvider";
 import { ContextProvider as EditorCtx, useEditorState } from "./ContextProvider";
@@ -11,12 +10,30 @@ import Content from "./Content";
 
 import useResizeObserver from '@react-hook/resize-observer';
 
+//import multiavatar from '@multiavatar/multiavatar/esm'
+//import multiavatar from '@multiavatar/multiavatar';
+//import multiavatar from "@emitapp/multiavatar";
+
+import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Chip, Avatar } from '@mui/material';
+
+
 function App() {
 
 
-  const sxObj = { backgroundColor: "orange", "&:hover": { backgroundColor: "blue" } }
+  //const sxObj = { backgroundColor: "orange", "&:hover": { backgroundColor: "blue" } }
 
   const [editorState, setEditorState] = useEditorState()
+
+
+
+  // return (
+  //   <>
+  //     <h1>ssss</h1>
+
+  //     <img src={"data:image/svg+xml;base64," + btoa(multiavatar("assdfe"))} style={{ width: 200, height: 200 }} />
+  //   </>
+  // )
+
 
 
 
@@ -26,6 +43,8 @@ function App() {
       // sx={{ backgroundColor: { xs: "pink", sm: "yellow", md: "skyblue", lg: "orange", xl: "wheat" } }}
 
       >
+
+
 
         <Grid container
           direction="row"
@@ -38,7 +57,7 @@ function App() {
             <EditorCtx editorState={editorState} setEditorState={setEditorState} />
           </Grid>
 
-      
+
         </Grid>
 
 
