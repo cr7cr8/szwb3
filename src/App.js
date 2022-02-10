@@ -6,13 +6,11 @@ import './App.css';
 
 import ThemeContextProvider from "./ThemeContextProvider";
 import { ContextProvider as EditorCtx, useEditorState } from "./ContextProvider";
-import Content from "./Content";
+import Content, { InstantContent } from "./Content";
 
-import useResizeObserver from '@react-hook/resize-observer';
 
-//import multiavatar from '@multiavatar/multiavatar/esm'
-//import multiavatar from '@multiavatar/multiavatar';
-//import multiavatar from "@emitapp/multiavatar";
+
+
 
 import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Chip, Avatar } from '@mui/material';
 
@@ -20,19 +18,8 @@ import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Chip, Avat
 function App() {
 
 
-  //const sxObj = { backgroundColor: "orange", "&:hover": { backgroundColor: "blue" } }
+  //  const [editorState, setEditorState] = useEditorState()
 
-  const [editorState, setEditorState] = useEditorState()
-
-
-
-  // return (
-  //   <>
-  //     <h1>ssss</h1>
-
-  //     <img src={"data:image/svg+xml;base64," + btoa(multiavatar("assdfe"))} style={{ width: 200, height: 200 }} />
-  //   </>
-  // )
 
 
 
@@ -54,14 +41,15 @@ function App() {
 
         >
           <Grid item xs={10} sm={10} md={10} lg={6} xl={6} >
-            <EditorCtx editorState={editorState} setEditorState={setEditorState} />
+            {/* <EditorCtx editorState={editorState} setEditorState={setEditorState} /> */}
+            <EditorCtx  />
           </Grid>
 
 
         </Grid>
 
-
-        <Content editorState={editorState} />
+        <Content />
+        {/* <InstantContent editorState={editorState} /> */}
 
 
       </Container >

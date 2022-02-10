@@ -170,6 +170,8 @@ export default function VoteBlock(props) {
                 setReadOnly(false)
               }}
               onChange={function (e) {
+
+            
                 setVoteArr(pre => {
                   pre[index] = e.target.value
                   return [...pre]

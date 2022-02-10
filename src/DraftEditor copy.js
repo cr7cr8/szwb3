@@ -414,9 +414,9 @@ export default function DraftEditor() {
         />
 
 
-        <Stack direction="row" sx={{ backgroundColor: theme.isLight ? "rgba(167, 202, 237,1)" : "rgba(72, 101, 124,1)", position: "sticky", bottom: 0, justifyContent: "space-between" }}>
+        <Stack direction="row" sx={{ backgroundColor: "skyblue", position: "sticky", bottom: 0, justifyContent: "space-between" }}>
 
-          <Stack direction="row" sx={{ width: "10px", flexGrow: 1, /*bgcolor: "pink",*/ }}>
+          <Stack direction="row" sx={{ width: "10px", flexGrow: 1, bgcolor: "pink", }}>
 
             <IconButton size="small" onClick={function (e) {
               e.preventDefault()
@@ -495,6 +495,12 @@ export default function DraftEditor() {
             }}>
               <HorizontalSplitOutlined fontSize="large" />
             </IconButton>
+
+
+
+
+
+
           </Stack>
 
           <EmojiComp editorRef={editorRef} />
@@ -503,39 +509,33 @@ export default function DraftEditor() {
         </Stack>
 
 
-        <Button sx={{ width: "100%", borderRadius: 0 }} disabled={postDisable}
+        <Button sx={{ width: "100%" }} disabled={postDisable}
 
           onClick={function () {
             setPostDisable(true)
 
-            const postID = "post" + String(Math.random()).substring(2, 8) + "-" + Date.now()
-            const ownerName = "User" + String(Math.random()).substring(2, 6)
+            if (Object.keys(imageObj).length === 0) {
+              axios.post(`${url}/api/article`,
+                {
+                  ownerName: "Bob",
+                  content: toPreHtml(editorState, theme),
+                  postID: Math.random(),
+                }).then(response => {
+                  setPostDisable(false)
+                  console.log(response.data)
+                })
+            }
 
 
-            const blockTypeArr = []
-            const stepPromiseArr = []
-            let voteBlockKey = null
-            let voteBlockData = null
-            let voteBlockId = ""
+            const data = new FormData();
+            const data2 = new FormData();
+            const promiseArr = [];
+            const promiseArr2 = [];
 
-            editorState.getCurrentContent().getBlocksAsArray().forEach(block => {
-              blockTypeArr.push(block.getType())
-              if (block.getType() === "voteBlock") {
-                voteBlockKey = block.getKey()
-                voteBlockData = block.getData().toObject()
-              }
-            })
+            const fileNameArr = []
+            const fileNameArr2 = []
 
-            if (blockTypeArr.includes("imageBlock")) {
-              const data = new FormData();
-              const data2 = new FormData();
-              const promiseArr = [];
-              const promiseArr2 = [];
-
-              const fileNameArr = []
-              const fileNameArr2 = []
-
-
+            if (Object.keys(imageObj).length !== 0) {
               Object.keys(imageObj).forEach(itemKey => {
                 imageObj[itemKey].forEach(img => {
 
@@ -554,74 +554,107 @@ export default function DraftEditor() {
                       return res.blob()
                     })
                   )
+
+
+
                 })
               })
+              // Object.keys(imageObj).forEach(itemKey => {
+              //   imageObj[itemKey].forEach(img => {
 
-              const promise = Promise.all(promiseArr)
-                .then(blobArr => {
-                  blobArr.forEach((file, index) => {
-                    data.append("file", new File([file], fileNameArr[index].filename, { type: "image/jpeg" }))
-                  })
-                  const obj = { ownerName, postID };
-                  data.append('obj', JSON.stringify(obj));
-
-                  return axios.post(`${url}/api/picture/uploadPicture`, data, {
-                    headers: { 'content-type': 'multipart/form-data' },
-                  })
-                })
-                .then(response => {
-                  console.log(response.data)
-                  return Promise.all(promiseArr2)
-                })
-                .then(blobArr => {
-                  blobArr.forEach((file, index) => {
-                    data2.append("file", new File([file], fileNameArr2[index].filename, { type: "image/jpeg" }))
-                  })
-                  const obj = { ownerName, postID };
-                  data2.append('obj', JSON.stringify(obj));
-
-                  return axios.post(`${url}/api/picture/uploadPicture2`, data2, {
-                    headers: { 'content-type': 'multipart/form-data' },
-                  })
-                })
-
-              stepPromiseArr.push(promise)
-
-
-
-
+              //     promiseArr2.push(fetch(img.imgUrl)
+              //       .then(res => {
+              //         const filename = (String(img.imgUrl).substr(String(img.imgUrl).lastIndexOf("/") + 1))
+              //         console.log(filename)
+              //         fileNameArr2.push({ filename })
+              //         return res.blob()
+              //       })
+              //     )
+              //   })
+              // })
             }
 
-            if (blockTypeArr.includes("voteBlock")) {
+
+            // Promise.all(promiseArr)
+            //   .then(blobArr => {
+            //     blobArr.forEach((file, index) => {
+            //       data.append("file", new File([file], fileNameArr[index].filename, { type: "image/jpeg" }))
+            //     })
+            //     const obj = { ownerName: "Bob", picName: Date.now() };
+            //     data.append('obj', JSON.stringify(obj));
+
+            //     return axios.post(`${url}/api/picture/uploadPicture`, data, {
+            //       headers: { 'content-type': 'multipart/form-data' },
+            //     })
+            //   })
 
 
-              const promise = axios.post(`${url}/api/voteBlock`, { ...voteBlockData.voteDataObj, postID, ownerName, }).then(response => {
+            // Promise.all(promiseArr2)
+            //   .then(blobArr => {
+            //     blobArr.forEach((file, index) => {
+            //       data.append("file", new File([file], fileNameArr2[index].filename, { type: "image/jpeg" }))
+            //     })
+            //     const obj = { ownerName: "Bob", picName: Date.now() };
+            //     data.append('obj', JSON.stringify(obj));
 
+            //     return axios.post(`${url}/api/picture/uploadPicture`, data, {
+            //       headers: { 'content-type': 'multipart/form-data' },
+            //     })
+            //   })
+
+
+
+            Promise.all(promiseArr)
+              .then(blobArr => {
+                blobArr.forEach((file, index) => {
+                  data.append("file", new File([file], fileNameArr[index].filename, { type: "image/jpeg" }))
+                })
+                const obj = { ownerName: "Bob", picName: Date.now() };
+                data.append('obj', JSON.stringify(obj));
+
+                return axios.post(`${url}/api/picture/uploadPicture`, data, {
+                  headers: { 'content-type': 'multipart/form-data' },
+                })
+              })
+              .then(response => {
                 console.log(response.data)
-                voteBlockId = response.data._id
-
+                return Promise.all(promiseArr2)
               })
-              stepPromiseArr.push(promise)
+              .then(blobArr => {
+                blobArr.forEach((file, index) => {
+                  data2.append("file", new File([file], fileNameArr2[index].filename, { type: "image/jpeg" }))
+                })
+                const obj = { ownerName: "Bob", picName: Date.now() };
+                data2.append('obj', JSON.stringify(obj));
 
-            }
-
-
-            Promise.all(stepPromiseArr).then(function () {
-              setPostDisable(false)
-              axios.post(`${url}/api/article`,
+                return axios.post(`${url}/api/picture/uploadPicture2`, data2, {
+                  headers: { 'content-type': 'multipart/form-data' },
+                })
+              })
+              .then(response => {
+              
+                axios.post(`${url}/api/article`,
                 {
-                  ownerName,
-                  content: toPreHtml(editorState, theme, voteBlockId),
-                  postID,
+                  ownerName: "Bob",
+                  content: toPreHtml(editorState, theme),
+                  postID: Math.random(),
                 }).then(response => {
                   setPostDisable(false)
+                  console.log(response.data)
                 })
+              })
+
+            // for (var key of data.entries()) {
+            //   console.log(key[0] + ', ' + key[1]);
+            // }
 
 
-            })
 
-          }}
 
+
+
+          }
+          }
 
         > Post</Button>
 
@@ -838,7 +871,7 @@ const addEmptyBlock = (editorState) => {
     characterList: Immutable.List()
   })
 
-  // console.log(newBlock.key)
+  console.log(newBlock.key)
   const contentState = editorState.getCurrentContent()
   const newBlockMap = contentState.getBlockMap().set(newBlock.key, newBlock)
 

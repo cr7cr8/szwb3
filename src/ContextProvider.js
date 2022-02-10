@@ -27,7 +27,14 @@ export function useEditorState() {
 
 
 
-export function ContextProvider({ editorState, setEditorState, ...props }) {
+export function ContextProvider({ editorState:editorStateProp, setEditorState:setEditorStateProp, ...props }) {
+
+  let [editorState, setEditorState] = useEditorState()
+
+  if (editorStateProp && setEditorStateProp) {
+    editorState = editorStateProp
+    setEditorState = setEditorStateProp
+  }
 
 
   const [peopleList, setPeopleList] = useState(["TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
@@ -38,14 +45,10 @@ export function ContextProvider({ editorState, setEditorState, ...props }) {
   const theme = useTheme()
 
 
-
-
-
-
-
   const [imageObj, setImageObj] = useState({})
-  const [voteArr, setVoteArr] = useState([])
 
+
+  const [voteArr, setVoteArr] = useState([])
   const [voteTopic, setVoteTopic] = useState("")
   const [pollDuration, setPollDuration] = useState({ d: 3, h: 0, m: 0 })
 
@@ -56,7 +59,6 @@ export function ContextProvider({ editorState, setEditorState, ...props }) {
 
 
     editorState.getCurrentContent().getBlocksAsArray().forEach(block => {
-
 
 
 
@@ -89,13 +91,6 @@ export function ContextProvider({ editorState, setEditorState, ...props }) {
         if (es) {
           setEditorState(es)
         }
-
-
-
-
-
-
-
       }
 
     })
@@ -154,6 +149,8 @@ export function ContextProvider({ editorState, setEditorState, ...props }) {
       peopleList, setPeopleList,
       currentBlockKey, setCurrentBlockKey,
       imageObj, setImageObj,
+
+
       voteArr, setVoteArr,
       voteTopic, setVoteTopic,
       pollDuration, setPollDuration,

@@ -30,7 +30,6 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
   //const { sizeObj, peopleList } = useContext(Context)
 
 
-  console.log(nameList)
 
 
   const inTab = tabIndex % nameList.length
@@ -71,9 +70,9 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
 
       {nameList.map((name, index) => {
 
-         if (inTab === index) { setTabName(name) }
+        if (inTab === index) { setTabName(name) }
 
-        return <AvatarChip name={name} insertMention={insertMention.bind(null, name)} inTab={inTab} index={index} key={index} />
+        return <AvatarChip name={name} insertMention={insertMention.bind(null, name)} inTab={inTab} index={index} key={index} inList={true} />
 
 
 
@@ -85,28 +84,29 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
 
 }
 
-export function AvatarChip({ name="aaa", inTab = 0, index = 0, isSmall = false, insertMention = () => { }, ...props }) {
+export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1.2, textScale = 0.8, title = false, inList = false, boxShadow = 0, insertMention = () => { }, ...props }) {
 
   const theme = useTheme()
 
-  
+  const avatarString = multiavatar(name)
+  const avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
 
 
-
+  const bgcolor = hexToRGB(avatarColor, 0.2)
 
   return (<Chip
     key={index}
     clickable={true}
     avatar={
       <Avatar alt={name}
-        {...{ src: "data:image/svg+xml;base64," + btoa(multiavatar(name)) }}
+        {...{ src: "data:image/svg+xml;base64," + btoa(avatarString) }}
         sx={{
           "&.MuiAvatar-root.MuiChip-avatar": {
-            width: theme.scaleSizeObj(isSmall ? 0.8 : 1),
-            height: theme.scaleSizeObj(isSmall ? 0.8 : 1),
+            width: theme.scaleSizeObj(avatarScale),
+            height: theme.scaleSizeObj(avatarScale),
             marginLeft: 0,
-            marginRight: theme.scaleSizeObj(-0.3),
-            transform: "scale(0.9)",
+            marginRight: "-8px",// theme.scaleSizeObj(-0.3),
+            //transform: "scale(0.9)",
 
           }
         }}
@@ -120,20 +120,21 @@ export function AvatarChip({ name="aaa", inTab = 0, index = 0, isSmall = false, 
 
       backgroundColor: inTab === index
         ? theme.palette.mode === "light"
-          ? hexify(hexToRgbA(multiavatar(name).match(/#[a-zA-z0-9]*/)[0]))
-          : hexify(hexToRgbA2(multiavatar(name).match(/#[a-zA-z0-9]*/)[0]))
-
+          ? inList ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, title ? 0.0001 : 0.2)
+          : inList ? hexToRGB(avatarColor, 0.6) : hexToRGB2(avatarColor, title ? 0.0001 : 0.6)
+    
         : theme.palette.panelColor,
 
-      height: theme.scaleSizeObj(isSmall ? 0.8 : 1),
-      fontSize: theme.scaleSizeObj(isSmall ? 0.8 : 1),
-
+      height: theme.scaleSizeObj(avatarScale),
+      fontSize: theme.scaleSizeObj(textScale),
+      boxShadow,
       "&:hover": {
-        boxShadow: 5,
-        backgroundColor: hexify(hexToRgbA2(multiavatar(name).match(/#[a-zA-z0-9]*/)[0])),
+        //    boxShadow: 5,
+        backgroundColor: inList ? hexToRGB(avatarColor, 1) : hexToRGB2(avatarColor, 1),  //hexify(hexToRgbA3(multiavatar(name).match(/#[a-zA-z0-9]*/)[0])),
       },
       "& .MuiChip-label": {
         transform: "translateY(0px)",
+        ...title && { color: theme.palette.text.secondary },
       }
     }}
     onClick={function () {
@@ -170,28 +171,28 @@ function hexify(color) {
     ("0" + b.toString(16)).slice(-2);
 }
 
-function hexToRgbA(hex) {
-  var c;
-  if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-    c = hex.substring(1).split('');
-    if (c.length == 3) {
-      c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-    }
-    c = '0x' + c.join('');
-    return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',0.2)';
+
+
+function hexToRGB(hex, alpha) {
+  var r = parseInt(hex.slice(1, 3), 16),
+    g = parseInt(hex.slice(3, 5), 16),
+    b = parseInt(hex.slice(5, 7), 16);
+
+  if (alpha) {
+    return hexify("rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")");
+  } else {
+    return hexify("rgb(" + r + ", " + g + ", " + b + ")");
   }
-  throw new Error('Bad Hex');
 }
 
-function hexToRgbA2(hex) {
-  var c;
-  if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-    c = hex.substring(1).split('');
-    if (c.length == 3) {
-      c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-    }
-    c = '0x' + c.join('');
-    return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',0.5)';
+function hexToRGB2(hex, alpha) {
+  var r = parseInt(hex.slice(1, 3), 16),
+    g = parseInt(hex.slice(3, 5), 16),
+    b = parseInt(hex.slice(5, 7), 16);
+
+  if (alpha) {
+    return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+  } else {
+    return "rgb(" + r + ", " + g + ", " + b + ")";
   }
-  throw new Error('Bad Hex');
 }

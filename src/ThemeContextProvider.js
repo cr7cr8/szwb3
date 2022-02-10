@@ -17,7 +17,7 @@ import { arrowFunctionExpression } from '@babel/types';
 export default function ThemeContextProvider(props) {
 
 
-  const [sizeObj, setSizeObj] = useState(props.sizeObj || { xs: "2rem", sm: "5rem", md: "2rem", lg: "1.5rem", xl: "1.5rem" })
+  const [sizeObj, setSizeObj] = useState(props.sizeObj || { xs: "1.5rem", sm: "1.5rem", md: "1.5rem", lg: "1.5rem", xl: "1.5rem" })
 
 
   const scaleSizeObj = useCallback((factor = 1) => {
@@ -66,20 +66,20 @@ export default function ThemeContextProvider(props) {
         isLight: mode === "light",
         isDark: mode === "dark",
         components: {
-          MuiTypography: {
-            styleOverrides: {
-              root: ({ ownerState, theme, ...props }) => {
-               //alert(JSON.stringify(props))
-                return [
-                  ownerState.variant === 'body2' &&
-                  sx({
-                    fontSize: theme.sizeObj,
-                  }),
+          // MuiTypography: {
+          //   styleOverrides: {
+          //     root: ({ ownerState, theme, ...props }) => {
+          //      //alert(JSON.stringify(props))
+          //       return [
+          //         ownerState.variant === 'body2' &&
+          //         sx({
+          //           fontSize: theme.sizeObj,
+          //         }),
 
-                ]
-              }
-            }
-          },
+          //       ]
+          //     }
+          //   }
+          // },
           MuiButton:{
             defaultProps:{
               variant:"contained",

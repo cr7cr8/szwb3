@@ -21,21 +21,37 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import useResizeObserver from '@react-hook/resize-observer';
 import Masonry from '@mui/lab/Masonry';
 
-import { blue, red, grey } from '@mui/material/colors';
+import { blue, red } from '@mui/material/colors';
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 
 
 import axios from "axios";
 import { url, toPreHtml } from "./config";
-import { compareAsc, format, formatDistanceToNow } from 'date-fns';
-import { zhCN } from "date-fns/locale";
-import Countdown from "react-countdown";
-import multiavatar from "@multiavatar/multiavatar";
+
+
+const useSize = (target) => {
+
+
+  const [size, setSize] = React.useState()
+  React.useEffect(() => {
+
+    if (target.current) {
+      setSize(target.current.getBoundingClientRect())
+    }
+  }, [target])
+  // Where the magic happens
+  useResizeObserver(target, (entry) => setSize(entry.contentRect))
+  //console.log(size)
+  return size
 
 
 
-function toHtml(preHtml, { theme, target, size, setSize, avatarColor }) {
+}
+
+
+
+function toHtml(preHtml, theme, target) {
 
   // console.log(preHtml)
 
@@ -53,7 +69,7 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor }) {
             const avatarElement = convertNodeToElement(child)
             const personName = reactElementToJSXString(<>{avatarElement}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
 
-            return <AvatarChip name={personName} key={index} avatarScale={0.8} textScale={0.8} boxShadow={0} />
+            return <AvatarChip name={personName} key={index} isSmall={true} />
           }
           else if (child.name === "span" && child.attribs["data-type"] === "link") {
             const element = convertNodeToElement(child)
@@ -62,6 +78,9 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor }) {
             // return <a href={linkAdd} style={{ color: blue[800], textDecoration:"none" }} >{linkAdd}</a >
             return <LinkTag linkAdd={linkAdd} key={index} />
           }
+
+
+
 
           return convertNodeToElement(child, index, transformFn)
         })
@@ -95,10 +114,8 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor }) {
 
         const data = JSON.parse(unescape(node.attribs["data-block_data"]))
 
-
         if (data.imgDataArr) {
           data.imgDataArr.forEach(img => {
-            //     console.log(img)
             allImageArr.push(img)
           })
         }
@@ -108,7 +125,7 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor }) {
         //  console.log(data)
 
         if (Array.isArray(data.imgDataArr) && data.imgDataArr.length > 0) {
-          return <Images key={index} imgDataArr={data.imgDataArr} allImageArr={allImageArr} target={target} size={size} setSize={setSize} />
+          return <Images imgDataArr={data.imgDataArr} target={target} key={index} allImageArr={allImageArr} />
         }
         else {
           return null
@@ -133,16 +150,14 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor }) {
 
         const element = convertNodeToElement(node)
         const personName = reactElementToJSXString(<>{element}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
-        return <AvatarChip name={personName} key={index} avatarScale={1.2} textScale={0.8} boxShadow={0} />
+        return <AvatarChip name={personName} key={index} />
       }
       else if (node.name === "object" && node.attribs["data-type"] === "vote-block") {
 
         const data = node.attribs["data-block_data"] ? JSON.parse(unescape(node.attribs["data-block_data"])) : null
         const blockKey = node.attribs["data-block_key"]
-
-
-        //  console.log(data, blockKey)
-        return <VoteFrame data={data} blockKey={blockKey} avatarColor={avatarColor} key={index} />
+        //     console.log(data, blockKey)
+        return <VoteFrame data={data} blockKey={blockKey} key={index} />
       }
 
       //  return null
@@ -157,10 +172,6 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor }) {
 export default function Content({ ...props }) {
 
   const theme = useTheme()
-
-  const [size, setSize] = useState()
-
-
   const xs = useMediaQuery(theme.breakpoints.only("xs"))
   const sm = useMediaQuery(theme.breakpoints.only("sm"))
   const md = useMediaQuery(theme.breakpoints.only("md"))
@@ -176,7 +187,11 @@ export default function Content({ ...props }) {
   useEffect(function () {
 
     axios.get(`${url}/api/article`).then(response => {
-      setPostArr(response.data)
+
+      console.log(response.data)
+
+      setPostArr(response.data.map(item => item.content))
+
     })
 
   }, [])
@@ -186,7 +201,7 @@ export default function Content({ ...props }) {
     <Box sx={{
       display: "flex", justifyContent: "center", fontSize: theme.sizeObj,
       // backgroundColor: ["pink", "orange", "skyblue", "yellow", "green"][col],
-      //  bgcolor: theme.palette.mode === "light" ? "lightgray" : "darkgray",
+      bgcolor: theme.palette.mode === "light" ? "lightgray" : "darkgray",
       overflow: "hidden",
       "& p": { fontSize: theme.sizeObj }
     }}
@@ -194,17 +209,14 @@ export default function Content({ ...props }) {
     >
       <Masonry columns={finalCol} spacing={finalCol === 1 ? 1 : 1} >
         {postArr.map((item, index) => {
+          const num = Number(Math.random() * 100).toFixed(0)
+          const random1 = Number.parseFloat(Math.random() * 255).toFixed(0)
+          const random2 = Number.parseFloat(Math.random() * 255).toFixed(0)
+          const random3 = Number.parseFloat(Math.random() * 255).toFixed(0)
+          const bgcolor = `rgba(${random1},${random2},${random3},0.2)`
 
-          const { content, postID, ownerName } = item
           return (
-            <PostFrame
-              key={postID}
-
-              item={item}
-              size={size}
-              setSize={setSize}
-              isFirstOne={index === 0}
-            />
+            <PostFrame preHtml={item} key={index} num={index + 1} bgcolor={bgcolor} />
           )
         })}
       </Masonry>
@@ -215,50 +227,89 @@ export default function Content({ ...props }) {
 }
 
 
+export function InstantContent({ editorState, ...props }) {
 
-export function PostFrame({ preHtml, item, randomBgcolor, size, setSize, isFirstOne, randomBgcolor2, ...props }) {
+  const theme = useTheme()
+
+
+  const xs = useMediaQuery(theme.breakpoints.only("xs"))
+  const sm = useMediaQuery(theme.breakpoints.only("sm"))
+  const md = useMediaQuery(theme.breakpoints.only("md"))
+  const lg = useMediaQuery(theme.breakpoints.only("lg"))
+  const xl = useMediaQuery(theme.breakpoints.only("xl"))
+
+  const col = [1, 1, 2, 3, 4][[xs, sm, md, lg, xl].indexOf(true)]
+
+
+
+
+
+  const preHtml = toPreHtml(editorState, theme)
+
+
+
+  const postArr = [preHtml, preHtml, preHtml, preHtml, preHtml];
+  //const postArr = [preHtml, preHtml];
+  const finalCol = Math.min(col, postArr.length)
+
+
+
+
+  return (
+    <Box sx={{
+      display: "flex", justifyContent: "center", fontSize: theme.sizeObj,
+      // backgroundColor: ["pink", "orange", "skyblue", "yellow", "green"][col],
+      bgcolor: theme.palette.mode === "light" ? "lightgray" : "darkgray",
+      overflow: "hidden",
+      "& p": { fontSize: theme.sizeObj }
+    }}
+    // ref={target}
+    >
+      <Masonry columns={finalCol} spacing={finalCol === 1 ? 1 : 1} >
+        {postArr.map((item, index) => {
+          const num = Number(Math.random() * 100).toFixed(0)
+          const random1 = Number.parseFloat(Math.random() * 255).toFixed(0)
+          const random2 = Number.parseFloat(Math.random() * 255).toFixed(0)
+          const random3 = Number.parseFloat(Math.random() * 255).toFixed(0)
+          const bgcolor = `rgba(${random1},${random2},${random3},0.2)`
+
+          return (
+            // <Box sx={{ bgcolor: '#' + (Math.random() * 0xFFFFFF << 0).toString(16) }}>
+            //   {toHtml(toPreHtml(editorState), theme, target)}
+            // </Box>
+            <PostFrame preHtml={item} key={index} num={index + 1} bgcolor={bgcolor} />
+          )
+        })}
+      </Masonry>
+    </Box >
+  )
+
+
+}
+
+export function PostFrame({ preHtml, bgcolor, num, ...props }) {
   const theme = useTheme()
   const target = useRef(null)
-
-  const { content, postID, ownerName, postingTime } = item
-
-  //console.log(postingTime)
-
-  const avatarString = multiavatar(ownerName)
-  const avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
-
-  useEffect(function () {
-    if (isFirstOne) {
-      const resizeObserver = new ResizeObserver(entries => {
-        setSize(entries[0].contentRect)
-      })
-
-      resizeObserver.observe(target.current)
-
-      return function () { resizeObserver.disconnect() }
-    }
-
-
-  }, [])
-
 
   const [height, setHeight] = useState("auto")
 
   return (
     <Box sx={{
-      bgcolor: theme.isLight ? hexToRGB2(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6),// randomBgcolor,//theme.palette.background.paper,// randomBgcolor,
+      bgcolor,
       boxShadow: 3,
-      "& > div:not(.image-frame):not(.vote-frame):not(.title-line)": {
+      "& > div:not(.image-frame):not(.vote-frame)": {
         paddingLeft: "4px",
         paddingRight: "4px",
       },
 
-      // "&:hover": { bgcolor: hexToRGB(avatarColor, 0.2) },
-      transition: "all, 300ms",
 
 
-      //  "&:hover": { boxShadow: 7 },
-      //  transition: "box-shadow, 300ms",
+      // "& .image-frame":{
+      //   paddingLeft: "0px",
+      //   paddingRight: "0px",
+      // },
+      "&:hover": { boxShadow: 7 },
+      transition: "box-shadow, 300ms",
       wordWrap: "break-word",
       height,
       overflow: "hidden",
@@ -274,20 +325,8 @@ export function PostFrame({ preHtml, item, randomBgcolor, size, setSize, isFirst
       }}
 
       ref={target}>
-      <Box className="title-line" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <AvatarChip name={ownerName} avatarScale={1.2} textScale={0.8} boxShadow={0} title={true} />
-        <Countdown date={Date.parse(postingTime)} intervalDelay={1 * 1000}
-          renderer={function ({ days, hours, minutes, seconds, completed, ...props }) {
-            return <PostTimeRender  {...{ days, hours, minutes, seconds, completed, ...props }} />
-          }}
-
-
-          overtime={true}
-        />
-
-      </Box>
-
-      {toHtml(content, { theme, target, size, setSize, randomBgcolor2, avatarColor })}
+      {/* <Typography>{num}</Typography> */}
+      {toHtml(preHtml, theme, target)}
     </Box>
   )
 
@@ -341,14 +380,22 @@ export function LinkTag({ linkAdd }) {
 
 
 
-export function Images({ imgDataArr, allImageArr, target, size, setSize, ...props }) {
+export function Images({ imgDataArr, allImageArr, target, ...props }) {
 
   const theme = useTheme()
+  const size = useSize(target)
+
+  // console.log(allImageArr)
+
+  // const imageArr = data.imgDataArr
   const numOfImage = imgDataArr ? imgDataArr.length : 0
 
-  const width = size ? size.width : 0
-  const height = [width / 16 * 9, width / 16 * 9, width / 2, width / 3, width / 16 * 9][numOfImage]
+  // console.log(numOfImage)
 
+  const height = useMemo(function () {
+    const width = size ? size.width : 0
+    return [width / 16 * 9, width / 16 * 9, width / 2, width / 3, width / 16 * 9][numOfImage]
+  }, [size, numOfImage])
 
 
 
@@ -456,17 +503,7 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, ...prop
 
   const [photoIndex, setPhotoIndex] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
-  const images = allImageArr.length > 0
-    ? allImageArr.map(img => {
-      return {
-        ...img,
-        imgSnap: `${url}/api/picture/downloadPicture/` + (String(img.imgSnap).substr(String(img.imgSnap).lastIndexOf("/") + 1)) + "-snap",
-        imgUrl: `${url}/api/picture/downloadPicture/` + (String(img.imgUrl).substr(String(img.imgUrl).lastIndexOf("/") + 1)) + ""
-      }
-    })
-    : []
-
-
+  const images = allImageArr.length > 0 ? allImageArr : []
 
   const lightBox = images.length > 0
     ? <Lightbox
@@ -487,6 +524,16 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, ...prop
     />
     : <></>
 
+  // return (
+
+  //   imgDataArr.map((pic, index) => {
+  //     const imageSnap = `${url}/api/picture/downloadPicture/` + (String(pic.imgSnap).substr(String(pic.imgSnap).lastIndexOf("/") + 1)) + ".jpg"
+  //     return (<img src={imageSnap} style={{ objectFit: "cover", width: "100%", height: "100%" }} key={index} />)
+
+  //   })
+
+  // )
+
 
   return (
 
@@ -496,7 +543,7 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, ...prop
       {imgDataArr.map((pic, index) => {
 
         //   const imageSnap = pic.imgSnap
-        const imageSnap = `${url}/api/picture/downloadPicture/` + (String(pic.imgSnap).substr(String(pic.imgSnap).lastIndexOf("/") + 1)) + "-snap"
+        const imageSnap = `${url}/api/picture/downloadPicture/` + (String(pic.imgSnap).substr(String(pic.imgSnap).lastIndexOf("/") + 1)) + ".jpg"
 
 
         return (
@@ -531,212 +578,73 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, ...prop
 
       })}
 
+
     </Box>
 
 
+    // imageArr.map((img, index) => {
+
+    //   return <img src={img.imgSnap} key={index} style={{ objectFit: "cover" }} key={index} />
+
+    // })
   )
 
 }
 
 
-export function VoteFrame({ data, avatarColor, ...props }) {
+export function VoteFrame({ data, ...props }) {
 
   const theme = useTheme()
 
-  const { voteArr = [], voteTopic = null, pollDuration = null, } = data?.voteDataObj || {}
-  const voteBlockId = data.voteBlockId
-
-  const [percentageArr, setPercentageArr] = useState([])
-  const [expireTime, setExpireTime] = useState("")
-
-  const [isVotting, setIsVotting] = useState(true)
-  const [totalVotes, setTotalVotes] = useState(0)
-
-  //const [intervalDelay, setIntervalDelay] = useState(1 * 1000)
-
-  const voteCountRef = useRef()
-
-  useEffect(function () {
+  const { voteArr = [], voteTopic = null, pollDuration = null } = data?.voteDataObj || {}
 
 
-    axios.get(`${url}/api/voteBlock/${voteBlockId}`).then(response => {
-
-      const { voteCountArr, expireTime } = response.data
-      voteCountRef.current = voteCountArr
-
-      setExpireTime(expireTime)
-      setIsVotting((Date.parse(expireTime) - Date.now()) > 0)
-
-
-      const totalVotes = voteCountArr.reduce((current, next) => {
-
-        return current + next
-
-      })
-
-      setPercentageArr(
-        voteCountArr.map(item => {
-          return totalVotes === 0 ? 0 : Number(Number((item / totalVotes) * 100).toFixed(0))
-        })
-      )
-      setTotalVotes(totalVotes)
-
-    })
-
-  }, [])
-
-
+  //console.log(voteArr)
 
   return (
-    <Box className="vote-frame" sx={{ "& p": { fontSize: theme.scaleSizeObj(1) }, "& .count-down": { fontSize: "1rem" } }} >
+    <Box className="vote-frame" sx={{ "& p": { fontSize: theme.scaleSizeObj(0.8) } }}>
       {voteTopic && <Typography variant='body2' sx={{ textAlign: "center" }} >{voteTopic || "no"}</Typography>}
 
       {voteArr.map((choice, index) => {
 
 
         return (
-          <Box sx={{
-            position: "relative",
-
-
-            ...isVotting && {
-              "& > span": { bgcolor: theme.palette.action.disabledBackground },
-              "& > span > span": { bgcolor: hexToRGB(avatarColor, 0.5), transition: "all, 300ms" },
-
-
-              "&:hover": {
-                cursor: "pointer", transition: "all, 300ms",
-                "& > span": { bgcolor: theme.palette.action.disabled },
-                "& > span > span": { bgcolor: hexToRGB(avatarColor, 1), transition: "all, 300ms" },
-              }
-            },
-
-            ...!isVotting && {
-              "& > span": { bgcolor: "rgba(0,0,0,0)" },
-              "& > span > span": { bgcolor: hexToRGB(avatarColor, 0.5), transition: "all, 300ms" },
-            }
-
-
-
-
-
-          }} key={index}
-            onClick={function () {
-              //   isVotting && alert("fsdf")
-              if (isVotting && voteCountRef.current) {
-
-                voteCountRef.current[index]++;
-                let totalVotes_ = totalVotes + 1
-
-                setPercentageArr(voteCountRef.current.map(item => {
-
-                  return  Number(Number((item / totalVotes_) * 100).toFixed(0))
-
-                })
-                )
-                setTotalVotes(totalVotes_)
-                setIsVotting(false)
-              }
-
-
-            }}>
-            <LinearProgress key={index} variant="determinate" value={percentageArr.length === 0 ? 0 : percentageArr[index]}  // value={Math.min(100, index * 15 + 20)}             //value={Number(Math.random() * 100).toFixed(0)}
+          <Box sx={{ position: "relative", "&:hover": { cursor: "pointer", boxShadow: 3, transition: "all, 300ms", opacity: 0.8 } }} key={index} onClick={function () {
+            alert("fsdf")
+          }}>
+            <LinearProgress key={index} variant="determinate" value={Math.min(100, index * 15 + 20)}             //value={Number(Math.random() * 100).toFixed(0)}
               sx={{
                 height: theme.scaleSizeObj(1.5), marginBottom: "2px",
+                // "& > span":{bgcolor:'orange'},
+                // "& >span::after":`{content:'adfsdf'; font-size:'5rem'}`
               }}
             />
 
 
             <Typography variant='body2' sx={{ position: "absolute", top: "50%", left: 0, zIndex: 100, transform: "translateY(-50%)" }}>{(choice.length >= 25 ? choice.substring(0, 25) : choice)}</Typography>
-            {/* <Typography variant='body2' sx={{ position: "absolute", top: "50%", right: 0, zIndex: 100, transform: "translateY(-50%)" }}>{Math.min(100, (index * 15 + 20)) + "%"}</Typography> */}
-            <Typography variant='body2' sx={{ position: "absolute", top: "50%", right: 0, zIndex: 100, transform: "translateY(-50%)" }}>{percentageArr.length === 0 ? 0 : percentageArr[index] + "%"}</Typography>
+            <Typography variant='body2' sx={{ position: "absolute", top: "50%", right: 0, zIndex: 100, transform: "translateY(-50%)" }}>{Math.min(100, (index * 15 + 20)) + "%"}</Typography>
 
 
           </Box>
         )
 
+
+
+
+        //  return <Button key={index}>{choice}</Button>
+
       })}
-      {expireTime && <Countdown date={Date.parse(expireTime)} intervalDelay={1 * 1000}
-        renderer={function ({ days, hours, minutes, seconds, completed, ...props }) {
-          return <TimeRender  {...{ days, hours, minutes, seconds, completed, expireTime, totalVotes, ...props }} />
-        }}
 
-        onComplete={function () {
-          //     alert("aaaa")
-          setIsVotting(false)
-        }}
-        overtime={true}
 
-      />}
-
-    </ Box>
+    </Box>
 
   )
 
 }
 
 
-function PostTimeRender({ days, hours, minutes, seconds, completed, ...props }) {
-
-  const theme = useTheme()
 
 
-
-  const message = completed
-
-    ? days > 0
-      ? `${days} days ago`
-      : hours > 0
-        ? `${hours} hours ago`
-        : minutes > 0
-          ? `${minutes} min ago`
-          : `${seconds} sec ago`
-    : days > 0
-      ? `Remaining ${days}+ days`
-      : hours > 0
-        ? `Remaining ${hours}+ hours`
-        : minutes > 0
-          ? `Remaining ${minutes}+ minutes`
-          : `Remaining ${seconds} seconds`
-
-  return <Typography variant='body2' className="count-down" style={{ fontSize: "1rem" }} sx={{ color: theme.palette.text.secondary }}>{message} </Typography>
-
-}
-
-function TimeRender({ days, hours, minutes, seconds, completed, expireTime, totalVotes, ...props }) {
-
-  const theme = useTheme()
-
-
-
-  const message = completed
-    //  ? `Finished on ${format(Date.parse(expireTime), "yyyy-MM-dd hh:mm")}`
-    ? days > 0
-      ? `Closed ${days} days ago`
-      : hours > 0
-        ? `Closed ${hours} hours ago`
-        : minutes > 0
-          ? `Closed ${minutes} min ago`
-          : `Closed ${seconds} sec ago`
-    : days > 0
-      ? `${days}+ days Left`
-      : hours > 0
-        ? `${hours}+ hours Left`
-        : minutes > 0
-          ? `${minutes}+ minu Left`
-          : `${seconds} sec Left`
-
-  return <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-    <Typography variant='body2' className="count-down" sx={{ color: theme.palette.text.secondary }}>{message} </Typography>
-    <Typography variant='body2' className="count-down" sx={{ color: theme.palette.text.secondary }}>Total {totalVotes} </Typography>
-    {/* <Typography variant='body2' className="count-down" sx={{ color: theme.palette.text.secondary }}>{days} {hours} {minutes} {seconds}</Typography>
-    <Typography variant='body2' className="count-down">{intervalDelay}</Typography> */}
-  </Box>
-
-
-
-
-}
 
 
 
@@ -756,32 +664,28 @@ function hexify(color) {
     ("0" + b.toString(16)).slice(-2);
 }
 
-function hexToRGB(hex, alpha) {
-  var r = parseInt(hex.slice(1, 3), 16),
-    g = parseInt(hex.slice(3, 5), 16),
-    b = parseInt(hex.slice(5, 7), 16);
-
-  if (alpha) {
-    return hexify("rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")");
-  } else {
-    return hexify("rgb(" + r + ", " + g + ", " + b + ")");
+function hexToRgbA(hex) {
+  var c;
+  if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+    c = hex.substring(1).split('');
+    if (c.length == 3) {
+      c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+    }
+    c = '0x' + c.join('');
+    return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',0.2)';
   }
+  throw new Error('Bad Hex');
 }
 
-function hexToRGB2(hex, alpha) {
-  var r = parseInt(hex.slice(1, 3), 16),
-    g = parseInt(hex.slice(3, 5), 16),
-    b = parseInt(hex.slice(5, 7), 16);
-
-  if (alpha) {
-    return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
-  } else {
-    return "rgb(" + r + ", " + g + ", " + b + ")";
+function hexToRgbA2(hex) {
+  var c;
+  if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+    c = hex.substring(1).split('');
+    if (c.length == 3) {
+      c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+    }
+    c = '0x' + c.join('');
+    return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',0.5)';
   }
+  throw new Error('Bad Hex');
 }
-
-
-
-
-
-

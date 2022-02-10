@@ -20,8 +20,8 @@ import { EditorState, KeyBindingUtil, convertToRaw, convertFromRaw, RichUtils, M
 
 // import { InsertEmoticon, PanToolOutlined, PeopleOutlined, BeachAccessOutlined } from "@material-ui/icons";
 import { Button, CssBaseline, Switch, Paper, IconButton, Popover, Typography, Slide, Tabs, Tab, AppBar, Stack, Box, Divider } from '@mui/material';
-import { EmojiEmotions } from '@mui/icons-material';
-
+import { EmojiEmotionsOutlined } from '@mui/icons-material';
+import { blue, red } from '@mui/material/colors';
 import {
   isMobile,
   isFirefox,
@@ -75,7 +75,7 @@ export default function EmojiPanel({ insertEmoji, editorRef, ...props }) {
 
       <IconButton size="small" onClick={handleClick} sx={{alignSelf:"right"}}>
 
-        <EmojiEmotions fontSize="large" />
+        <EmojiEmotionsOutlined fontSize="large" />
       </IconButton>
 
       <Popover
