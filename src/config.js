@@ -1,12 +1,14 @@
 import { stateToHTML } from 'draft-js-export-html';
 
+import useMediaQuery from '@mui/material/useMediaQuery';
 
+import { ThemeProvider, useTheme, createTheme, styled } from '@mui/material/styles';
 
 export const url = "http://192.168.0.100";
 
 
 
-export function toPreHtml(editorState, theme, voteBlockId) {
+export function toPreHtml(editorState, theme) {
 
   const preHtml = stateToHTML(
     editorState.getCurrentContent(),
@@ -122,7 +124,7 @@ export function toPreHtml(editorState, theme, voteBlockId) {
         },
 
         voteBlock: function (block) {
-          const data = escape(JSON.stringify({ ...block.getData().toObject(), voteBlockId }))
+          const data = escape(JSON.stringify({ ...block.getData().toObject() }))
           const type = block.getType()
           const key = block.getKey()
           return `<object  data-type="vote-block"  data-block_key="${key}" data-block_data="${data}" >` + escape(block.getText()) + '</object>'
@@ -135,4 +137,58 @@ export function toPreHtml(editorState, theme, voteBlockId) {
     }
   )
   return preHtml
+}
+
+
+export function hexify(color) {
+  var values = color
+    .replace(/rgba?\(/, '')
+    .replace(/\)/, '')
+    .replace(/[\s+]/g, '')
+    .split(',');
+  var a = parseFloat(values[3] || 1),
+    r = Math.floor(a * parseInt(values[0]) + (1 - a) * 255),
+    g = Math.floor(a * parseInt(values[1]) + (1 - a) * 255),
+    b = Math.floor(a * parseInt(values[2]) + (1 - a) * 255);
+  return "#" +
+    ("0" + r.toString(16)).slice(-2) +
+    ("0" + g.toString(16)).slice(-2) +
+    ("0" + b.toString(16)).slice(-2);
+}
+
+export function hexToRGB(hex, alpha) {
+  var r = parseInt(hex.slice(1, 3), 16),
+    g = parseInt(hex.slice(3, 5), 16),
+    b = parseInt(hex.slice(5, 7), 16);
+
+  if (alpha) {
+    return hexify("rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")");
+  } else {
+    return hexify("rgb(" + r + ", " + g + ", " + b + ")");
+  }
+}
+
+export function hexToRGB2(hex, alpha) {
+  var r = parseInt(hex.slice(1, 3), 16),
+    g = parseInt(hex.slice(3, 5), 16),
+    b = parseInt(hex.slice(5, 7), 16);
+
+  if (alpha) {
+    return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+  } else {
+    return "rgb(" + r + ", " + g + ", " + b + ")";
+  }
+}
+
+
+export function useScreenState() {
+  const theme = useTheme()
+
+  const xs = useMediaQuery(theme.breakpoints.only("xs"))
+  const sm = useMediaQuery(theme.breakpoints.only("sm"))
+  const md = useMediaQuery(theme.breakpoints.only("md"))
+  const lg = useMediaQuery(theme.breakpoints.only("lg"))
+  const xl = useMediaQuery(theme.breakpoints.only("xl"))
+  return ["xs", "sm", "md", "lg", "xl"][[xs, sm, md, lg, xl].indexOf(true)]
+
 }

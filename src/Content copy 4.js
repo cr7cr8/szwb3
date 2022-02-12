@@ -13,7 +13,7 @@ import Immutable from "immutable"
 
 import { AvatarChip } from "./PeopleList"
 
-import { Container, Grid, Paper, Typography, Box, Chip, Avatar, Link, Button, LinearProgress, Stack, IconButton, Divider } from '@mui/material';
+import { Container, Grid, Paper, Typography, Box, Chip, Avatar, Link, Button, LinearProgress, Stack, IconButton } from '@mui/material';
 import {
   EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined,
   ChatBubbleOutline
@@ -38,8 +38,8 @@ import multiavatar from "@multiavatar/multiavatar";
 import useAppContext from './useAppContext';
 
 import CommentSector from './CommentSector';
-
-import Masonry from 'react-masonry-css';
+import Masonry from '@mui/lab/Masonry';
+//import Masonry from 'react-masonry-css';
 
 function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID }) {
 
@@ -165,7 +165,11 @@ export default function Content({ postArr, setPostArr, ...props }) {
 
   const [size, setSize] = useState()
 
+  const screenState = useScreenState()
 
+  const col = { xs: 1, sm: 1, md: 2, lg: 3, xl: 4 }[screenState]
+
+  const finalCol = Math.min(col, postArr.length)
 
 
   useEffect(function () {
@@ -178,14 +182,6 @@ export default function Content({ postArr, setPostArr, ...props }) {
 
   }, [])
 
-  const breakpointColumnsObj = {
-    [theme.breakpoints.values.xs]: 1,
-    [theme.breakpoints.values.sm]: 1,
-    [theme.breakpoints.values.md]: 2,
-    [theme.breakpoints.values.lg]: 3,
-    [theme.breakpoints.values.xl]: 4,
-    2000: 4, 3000: 5, 4000: 6, 5000: 7, 6000: 8, 7000: 9, 9999999: 10,
-  };
 
   return (
     <Box sx={{
@@ -194,20 +190,12 @@ export default function Content({ postArr, setPostArr, ...props }) {
       //  bgcolor: theme.palette.mode === "light" ? "lightgray" : "darkgray",
       // bgcolor:  theme.isLight?"rgba(255,255,255,1)":"rgba(18,18,18,1)",  //theme.palette.background.default,  //"rgba(100,123,254,0.8)",
 
-      // bgcolor: "blue",
-
       overflow: "hidden",
       "& p": { fontSize: theme.sizeObj }
     }}
     // ref={target}
     >
-
-
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column"
-      >
+      <Masonry columns={finalCol} spacing={finalCol === 1 ? 1 : 1} >
         {postArr.map((item, index) => {
 
           const { content, postID, ownerName } = item
@@ -223,7 +211,6 @@ export default function Content({ postArr, setPostArr, ...props }) {
           )
         })}
       </Masonry>
-
     </Box >
   )
 
@@ -268,15 +255,15 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, ...props }
 
   const [height, setHeight] = useState("auto")
 
-
+  const [position, setPosition] = useState("relative")
 
   return (
     <Box
       id={postID}
       sx={{
-
+        bgcolor: theme.isLight ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6),// randomBgcolor,//theme.palette.background.paper,// randomBgcolor,
         boxShadow: 3,
-        "& > div > div:not(.image-frame):not(.vote-frame):not(.title-line):not(.comment-sector)": {
+        "& > div:not(.image-frame):not(.vote-frame):not(.title-line)": {
           paddingLeft: "4px",
           paddingRight: "4px",
         },
@@ -290,13 +277,12 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, ...props }
         wordWrap: "break-word",
         height,
         overflow: "hidden",
-        position: "relative",
-        //marginBottom:"8px",
-
+        position,
+        //position: "relative",
         //transition:"height, 1000ms"
 
         //transform: `rotate(${Math.random() * 90}deg)`,
-        marginBottom: "8px",
+
       }}
 
       onClick={function () {
@@ -307,40 +293,23 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, ...props }
 
       ref={target}>
       {/* <Box className="title-line" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}> */}
-
-      <Box sx={{
-        bgcolor: theme.isLight ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6),// randomBgcolor,//theme.palette.background.paper,// randomBgcolor,
-
-      }}>
-        <Stack className="title-line" direction="row" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}    >
+      <Stack className="title-line" direction="row" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}    >
 
 
-          <AvatarChip name={ownerName} avatarScale={1.2} textScale={0.8} boxShadow={0} title={true} />
-          <Countdown date={Date.parse(postingTime)} intervalDelay={1 * 1000}
-            renderer={function ({ days, hours, minutes, seconds, completed, ...props }) {
-              return <PostTimeRender  {...{ days, hours, minutes, seconds, completed, ...props }} />
-            }}
-            overtime={true}
-          />
+        <AvatarChip name={ownerName} avatarScale={1.2} textScale={0.8} boxShadow={0} title={true} />
+        <Countdown date={Date.parse(postingTime)} intervalDelay={1 * 1000}
+          renderer={function ({ days, hours, minutes, seconds, completed, ...props }) {
+            return <PostTimeRender  {...{ days, hours, minutes, seconds, completed, ...props }} />
+          }}
+          overtime={true}
+        />
 
-        </Stack>
+      </Stack>
 
-        {toHtml(content, { theme, target, size, setSize, avatarColor, postID })}
+      {toHtml(content, { theme, target, size, setSize, avatarColor, postID })}
 
-        {/* <Divider /> */}
-        <Stack direction="row-reverse" spacing={2}>
 
-          <IconButton size="small" onClick={function (e) {
-            e.preventDefault()
-            e.stopPropagation()
-          }}>
-            <ChatBubbleOutline fontSize='medium' />
-          </IconButton>
-        </Stack>
-
-      </Box>
-
-      <CommentSector item={item} avatarColor={avatarColor} />
+      <CommentSector item={item} position={position} setPosition={setPosition} />
 
     </Box>
   )
@@ -771,7 +740,7 @@ function PostTimeRender({ days, hours, minutes, seconds, completed, ...props }) 
         ? `${hours} hours ago`
         : minutes > 0
           ? `${minutes} min ago`
-          : `Just now` //`${seconds} sec ago`
+          : `${seconds} sec ago`
     : days > 0
       ? `Remaining ${days}+ days`
       : hours > 0
@@ -807,8 +776,8 @@ function TimeRender({ days, hours, minutes, seconds, completed, expireTime, tota
           ? `${minutes}+ minu Left`
           : `${seconds} sec Left`
 
-  return <Box sx={{ display: "flex", justifyContent: "space-between",paddingLeft:"4px",paddingRight:"4px" }}>
-    <Typography variant='body2' className="count-down" sx={{ color: theme.palette.text.secondary}}>{message} </Typography>
+  return <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+    <Typography variant='body2' className="count-down" sx={{ color: theme.palette.text.secondary }}>{message} </Typography>
     <Typography variant='body2' className="count-down" sx={{ color: theme.palette.text.secondary }}>Total {totalVotes} </Typography>
     {/* <Typography variant='body2' className="count-down" sx={{ color: theme.palette.text.secondary }}>{days} {hours} {minutes} {seconds}</Typography>
     <Typography variant='body2' className="count-down">{intervalDelay}</Typography> */}

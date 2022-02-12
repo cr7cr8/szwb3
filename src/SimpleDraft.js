@@ -43,7 +43,7 @@ const { linkPlugin } = createLinkPlugin()
 const { votePlugin, markingVoteBlock, VoteBlock } = createVotePlugin()
 
 
-export default function DraftEditor({ userName, ...props }) {
+export default function SimpleDraft({ userName, ...props }) {
 
   const theme = useTheme()
   const { editorState, setEditorState, currentBlockKey, setCurrentBlockKey, imageObj, setImageObj, onSubmit } = useContext(Context)
@@ -121,11 +121,11 @@ export default function DraftEditor({ userName, ...props }) {
           }}
           plugins={[
             mentionPlugin,
-            personPlugin,
-            emojiPlugin,
-            imagePlugin,
-            linkPlugin,
-            votePlugin,
+            // personPlugin,
+            // emojiPlugin,
+            // imagePlugin,
+            // linkPlugin,
+            // votePlugin,
 
 
           ]}

@@ -19,6 +19,8 @@ export default function ThemeContextProvider(props) {
 
   const [sizeObj, setSizeObj] = useState(props.sizeObj || { xs: "1.5rem", sm: "1.5rem", md: "1.5rem", lg: "1.5rem", xl: "1.5rem" })
 
+  //const [sizeObj, setSizeObj] = useState(props.sizeObj || { xs: "3rem", sm: "3rem", md: "3rem", lg: "3rem", xl: "3rem" })
+
 
   const scaleSizeObj = useCallback((factor = 1) => {
     const obj = {}
@@ -31,7 +33,7 @@ export default function ThemeContextProvider(props) {
     })
 
     return obj
-  }, [])
+  }, [sizeObj])
 
 
   const addingSizeObj = useCallback((numOfPix = 0) => {
@@ -45,7 +47,7 @@ export default function ThemeContextProvider(props) {
     })
 
     return obj
-  }, [])
+  }, [sizeObj])
 
 
 
@@ -59,6 +61,7 @@ export default function ThemeContextProvider(props) {
           mentionBg: mode === "light" ? "aliceblue" : "skyblue",
         },
         sizeObj,
+        setSizeObj,
         setMode,
         scaleSizeObj,
         addingSizeObj,
@@ -107,7 +110,7 @@ export default function ThemeContextProvider(props) {
 
         }
       }),
-    [mode],
+    [mode,sizeObj],
   );
 
   return (

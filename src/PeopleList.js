@@ -18,7 +18,7 @@ import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 //import multiavatar from '@multiavatar/multiavatar';
 
 import multiavatar from '@multiavatar/multiavatar';
-
+import { url, toPreHtml, hexToRGB, hexToRGB2 } from "./config";
 import { Context } from "./ContextProvider"
 
 
@@ -89,8 +89,10 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
   const theme = useTheme()
 
   const avatarString = multiavatar(name)
-  const avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
-
+  let avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
+  if(avatarColor.length<7){
+    avatarColor ="#"+avatarColor[1]+avatarColor[1]+avatarColor[2]+avatarColor[2]+avatarColor[3]+avatarColor[3]
+  } 
 
   const bgcolor = hexToRGB(avatarColor, 0.2)
 
@@ -154,45 +156,3 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
 
 
 
-
-function hexify(color) {
-  var values = color
-    .replace(/rgba?\(/, '')
-    .replace(/\)/, '')
-    .replace(/[\s+]/g, '')
-    .split(',');
-  var a = parseFloat(values[3] || 1),
-    r = Math.floor(a * parseInt(values[0]) + (1 - a) * 255),
-    g = Math.floor(a * parseInt(values[1]) + (1 - a) * 255),
-    b = Math.floor(a * parseInt(values[2]) + (1 - a) * 255);
-  return "#" +
-    ("0" + r.toString(16)).slice(-2) +
-    ("0" + g.toString(16)).slice(-2) +
-    ("0" + b.toString(16)).slice(-2);
-}
-
-
-
-function hexToRGB(hex, alpha) {
-  var r = parseInt(hex.slice(1, 3), 16),
-    g = parseInt(hex.slice(3, 5), 16),
-    b = parseInt(hex.slice(5, 7), 16);
-
-  if (alpha) {
-    return hexify("rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")");
-  } else {
-    return hexify("rgb(" + r + ", " + g + ", " + b + ")");
-  }
-}
-
-function hexToRGB2(hex, alpha) {
-  var r = parseInt(hex.slice(1, 3), 16),
-    g = parseInt(hex.slice(3, 5), 16),
-    b = parseInt(hex.slice(5, 7), 16);
-
-  if (alpha) {
-    return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
-  } else {
-    return "rgb(" + r + ", " + g + ", " + b + ")";
-  }
-}

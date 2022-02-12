@@ -30,6 +30,7 @@
     "react-element-to-jsx-string": "^14.3.4",
     "react-html-parser": "^2.0.2",
     "react-image-lightbox": "^5.1.4",
+    "react-masonry-css": "^1.0.16",
     "react-scripts": "4.0.3",
     "web-vitals": "^2.1.4"
   },

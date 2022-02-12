@@ -6,7 +6,7 @@ import {
 
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
-import { Button, CssBaseline, Switch } from '@mui/material';
+import { Button, CssBaseline, Switch, Slider } from '@mui/material';
 import DraftEditor from './DraftEditor';
 
 import Immutable from "immutable";
@@ -25,9 +25,17 @@ export function useEditorState() {
   return [editorState, setEditorState]
 }
 
+function usePeopleListState() {
+
+  const [peopleList, setPeopleList] = useState(["TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
 
 
-export function ContextProvider({ editorState:editorStateProp, setEditorState:setEditorStateProp, ...props }) {
+  return [peopleList, setPeopleList]
+}
+
+
+
+export function ContextProvider({ editorState: editorStateProp, setEditorState: setEditorStateProp, userName, onSubmit = function (preHtml) { }, ...props }) {
 
   let [editorState, setEditorState] = useEditorState()
 
@@ -37,17 +45,14 @@ export function ContextProvider({ editorState:editorStateProp, setEditorState:se
   }
 
 
-  const [peopleList, setPeopleList] = useState(["TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
+  const [peopleList, setPeopleList] = usePeopleListState()                  //useState(["TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
+
+
 
 
   const [currentBlockKey, setCurrentBlockKey] = useState("ddd")
-
   const theme = useTheme()
-
-
   const [imageObj, setImageObj] = useState({})
-
-
   const [voteArr, setVoteArr] = useState([])
   const [voteTopic, setVoteTopic] = useState("")
   const [pollDuration, setPollDuration] = useState({ d: 3, h: 0, m: 0 })
@@ -140,7 +145,7 @@ export function ContextProvider({ editorState:editorStateProp, setEditorState:se
 
   }, [imageObj])
 
-
+  const [scaleValue, setScaleValue] = useState(1.5)
   return (
 
     <Context.Provider value={{
@@ -155,6 +160,7 @@ export function ContextProvider({ editorState:editorStateProp, setEditorState:se
       voteTopic, setVoteTopic,
       pollDuration, setPollDuration,
       imageBlockNum,
+      onSubmit,
     }}>
       <Switch
         sx={{ left: "92%" }}
@@ -165,12 +171,53 @@ export function ContextProvider({ editorState:editorStateProp, setEditorState:se
         }}
       />
 
-      <DraftEditor />
+      <Slider
+        valueLabelDisplay="auto"
+        min={1}
+        max={2}
+        step={0.25}
+        marks={true}
+        value={scaleValue}
+        onChange={(e, value) => {
+
+          theme.setSizeObj({ xs: value + "rem", sm: value + "rem", md: value + "rem", lg: value + "rem", xl: value + "rem" })
+          setScaleValue(value)
+        }}
+        valueLabelFormat={function (numOfMins_) {
+          return numOfMins_ + "rem"
+        }}
+      //  step={1}
+      // onChange={function (props) {
+      //   console.log(props)
+      // }}
+      />
+
+      <DraftEditor userName={userName} />
 
     </Context.Provider>
 
   )
 
 
+
+}
+
+
+export function SimpleDraftProvider() {
+
+  const [peopleList, setPeopleList] = usePeopleListState()
+  const [editorState, setEditorState] = useEditorState()
+
+  return (
+    <Context.Provider value={{
+      peopleList, setPeopleList,
+      editorState, setEditorState
+    }}>
+
+
+    </Context.Provider>
+
+
+  )
 
 }
