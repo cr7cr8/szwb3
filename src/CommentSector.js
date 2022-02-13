@@ -43,7 +43,7 @@ export default function CommentSector({ item, avatarColor, ...props }) {
 
   return (
     <Box className="comment-sector" sx={{
-
+      display: "relative",
       bgcolor: theme.isLight ? hexToRGB2(avatarColor, 0.1) : hexToRGB2(avatarColor, 0.4),
     }}>
 
@@ -53,7 +53,10 @@ export default function CommentSector({ item, avatarColor, ...props }) {
       <Box sx={{
         //   bgcolor,
         paddingLeft: "4px", paddingRight: "4px",
-        paddingBottom: "4px"
+        paddingBottom: "4px",
+        display: "relative",
+      //  bgcolor: "transparent",
+
       }}>
         <AvatarChip name={userName} avatarScale={1.2} textScale={0.8} boxShadow={0} title={true} />
 

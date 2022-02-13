@@ -35,7 +35,7 @@ import { useTheme } from '@mui/system';
 import { Context } from "./ContextProvider";
 
 
-export default function EmojiPanel({ insertEmoji, editorRef, ...props }) {
+export default function EmojiPanel({ insertEmoji, editorRef, typeName, ...props }) {
 
   const theme = useTheme()
   const { editorState, setEditorState, sizeObj } = useContext(Context)
@@ -43,6 +43,13 @@ export default function EmojiPanel({ insertEmoji, editorRef, ...props }) {
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
+
+  //  if (typeName === "SimpleDraft"){
+      setTimeout(() => {
+        setEditorState(EditorState.forceSelection(editorState, editorState.getSelection()))
+      }, 0);
+ //   }
+
   };
 
   const handleClose = () => {
@@ -73,9 +80,11 @@ export default function EmojiPanel({ insertEmoji, editorRef, ...props }) {
     <>
 
 
-      <IconButton size="small" onClick={handleClick} sx={{alignSelf:"right"}}>
+      <IconButton size="small" onClick={handleClick}
 
-        <EmojiEmotionsOutlined fontSize="large" />
+        sx={{ alignSelf: "right" }}>
+
+        <EmojiEmotionsOutlined fontSize={typeName === "SimpleDraft" ? "medium" : "large"} />
       </IconButton>
 
       <Popover
@@ -117,7 +126,7 @@ export default function EmojiPanel({ insertEmoji, editorRef, ...props }) {
                       <IconButton key={index}
                         sx={{ fontSize: "2rem" }}
 
-                        onClick={function () {
+                        onMouseDown={function () {
                           insertEmoji(item)
                         }}
 

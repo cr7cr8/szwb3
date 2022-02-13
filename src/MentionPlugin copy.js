@@ -1,8 +1,8 @@
 
 
-import { useContext, useState, useRef, useEffect } from 'react';
+import { useContext } from 'react';
 import { EditorState, ContentState, ContentBlock, CharacterMetadata, SelectionState, convertToRaw, convertFromRaw, RichUtils, Modifier, convertFromHTML, AtomicBlockUtils } from 'draft-js';
-import { Container, Grid, Paper, Typography, Box, Popover, Popper } from '@mui/material';
+import { Container, Grid, Paper, Typography, Box } from '@mui/material';
 import PeopleList from './PeopleList';
 
 
@@ -186,21 +186,16 @@ export default function createMentionPlugin() {
     })
 
 
-   
-
 
     if ((mentionType === "mentionOn") && (nameList.length !== 0)) {
 
       return (
-        <Box sx={{ display: "inline-block" }} >
+        <Box sx={{ display: "inline-block" }}>
           <Typography sx={cssObj} variant="body2">
             {children}
           </Typography>
 
-
-
           <PeopleList tabIndex={tabIndex} setShowing={setShowing} setTabName={setTabName} nameList={nameList} insertMention={insertMention} blockType={blockType} />
-
 
         </Box>
       )
@@ -210,14 +205,6 @@ export default function createMentionPlugin() {
       return <Typography sx={cssObj} variant="body2">
         {children}
       </Typography>
-      // return (
-      //   <Box sx={{ display: "inline-block" }}>
-      //     <Typography aria-describedby={"sssd"} sx={cssObj} variant="body2" ref={anchor}>
-      //       {children}
-      //     </Typography>
-      //     <PeopleList tabIndex={tabIndex} setShowing={setShowing} setTabName={setTabName} nameList={nameList} insertMention={insertMention} blockType={blockType} />
-      //   </Box>
-      // )
     }
 
   }

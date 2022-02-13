@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
 import { Button, CssBaseline, Switch, Slider } from '@mui/material';
 import DraftEditor from './DraftEditor';
+import SimpleDraft from './SimpleDraft';
 
 import Immutable from "immutable";
 
@@ -194,6 +195,7 @@ export function ContextProvider({ editorState: editorStateProp, setEditorState: 
 
       <DraftEditor userName={userName} />
 
+
     </Context.Provider>
 
   )
@@ -207,13 +209,16 @@ export function SimpleDraftProvider() {
 
   const [peopleList, setPeopleList] = usePeopleListState()
   const [editorState, setEditorState] = useEditorState()
+  const [currentBlockKey, setCurrentBlockKey] = useState("ddd")
 
   return (
     <Context.Provider value={{
       peopleList, setPeopleList,
-      editorState, setEditorState
+      editorState, setEditorState,
+      currentBlockKey, setCurrentBlockKey
     }}>
 
+      <SimpleDraft userName={"aaa"} typeName="SimpleDraft" />
 
     </Context.Provider>
 

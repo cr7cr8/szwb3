@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useRef } from 'react';
+import { useContext, useEffect } from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import Divider from '@mui/material/Divider';
@@ -11,7 +11,6 @@ import Avatar from '@mui/material/Avatar';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Popover from '@mui/material/Popover';
 
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
@@ -35,7 +34,6 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
 
   const inTab = tabIndex % nameList.length
 
-
   const theme = useTheme()
 
   useEffect(function () {
@@ -49,48 +47,24 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
 
   }, [])
 
-  const [right, setRight] = useState(false)
-  const [opacity, setOpacity] = useState(0)
-  const anchor = useRef()
-  useEffect(function () {
-    const { x, width } = anchor.current.getBoundingClientRect()
-    if (x + width + 50 > window.innerWidth) {
-      setRight(1)
-    }
-
-    //console.log(anchor.current.getBoundingClientRect().x, anchor.current.getBoundingClientRect().width, window.innerWidth)
-    setOpacity(1)
-
-
-  }, [])
-
 
   return (
 
-    <Stack direction="column" spacing={0.2}
-      ref={anchor}
-      sx={{
-        width: "fit-content", position: "absolute",  // bgcolor: theme.palette.action.disabledBackground,
-        boxShadow: 3,
-        zIndex: 5000,
-        opacity,
-        ...Boolean(right) && { right: 0 },
+    <Stack direction="column" spacing={0.2} sx={{
+      width: "fit-content", position: "absolute",  // bgcolor: theme.palette.action.disabledBackground,
+      boxShadow: 3,
+      //  position: "absolute",
+      //  index: 200
+      ...(blockType === "rightBlock") && { transform: "translateX(calc(-100% + 2rem) )" },
+      ...(blockType === "centerBlock") && { transform: "translateX(calc(-50% + 2rem) )" },
+    }}
 
-        backgroundColor: theme.palette.action.disabledBackground,//theme.isLight?"lightgray":"darkgray",//theme.palette.action.disabledBackground,
-        // ...(blockType === "rightBlock") && { transform: "translateX(calc(-100% + 2rem) )" },
-        // ...(blockType === "centerBlock") && { transform: "translateX(calc(-50% + 2rem) )" },
+      component={function (props) {
+        return (
+          <div {...props} contentEditable={false} suppressContentEditableWarning={true}
+            style={{ backgroundColor: theme.palette.action.disabledBackground, }} />
+        )
       }}
-
-    // component={function (props) {
-    //   return (
-    //     <div {...props} contentEditable={false} suppressContentEditableWarning={true}
-    //       style={{
-    //         backgroundColor: theme.palette.action.disabledBackground,
-
-
-    //       }} />
-    //   )
-    // }}
     >
 
 
@@ -116,9 +90,9 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
 
   const avatarString = multiavatar(name)
   let avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
-  if (avatarColor.length < 7) {
-    avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
-  }
+  if(avatarColor.length<7){
+    avatarColor ="#"+avatarColor[1]+avatarColor[1]+avatarColor[2]+avatarColor[2]+avatarColor[3]+avatarColor[3]
+  } 
 
   const bgcolor = hexToRGB(avatarColor, 0.2)
 
@@ -150,7 +124,7 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
         ? theme.palette.mode === "light"
           ? inList ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, title ? 0.0001 : 0.2)
           : inList ? hexToRGB(avatarColor, 0.6) : hexToRGB2(avatarColor, title ? 0.0001 : 0.6)
-
+    
         : theme.palette.panelColor,
 
       height: theme.scaleSizeObj(avatarScale),

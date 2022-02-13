@@ -10,7 +10,7 @@ import {
 import EditingBlock from "./EditingBlock"
 
 
-import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button } from '@mui/material';
+import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button, Box } from '@mui/material';
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
 import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined } from '@mui/icons-material';
@@ -24,9 +24,9 @@ import createMentionPlugin from './MentionPlugin';
 import createPersonPlugin from './PersonPlugin';
 
 import createEmojiPlugin from './EmojiPlugin';
-import createImagePlugin from './ImagePlugin';
+//import createImagePlugin from './ImagePlugin';
 import createLinkPlugin from './LinkPlugin';
-import createVotePlugin from './VotePlugin';
+//import createVotePlugin from './VotePlugin';
 
 import axios from "axios";
 import { url, toPreHtml } from "./config";
@@ -38,19 +38,22 @@ const { hasCommandModifier } = KeyBindingUtil;
 const { mentionPlugin, taggingMention, checkShowing } = createMentionPlugin()
 const { personPlugin } = createPersonPlugin()
 const { emojiPlugin, EmojiComp } = createEmojiPlugin()
-const { imagePlugin, markingImageBlock, ImageBlock } = createImagePlugin()
+//const { imagePlugin, markingImageBlock, ImageBlock } = createImagePlugin()
 const { linkPlugin } = createLinkPlugin()
-const { votePlugin, markingVoteBlock, VoteBlock } = createVotePlugin()
+//const { votePlugin, markingVoteBlock, VoteBlock } = createVotePlugin()
 
 
-export default function SimpleDraft({ userName, ...props }) {
+export default function SimpleDraft({ userName, typeName, ...props }) {
 
   const theme = useTheme()
   const { editorState, setEditorState, currentBlockKey, setCurrentBlockKey, imageObj, setImageObj, onSubmit } = useContext(Context)
 
+
+  //const [editorState, setEditorState] = useState(EditorState.createEmpty())
+
   const editorRef = useRef()
 
-  const [shadowValue, setShadowValue] = useState(1)
+  const [shadowValue, setShadowValue] = useState(0)
 
   // const [currentBlockKey, setCurrentBlockKey] = useState(null)
   const specialBakcSpace = useRef(false)
@@ -61,18 +64,21 @@ export default function SimpleDraft({ userName, ...props }) {
 
   const [postDisable, setPostDisable] = useState(false)
 
-
+  const [isOnFocus, setIsOnFocus] = useState(false)
 
   return (
     <>
-      <Paper style={{
+      <Box style={{
         position: "relative", wordBreak: "break-all", //top: "5vh"
+        //   boxShadow: theme.shadows[shadowValue]
       }}
 
         sx={{
           //  fontSize: theme.sizeObj, 
           bgcolor: 'background.default',
-          boxShadow: shadowValue
+          boxShadow: shadowValue,
+          // bgcolor: "transparent",
+
         }}
       >
 
@@ -112,19 +118,21 @@ export default function SimpleDraft({ userName, ...props }) {
 
           }}
           onFocus={function () {
-            //setShadowValue(10)
-            setShadowValue(5)
+            setIsOnFocus(true)
+            setShadowValue(0)
           }}
           onBlur={function () {
-            setShadowValue(3)
+            setIsOnFocus(false)
+            setShadowValue(0)
+
 
           }}
           plugins={[
             mentionPlugin,
-            // personPlugin,
-            // emojiPlugin,
+            personPlugin,
+            emojiPlugin,
             // imagePlugin,
-            // linkPlugin,
+            linkPlugin,
             // votePlugin,
 
 
@@ -157,50 +165,50 @@ export default function SimpleDraft({ userName, ...props }) {
             const blockKey = block.getKey()
             const selection = editorState.getSelection()
 
-            if (type === "imageBlock") {
-              return {
-                component: ImageBlock,
-                editable: false,
-                props: {
-                  blockKey,
-                  markingImageBlock,
-                },
-              }
-            }
-            else if (type === "voteBlock") {
-              return {
-                component: VoteBlock,
-                editable: false,
-                props: {
-                  blockKey,
-                  markingVoteBlock,
-                  readOnly,
-                  setReadOnly,
-                },
-              }
-            }
+            // if (type === "imageBlock") {
+            //   return {
+            //     component: ImageBlock,
+            //     editable: false,
+            //     props: {
+            //       blockKey,
+            //       markingImageBlock,
+            //     },
+            //   }
+            // }
+            // else if (type === "voteBlock") {
+            //   return {
+            //     component: VoteBlock,
+            //     editable: false,
+            //     props: {
+            //       blockKey,
+            //       markingVoteBlock,
+            //       readOnly,
+            //       setReadOnly,
+            //     },
+            //   }
+            // }
 
 
           }}
 
 
 
-          blockRenderMap={
-            Immutable.Map({
+          // blockRenderMap={
+          //   Immutable.Map({
 
-              "unstyled": {
-                element: "div",
-                wrapper: <EditingBlock
-                  editorRef={editorRef}
-                  markingImageBlock={markingImageBlock}
-                  markingVoteBlock={markingVoteBlock}
-                  VoteBlock={VoteBlock}
-                  readOnly={readOnly}
-                  setReadOnly={setReadOnly}
-                />
-              },
-            })
-          }
+          //     "unstyled": {
+          //       element: "div",
+          //       wrapper: <EditingBlock
+          //         editorRef={editorRef}
+          //         markingImageBlock={markingImageBlock}
+          //         markingVoteBlock={markingVoteBlock}
+          //         VoteBlock={VoteBlock}
+          //         readOnly={readOnly}
+          //         setReadOnly={setReadOnly}
+          //       />
+          //     },
+          //   })
+          // }
 
           blockStyleFn={function (block) {
             const blockText = block.getText()
@@ -396,12 +404,12 @@ export default function SimpleDraft({ userName, ...props }) {
             let contentState = newState.getCurrentContent();
             const block = contentState.getBlockForKey(selectionState.getStartKey());
             //    console.log(block.getType())
-            if (block.getType() === "imageBlock") {
-              return "handled"
-            }
-            else if (block.getType() === "voteBlock") {
-              return "handled"
-            }
+            // if (block.getType() === "imageBlock") {
+            //   return "handled"
+            // }
+            // else if (block.getType() === "voteBlock") {
+            //   return "handled"
+            // }
             // else if (checkShowing()) {
             //   return "handled"
             // }
@@ -409,11 +417,12 @@ export default function SimpleDraft({ userName, ...props }) {
           }}
 
         />
+       <EmojiComp editorRef={editorRef} typeName="SimpleDraft" />
 
+        {/* <Stack direction="row" sx={{ backgroundColor: theme.isLight ? "rgba(167, 202, 237,1)" : "rgba(72, 101, 124,1)",
+         position: "sticky", bottom: 0, justifyContent: "space-between" }}>
 
-        <Stack direction="row" sx={{ backgroundColor: theme.isLight ? "rgba(167, 202, 237,1)" : "rgba(72, 101, 124,1)", position: "sticky", bottom: 0, justifyContent: "space-between" }}>
-
-          <Stack direction="row" sx={{ width: "10px", flexGrow: 1, /*bgcolor: "pink",*/ }}>
+          <Stack direction="row" sx={{ width: "10px", flexGrow: 1, }}>
 
             <IconButton size="small" onClick={function (e) {
               e.preventDefault()
@@ -430,7 +439,7 @@ export default function SimpleDraft({ userName, ...props }) {
 
               const newContent = Modifier.setBlockData(
                 editorState.getCurrentContent(),
-                SelectionState.createEmpty(currentBlockKey),//  editorState.getSelection(), // SelectionState.createEmpty(currentBlockKey),
+                SelectionState.createEmpty(currentBlockKey),
                 Immutable.Map({ isSmallFont: !Boolean(data.isSmallFont) })
               )
 
@@ -445,7 +454,7 @@ export default function SimpleDraft({ userName, ...props }) {
 
             <IconButton size="small" onClick={function () {
               const es = RichUtils.toggleBlockType(
-                editorState, // write type to editorState
+                editorState, 
                 "unstyled"
               )
               setTimeout(() => {
@@ -458,7 +467,7 @@ export default function SimpleDraft({ userName, ...props }) {
 
             <IconButton size="small" onClick={function () {
               const es = RichUtils.toggleBlockType(
-                editorState, // write type to editorState
+                editorState, 
                 "centerBlock"
               )
               setTimeout(() => {
@@ -470,7 +479,7 @@ export default function SimpleDraft({ userName, ...props }) {
 
             <IconButton size="small" onClick={function () {
               const es = RichUtils.toggleBlockType(
-                editorState, // write type to editorState
+                editorState, 
                 "rightBlock"
               )
               setTimeout(() => {
@@ -482,13 +491,7 @@ export default function SimpleDraft({ userName, ...props }) {
 
             <IconButton size="small" onClick={function () {
               setEditorState(addEmptyBlock(editorState))
-              // const es = RichUtils.toggleBlockType(
-              //   editorState, // write type to editorState
-              //   "rightBlock"
-              // )
-              // setTimeout(() => {
-              //   setEditorState(EditorState.forceSelection(es, es.getSelection()))
-              // }, 0);
+            
             }}>
               <HorizontalSplitOutlined fontSize="large" />
             </IconButton>
@@ -594,7 +597,7 @@ export default function SimpleDraft({ userName, ...props }) {
 
               const promise = axios.post(`${url}/api/voteBlock`, { ...voteBlockData.voteDataObj, postID, ownerName, }).then(response => {
 
-                //    console.log(response.data)
+           
 
 
               })
@@ -621,12 +624,7 @@ export default function SimpleDraft({ userName, ...props }) {
 
                   onSubmit(response.data)
 
-                  // onSubmit({
-                  //   ownerName,
-                  //   content: preHtml,
-                  //   postID,
-                  //   postingTime: new Date(),
-                  // })
+           
 
 
                 })
@@ -637,9 +635,9 @@ export default function SimpleDraft({ userName, ...props }) {
           }}
 
 
-        > Post</Button>
+        > Post</Button> */}
 
-      </Paper>
+      </Box>
 
 
       {/* <div style={{ whiteSpace: "pre-wrap", display: "flex", fontSize: 15 }}>

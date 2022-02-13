@@ -12,7 +12,7 @@ export default function createImagePlugin() {
   let setEditorState = null
   let newContent = null
 
- 
+
   function emojiStrategy(contentBlock, callback, contentState) {
 
     contentBlock.findEntityRanges(
@@ -25,12 +25,12 @@ export default function createImagePlugin() {
         );
       },
       callback
-    ); 
+    );
   };
- 
+
   function taggingEmoji() {
 
- 
+
 
     const oldSelection = editorState.getSelection();
     newContent = editorState.getCurrentContent();
@@ -60,7 +60,7 @@ export default function createImagePlugin() {
       editorState.getSelection(),
       text,
     )
-  
+
 
     let newSelection = editorState.getSelection().merge({
 
@@ -98,9 +98,9 @@ export default function createImagePlugin() {
 
 
 
-  function EmojiComp({ editorRef, ...props }) {
+  function EmojiComp({ editorRef, typeName, ...props }) {
 
-    return <EmojiPanel insertEmoji={insertEmoji} editorRef={editorRef} setFocus={setFocus} />
+    return <EmojiPanel insertEmoji={insertEmoji} editorRef={editorRef} setFocus={setFocus} typeName={typeName} />
 
 
   }

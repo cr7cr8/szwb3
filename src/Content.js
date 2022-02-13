@@ -289,7 +289,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, ...props }
         //  transition: "box-shadow, 300ms",
         wordWrap: "break-word",
         height,
-        overflow: "hidden",
+        overflow: "visible",
         position: "relative",
         //marginBottom:"8px",
 
