@@ -205,7 +205,7 @@ export function ContextProvider({ editorState: editorStateProp, setEditorState: 
 }
 
 
-export function SimpleDraftProvider() {
+export function SimpleDraftProvider({ postID, userName, openEditor, bgcolor, onSubmit }) {
 
   const [peopleList, setPeopleList] = usePeopleListState()
   const [editorState, setEditorState] = useEditorState()
@@ -218,7 +218,7 @@ export function SimpleDraftProvider() {
       currentBlockKey, setCurrentBlockKey
     }}>
 
-      <SimpleDraft userName={"aaa"} typeName="SimpleDraft" />
+      <SimpleDraft postID={postID} userName={userName} typeName="SimpleDraft" openEditor={openEditor} bgcolor={bgcolor} onSubmit={onSubmit} />
 
     </Context.Provider>
 

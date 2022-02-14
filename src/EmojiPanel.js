@@ -44,11 +44,11 @@ export default function EmojiPanel({ insertEmoji, editorRef, typeName, ...props 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
 
-  //  if (typeName === "SimpleDraft"){
-      setTimeout(() => {
-        setEditorState(EditorState.forceSelection(editorState, editorState.getSelection()))
-      }, 0);
- //   }
+    //  if (typeName === "SimpleDraft"){
+    setTimeout(() => {
+      setEditorState(EditorState.forceSelection(editorState, editorState.getSelection()))
+    }, 0);
+    //   }
 
   };
 
@@ -82,7 +82,7 @@ export default function EmojiPanel({ insertEmoji, editorRef, typeName, ...props 
 
       <IconButton size="small" onClick={handleClick}
 
-        sx={{ alignSelf: "right" }}>
+        sx={{ ...(typeName !== "SimpleDraft") && { alignSelf: "right" } }}>
 
         <EmojiEmotionsOutlined fontSize={typeName === "SimpleDraft" ? "medium" : "large"} />
       </IconButton>

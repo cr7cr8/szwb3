@@ -13,7 +13,11 @@ import EditingBlock from "./EditingBlock"
 import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button, Box } from '@mui/material';
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
-import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined } from '@mui/icons-material';
+import {
+  EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined,
+  Send,
+
+} from '@mui/icons-material';
 
 import { blue, red } from '@mui/material/colors';
 
@@ -43,10 +47,10 @@ const { linkPlugin } = createLinkPlugin()
 //const { votePlugin, markingVoteBlock, VoteBlock } = createVotePlugin()
 
 
-export default function SimpleDraft({ userName, typeName, ...props }) {
+export default function SimpleDraft({ postID, userName, typeName, openEditor, bgcolor, onSubmit, ...props }) {
 
   const theme = useTheme()
-  const { editorState, setEditorState, currentBlockKey, setCurrentBlockKey, imageObj, setImageObj, onSubmit } = useContext(Context)
+  const { editorState, setEditorState, currentBlockKey, setCurrentBlockKey, imageObj, setImageObj } = useContext(Context)
 
 
   //const [editorState, setEditorState] = useState(EditorState.createEmpty())
@@ -66,17 +70,29 @@ export default function SimpleDraft({ userName, typeName, ...props }) {
 
   const [isOnFocus, setIsOnFocus] = useState(false)
 
+
+  useEffect(function () {
+    if (openEditor) {
+      setTimeout(() => {
+        setEditorState(EditorState.forceSelection(editorState, editorState.getSelection()))
+      }, 0);
+    }
+  }, [openEditor])
+
   return (
     <>
       <Box style={{
         position: "relative", wordBreak: "break-all", //top: "5vh"
-        //   boxShadow: theme.shadows[shadowValue]
+        boxShadow: theme.shadows[shadowValue],
+        // border: `${isOnFocus?"1px":"0px"} solid ${blue[500]}`,
+          paddingLeft:"4px"
       }}
 
         sx={{
           //  fontSize: theme.sizeObj, 
           bgcolor: 'background.default',
-          boxShadow: shadowValue,
+          // boxShadow: shadowValue,
+          //  border: `${isOnFocus?"1px":"0px"} solid ${blue[500]}`,
           // bgcolor: "transparent",
 
         }}
@@ -119,11 +135,11 @@ export default function SimpleDraft({ userName, typeName, ...props }) {
           }}
           onFocus={function () {
             setIsOnFocus(true)
-            setShadowValue(0)
+            //    setShadowValue(1)
           }}
           onBlur={function () {
             setIsOnFocus(false)
-            setShadowValue(0)
+            //    setShadowValue(0)
 
 
           }}
@@ -417,7 +433,39 @@ export default function SimpleDraft({ userName, typeName, ...props }) {
           }}
 
         />
-       <EmojiComp editorRef={editorRef} typeName="SimpleDraft" />
+        <Box sx={{ bgcolor, position: "relative", transform:"translateX(-4px)", width:"calc( 100% + 4px )" }}>
+        
+            <EmojiComp editorRef={editorRef} typeName="SimpleDraft" />
+        
+          <IconButton size="small" sx={{
+            position: "absolute", right: 0, bottom: 0,
+          }}
+
+            onClick={function () {
+              // alert(postID + userName)
+              // console.log(toPreHtml(editorState, theme))
+
+              axios.post(`${url}/api/comment`,
+                {
+                  postID,
+                  ownerName: userName,
+                  content: toPreHtml(editorState, theme),
+                  commentID: "comment" + userName + "-" + Date.now()
+                })
+                .then(response => {
+                  console.log(response.data)
+
+                  setEditorState(EditorState.createEmpty())
+                  onSubmit(response.data)
+                })
+
+
+            }}
+          >
+            <Send fontSize="medium" />
+          </IconButton>
+        </Box>
+
 
         {/* <Stack direction="row" sx={{ backgroundColor: theme.isLight ? "rgba(167, 202, 237,1)" : "rgba(72, 101, 124,1)",
          position: "sticky", bottom: 0, justifyContent: "space-between" }}>

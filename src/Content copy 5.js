@@ -16,7 +16,7 @@ import { AvatarChip } from "./PeopleList"
 import { Container, Grid, Paper, Typography, Box, Chip, Avatar, Link, Button, LinearProgress, Stack, IconButton, Divider, Collapse } from '@mui/material';
 import {
   EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined,
-  ChatBubbleOutline,Edit
+  ChatBubbleOutline
 } from '@mui/icons-material';
 
 
@@ -173,7 +173,7 @@ export default function Content({ postArr, setPostArr, ...props }) {
 
     axios.get(`${url}/api/article`).then(response => {
       setPostArr(response.data)
-      // console.log(response.data[0])
+
       // setPostArr(response.data.sort((itemA, itemB) => {
       //   return Date.parse(itemA.postingTime) >= Date.parse(itemB.postingTime) ? -1 : 1
       // }))
@@ -241,10 +241,9 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
   const target = useRef(null)
   const currentSize = useRef(0)
 
-  const { content, postID, ownerName, postingTime, commentNum } = item
+  const { content, postID, ownerName, postingTime } = item
 
 
-  const [commentCount, setCommentCount] = useState(commentNum)
 
   const avatarString = multiavatar(ownerName)
 
@@ -257,10 +256,13 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
   }
   const bgcolor = theme.isLight ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6)
 
-
   useEffect(function () {
     if (isFirstOne) {
       const resizeObserver = new ResizeObserver(entries => {
+
+        // console.log(currentSize.current, entries[0].contentRect)
+        // currentSize.current = entries[0].contentRect.width
+
         if (currentSize.current !== entries[0].contentRect.width) {
           currentSize.current = entries[0].contentRect.width
           setSize(entries[0].contentRect)
@@ -278,17 +280,9 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
   const [height, setHeight] = useState("auto")
 
-
-  const [preHtmlEditor, setPreHtmlEditor] = useState()
-  const [openEditor, setOpenEditor] = useState(false)
-  const [unmountEditor, setUnmountEditor] = useState(true)
-
   const [openComment, setOpenComment] = useState(false)
-  const [unmountComment, setUnmountComment] = useState(true)
 
-
-
-
+  const [openEditor, setOpenEditor] = useState(false)
 
   return (
     <Box
@@ -301,12 +295,26 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
           paddingRight: "4px",
         },
 
+        // "& > div > .MuiCollapse-wrapper.MuiCollapse-vertical": {
+        //   paddingLeft: "0px",
+        //   paddingRight: "0px",
+        // },
+
+        // "&:hover": { bgcolor: hexToRGB(avatarColor, 0.2) },
         transition: "all, 300ms",
+
+
+        //  "&:hover": { boxShadow: 7 },
+        //  transition: "box-shadow, 300ms",
         wordWrap: "break-word",
         height,
         overflow: "visible",
         position: "relative",
+        //marginBottom:"8px",
 
+        //transition:"height, 1000ms"
+
+        //transform: `rotate(${Math.random() * 90}deg)`,
         marginBottom: "8px",
       }}
 
@@ -317,8 +325,10 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
       }}
 
       ref={target}>
+      {/* <Box className="title-line" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}> */}
 
       <Box sx={{
+        // bgcolor: theme.isLight ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6),// randomBgcolor,//theme.palette.background.paper,// randomBgcolor,
         bgcolor,
       }}>
         <Stack className="title-line" direction="row" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}    >
@@ -336,58 +346,37 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
         {toHtml(content, { theme, target, size, setSize, avatarColor, postID })}
 
-
-        <Stack direction="row-reverse" spacing={0}>
+        {/* <Divider /> */}
+        <Stack direction="row-reverse" spacing={2}>
 
           <IconButton size="small" onClick={function (e) {
             e.preventDefault()
             e.stopPropagation()
+
             setOpenComment(pre => !pre)
-            setUnmountComment(false)
           }}>
             <ChatBubbleOutline fontSize='medium' />
-            <Typography sx={{ fontSize: "1rem !important", color: theme.palette.text.secondary }}>&nbsp;{commentCount}</Typography>
           </IconButton>
+
 
           <IconButton size="small" onClick={function (e) {
             e.preventDefault()
             e.stopPropagation()
             setOpenEditor(pre => !pre)
-            setUnmountEditor(false)
-
           }}>
-            <Edit fontSize='medium' />
-
+            <ChatBubbleOutline fontSize='medium' />
           </IconButton>
         </Stack>
 
       </Box>
 
-      {(!unmountEditor) && <Collapse unmountOnExit={unmountEditor} in={openEditor} className="collapse" sx={{ bgcolor, }}  >
-        <SimpleDraftProvider openEditor={openEditor} postID={postID} userName={userName} bgcolor={bgcolor}
-          onSubmit={function (preHtml) {
-            //   alert(JSON.stringify(preHtml))
-            setPreHtmlEditor(preHtml)
-            setCommentCount(pre => pre + 1)
-            
-            setOpenEditor(false)
-            setUnmountEditor(false)
+      <Collapse unmountOnExit={false} in={openEditor} className="collapse" sx={{ bgcolor,  }}>
+        <SimpleDraftProvider openEditor={openEditor} postID={postID} userName={userName} bgcolor={bgcolor} />
+      </Collapse>
 
-            setOpenComment(true)
-            setUnmountComment(false)
-
-        
-          }}
-
-        />
-      </Collapse>}
-
-      {(!unmountComment) && <Collapse unmountOnExit={unmountComment} in={openComment} className="collapse">
-        <CommentSector item={item} avatarColor={avatarColor} toHtml={toHtml} PostingTime={PostingTime} commentCount={commentCount} setCommentCount={setCommentCount}
-          preHtmlEditor={preHtmlEditor}
-
-        />
-      </Collapse>}
+      <Collapse unmountOnExit={true} in={openComment} className="collapse">
+        <CommentSector item={item} avatarColor={avatarColor} toHtml={toHtml} PostingTime={PostingTime} />
+      </Collapse>
     </Box>
   )
 
