@@ -13,13 +13,21 @@ import Immutable from "immutable"
 
 import { AvatarChip } from "./PeopleList"
 
-import { Container, Grid, Paper, Typography, Box, Chip, Avatar, Link, Button, LinearProgress, Stack, IconButton, Divider, Collapse } from '@mui/material';
+import {
+  Container, Grid, Paper, Typography, Box, Chip, Avatar, Link, Button, LinearProgress, Stack, IconButton, Divider, Collapse, Badge,
+
+  CircularProgress
+} from '@mui/material';
 import {
   EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined,
-  ChatBubbleOutline,Edit
+  ChatBubbleOutline, Edit, DeleteOutline,
 } from '@mui/icons-material';
 
-
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 import useResizeObserver from '@react-hook/resize-observer';
 
@@ -42,7 +50,10 @@ import CommentSector from './CommentSector';
 import Masonry from 'react-masonry-css';
 import { SimpleDraftProvider } from './ContextProvider';
 
-function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID }) {
+import { useInView } from 'react-intersection-observer';
+
+
+function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn }) {
 
   // console.log(preHtml)
 
@@ -117,7 +128,10 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID }) 
         //  console.log(data)
 
         if (Array.isArray(data.imgDataArr) && data.imgDataArr.length > 0) {
-          return <Images key={index} imgDataArr={data.imgDataArr} allImageArr={allImageArr} target={target} size={size} setSize={setSize} postID={postID} />
+          return <Images key={index} imgDataArr={data.imgDataArr} allImageArr={allImageArr} target={target} size={size} setSize={setSize} postID={postID}
+            setLightBoxOn={setLightBoxOn}
+
+          />
         }
         else {
           return null
@@ -165,21 +179,7 @@ export default function Content({ postArr, setPostArr, ...props }) {
   const { userName } = useAppContext()
 
   const [size, setSize] = useState()
-
-
-
-
-  useEffect(function () {
-
-    axios.get(`${url}/api/article`).then(response => {
-      setPostArr(response.data)
-      // console.log(response.data[0])
-      // setPostArr(response.data.sort((itemA, itemB) => {
-      //   return Date.parse(itemA.postingTime) >= Date.parse(itemB.postingTime) ? -1 : 1
-      // }))
-    })
-
-  }, [])
+  const [dialogSize, setDialogSize] = useState()
 
   const breakpointColumnsObj = {
     [theme.breakpoints.values.xs]: 1,
@@ -190,45 +190,181 @@ export default function Content({ postArr, setPostArr, ...props }) {
     2000: 4, 3000: 5, 4000: 6, 5000: 7, 6000: 8, 7000: 9, 9999999: 10,
   };
 
+  const [isFull, setIsFull] = useState(false)
+  const { ref, inView, entry } = useInView({
+    /* Optional options */
+    threshold: 0.8,
+    triggerOnce: false,
+    initialInView: true,
+    rootMargin: "0px 0px 0px 0px"
+  });
+
+
+  function getSinglePost() {
+
+    if (inView) {
+      const beforeTime = postArr.length > 0 ? postArr[postArr.length - 1].postingTime : ""
+
+      //  console.log(postArr[0].postingTime)
+
+      axios.get(`${url}/api/article/getOne/${beforeTime}`).then(response => {
+
+        response.data.length === 0
+          ? setIsFull(true)
+          : setPostArr(pre => { return [...pre, ...response.data] })
+
+
+
+      })
+    }
+  }
+
+
+  useEffect(function () {
+
+    //  console.log(inView)
+
+    //while ((inView) && (!isFull)) {
+    if (inView && (!isFull)) {
+      getSinglePost()
+    }
+
+
+
+    // getSinglePost().then(postArr => {
+    //   //  alert(postCount)
+    //   if (postArr.length === 0) {
+    //     setIsFull(true)
+    //   }
+    // })
+    //    }
+
+
+  }, [isFull, inView, postArr])
+
+
+  const [open, setOpen] = useState(-1);
+  const [lightBoxOn, setLightBoxOn] = useState(false)
+  const [scroll, setScroll] = useState('paper');
+
+  const handleClickOpen = (scrollType) => () => {
+    setOpen(true);
+    setScroll(scrollType);
+  };
+
+  const handleClose = () => {
+    setOpen(-1);
+  };
+
+
+
+
+
   return (
-    <Box sx={{
-      display: "flex", justifyContent: "center", fontSize: theme.sizeObj,
-      // backgroundColor: ["pink", "orange", "skyblue", "yellow", "green"][col],
-      //  bgcolor: theme.palette.mode === "light" ? "lightgray" : "darkgray",
-      // bgcolor:  theme.isLight?"rgba(255,255,255,1)":"rgba(18,18,18,1)",  //theme.palette.background.default,  //"rgba(100,123,254,0.8)",
+    <>
+      <Box sx={{
+        display: "flex",
+        justifyContent: "center",
+        fontSize: theme.sizeObj,
+        // backgroundColor: { xs: "pink", sm: "yellow", md: "skyblue", lg: "orange", xl: "wheat" },
+        // backgroundColor: ["pink", "orange", "skyblue", "yellow", "green"][col],
+        //  bgcolor: theme.palette.mode === "light" ? "lightgray" : "darkgray",
+        // bgcolor:  theme.isLight?"rgba(255,255,255,1)":"rgba(18,18,18,1)",  //theme.palette.background.default,  //"rgba(100,123,254,0.8)",
 
-      // bgcolor: "blue",
+        // bgcolor: "blue",
 
-      overflow: "hidden",
-      "& p": { fontSize: theme.sizeObj }
-    }}
-    // ref={target}
-    >
-
-
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column"
+        //  overflow: "hidden",
+        "& p": { fontSize: theme.sizeObj }
+      }}
+      // ref={target}
       >
-        {postArr.map((item, index) => {
 
-          const { content, postID, ownerName } = item
-          return (
-            <PostFrame
-              key={postID}
-              postID={postID}
-              item={item}
-              size={size}
-              setSize={setSize}
-              isFirstOne={index === 0}
-              userName={userName}
-            />
-          )
-        })}
-      </Masonry>
 
-    </Box >
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="my-masonry-grid"
+          columnClassName="my-masonry-grid_column"
+        >
+
+          {postArr.map((item, index) => {
+
+            const { content, postID, ownerName } = item
+            return (
+              <PostFrame
+                key={postID}
+                postID={postID}
+                item={item}
+                size={size}
+                setSize={setSize}
+                isFirstOne={index === 0}
+
+                index={index}
+                setOpen={setOpen}
+                setLightBoxOn={setLightBoxOn}
+
+                userName={userName}
+                setPostArr={setPostArr}
+              />
+            )
+          })}
+        </Masonry>
+
+
+
+
+      </Box >
+
+      <Paper
+        ref={ref}
+        style={{
+          padding: theme.spacing(1), margin: "auto", backgroundColor: theme.palette.background.default, width: "100%",
+          opacity: Boolean(!isFull) && inView ? 1 : 0,
+          display: "flex", justifyContent: "center", alignItems: "center",
+          ...(isFull) && { display: "none" }
+        }}>
+        <CircularProgress size="1.5rem" />
+      </Paper>
+
+      <Dialog
+
+
+        onBackdropClick={function () {
+          setOpen(-1);
+        }}
+        fullWidth={true}
+        //  fullScreen={true}
+        open={open >= 0}
+        onClose={handleClose}
+        scroll={lightBoxOn ? "paper" : "body"}
+        sx={{
+
+          ...lightBoxOn && { bgcolor: "transparent", display: `none` },
+
+          //    padding: 0,
+
+          "& > div > div > div": { marginBottom: 0 }
+        }}
+      >
+
+        {postArr[open] && <PostFrame
+          key={postArr[open].postID}
+          postID={postArr[open].postID}
+          item={postArr[open]}
+          size={dialogSize}
+          setSize={setDialogSize}
+          isFirstOne={true}
+
+          setOpen={setOpen}
+
+          setLightBoxOn={setLightBoxOn}
+          userName={userName}
+          setPostArr={setPostArr}
+
+        />}
+      </Dialog>
+
+
+    </>
   )
 
 
@@ -236,13 +372,12 @@ export default function Content({ postArr, setPostArr, ...props }) {
 
 
 
-export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, ...props }) {
+export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, setPostArr, setOpen, index = -1, setLightBoxOn, ...props }) {
   const theme = useTheme()
   const target = useRef(null)
   const currentSize = useRef(0)
 
   const { content, postID, ownerName, postingTime, commentNum } = item
-
 
   const [commentCount, setCommentCount] = useState(commentNum)
 
@@ -293,6 +428,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
   return (
     <Box
       id={postID}
+
       sx={{
 
         boxShadow: 3,
@@ -321,20 +457,50 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
       <Box sx={{
         bgcolor,
       }}>
-        <Stack className="title-line" direction="row" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}    >
+        <Stack className="title-line" direction="row" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}
+          onDoubleClick={function () {
+
+            if (index >= 0) {
+              setOpen(index)
+            }
+
+          }}
+        >
 
 
           <AvatarChip name={ownerName} avatarScale={1.2} textScale={0.8} boxShadow={0} title={true} />
-          <Countdown date={Date.parse(postingTime)} intervalDelay={1 * 1000}
-            renderer={function ({ days, hours, minutes, seconds, completed, ...props }) {
-              return <PostTimeRender  {...{ days, hours, minutes, seconds, completed, ...props }} />
-            }}
-            overtime={true}
-          />
+
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Countdown date={Date.parse(postingTime)} intervalDelay={1 * 1000}
+              renderer={function ({ days, hours, minutes, seconds, completed, ...props }) {
+                return <PostTimeRender  {...{ days, hours, minutes, seconds, completed, ...props }} />
+              }}
+              overtime={true}
+            />
+            <IconButton size="small" sx={{ ...(userName !== ownerName) && { display: "none" } }}
+
+
+              onClick={function () {
+                axios.post(`${url}/api/article/delete`, { postID }).then(response => {
+
+                  setPostArr(pre => {
+
+                    return pre.filter(post => post.postID !== postID)
+
+                  })
+
+                })
+              }}
+            >
+              <DeleteOutline fontSize='medium' sx={{ color: theme.palette.text.secondary }} />
+            </IconButton>
+
+
+          </Box>
 
         </Stack>
 
-        {toHtml(content, { theme, target, size, setSize, avatarColor, postID })}
+        {toHtml(content, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn })}
 
 
         <Stack direction="row-reverse" spacing={0}>
@@ -345,7 +511,11 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
             setOpenComment(pre => !pre)
             setUnmountComment(false)
           }}>
+
+            {/* <Badge badgeContent={commentCount}  sx={{ "& > span":{bgcolor:theme.palette.text.secondary,color:"white"}}}> */}
             <ChatBubbleOutline fontSize='medium' />
+            {/* </Badge> */}
+
             <Typography sx={{ fontSize: "1rem !important", color: theme.palette.text.secondary }}>&nbsp;{commentCount}</Typography>
           </IconButton>
 
@@ -363,38 +533,45 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
       </Box>
 
-      {(!unmountEditor) && <Collapse unmountOnExit={unmountEditor} in={openEditor} className="collapse" sx={{ bgcolor, }}  >
-        <SimpleDraftProvider openEditor={openEditor} postID={postID} userName={userName} bgcolor={bgcolor}
-          onSubmit={function (preHtml) {
-            //   alert(JSON.stringify(preHtml))
-            setPreHtmlEditor(preHtml)
-            setCommentCount(pre => pre + 1)
-            
-            setOpenEditor(false)
-            setUnmountEditor(false)
+      {
+        (!unmountEditor) && <Collapse unmountOnExit={unmountEditor} in={openEditor} className="collapse" sx={{ bgcolor, }}  >
 
-            setOpenComment(true)
-            setUnmountComment(false)
 
-        
-          }}
+          <Box sx={{ width: "calc(100% - 8px)", marginRight: "4px", marginBottom: "4px", marginLeft: "4px", borderRadius: "4px", overflow: "visible", }}>
 
-        />
-      </Collapse>}
+            <SimpleDraftProvider openEditor={openEditor} postID={postID} userName={userName} bgcolor={bgcolor}
+              onSubmit={function (preHtml) {
+                //   alert(JSON.stringify(preHtml))
+                setPreHtmlEditor(preHtml)
+                setCommentCount(pre => pre + 1)
 
-      {(!unmountComment) && <Collapse unmountOnExit={unmountComment} in={openComment} className="collapse">
-        <CommentSector item={item} avatarColor={avatarColor} toHtml={toHtml} PostingTime={PostingTime} commentCount={commentCount} setCommentCount={setCommentCount}
-          preHtmlEditor={preHtmlEditor}
+                setOpenEditor(false)
+                setUnmountEditor(false)
 
-        />
-      </Collapse>}
-    </Box>
+                setOpenComment(true)
+                setUnmountComment(false)
+
+              }}
+            />
+          </Box>
+
+
+
+        </Collapse>
+      }
+
+      {
+        (!unmountComment) && <Collapse unmountOnExit={unmountComment} in={openComment} className="collapse">
+          <CommentSector item={item} avatarColor={avatarColor} toHtml={toHtml} PostingTime={PostingTime} commentCount={commentCount} setCommentCount={setCommentCount}
+            preHtmlEditor={preHtmlEditor}
+            setCommentCount={setCommentCount}
+          />
+        </Collapse>
+      }
+    </Box >
   )
 
 }
-
-
-
 
 export function LinkTag({ linkAdd }) {
 
@@ -440,15 +617,13 @@ export function LinkTag({ linkAdd }) {
   )
 }
 
-
-export function Images({ imgDataArr, allImageArr, target, size, setSize, postID, ...props }) {
+export function Images({ imgDataArr, allImageArr, target, size, setSize, postID, setLightBoxOn, ...props }) {
 
   const theme = useTheme()
   const numOfImage = imgDataArr ? imgDataArr.length : 0
 
   const width = size ? size.width : 0
   const height = [width / 16 * 9, width / 16 * 9, width / 2, width / 3, width / 16 * 9][numOfImage]
-
 
 
 
@@ -556,6 +731,16 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
 
   const [photoIndex, setPhotoIndex] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
+  // useEffect(function () {
+
+  //   console.log(setLightBoxOn)
+  //   setTimeout(function () {
+  //     setLightBoxOn(isOpen)
+  //   }, 0)
+  //   // 
+  // }, [isOpen])
+
+
   const images = allImageArr.length > 0
     ? allImageArr.map(img => {
       return {
@@ -573,7 +758,11 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
       mainSrc={images[photoIndex]?.imgUrl}
       nextSrc={images[(photoIndex + 1) % images.length]?.imgUrl}
       prevSrc={images[(photoIndex + images.length - 1) % images.length]?.imgUrl}
-      onCloseRequest={() => { setIsOpen(false); }}
+      onCloseRequest={() => {
+        setIsOpen(false);
+
+        setLightBoxOn(false)
+      }}
       onMovePrevRequest={() =>
         setPhotoIndex(
           pre => (pre + images.length - 1) % images.length,
@@ -584,6 +773,13 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
           pre => (pre + images.length + 1) % images.length,
         )
       }
+      onAfterOpen={() => {
+
+
+        setLightBoxOn(true)
+      }
+      }
+
     />
     : <></>
 
@@ -616,6 +812,7 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
             <img src={imageSnap} style={{ objectFit: "cover", width: "100%", height: "100%" }}
               onClick={function (e) {
 
+
                 const pos = images.findIndex(function (img) {
                   return img.imgSnap === e.target.src
                 })
@@ -642,7 +839,7 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
 export function VoteFrame({ data, avatarColor, postID, ...props }) {
 
   const theme = useTheme()
-  const { userName } = useAppContext()
+  const { userName, setUserName, votedArr, setVotedArr } = useAppContext()
 
   const { voteArr = [], voteTopic = null, pollDuration = null, } = data?.voteDataObj || {}
 
@@ -666,7 +863,7 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
       voteCountRef.current = voteCountArr
 
       setExpireTime(expireTime)
-      setIsVotting((!whoVoted.includes(userName)) && (Date.parse(expireTime) - Date.now()) > 0)
+      setIsVotting(((!whoVoted.includes(userName)) && (Date.parse(expireTime) - Date.now()) > 0) && (!votedArr.includes(postID)))
 
 
       const totalVotes = voteCountArr.reduce((current, next) => {
@@ -684,7 +881,11 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
 
     })
 
-  }, [])
+  }, [votedArr])
+
+  // useEffect(function () {
+  //   setIsVotting(pre => pre && (!votedArr.includes(postID)))
+  // }, [votedArr])
 
 
 
@@ -735,15 +936,9 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
                 )
                 setTotalVotes(totalVotes_)
                 setIsVotting(false)
-
-
-
                 axios.put(`${url}/api/voteBlock`, { choicePos: index, userName, postID, })
-
-
-
+                setVotedArr(pre => [...pre, postID])
               }
-
 
             }}>
             <LinearProgress key={index} variant="determinate" value={percentageArr.length === 0 ? 0 : percentageArr[index]}  // value={Math.min(100, index * 15 + 20)}             //value={Number(Math.random() * 100).toFixed(0)}
@@ -752,11 +947,10 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
               }}
             />
 
-
             <Typography variant='body2'
               alt="sdfsddf"
               sx={{
-                position: "absolute", top: "50%", left: 0, zIndex: 100, transform: "translateY(-50%)", display: "block", width: "calc(100% - 64px )",
+                position: "absolute", top: "50%", left: 4, zIndex: 100, transform: "translateY(-50%)", display: "block", width: "calc(100% - 64px )",
                 //bgcolor: "yellow", 
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -767,13 +961,13 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
             {/* <Typography variant='body2' sx={{ position: "absolute", top: "50%", right: 0, zIndex: 100, transform: "translateY(-50%)" }}>{Math.min(100, (index * 15 + 20)) + "%"}</Typography> */}
             {
               voteArr.length === 1 &&
-              <Typography variant='body2' sx={{ position: "absolute", top: "50%", right: 0, zIndex: 100, transform: "translateY(-50%)" }}>
+              <Typography variant='body2' sx={{ position: "absolute", top: "50%", right: 4, zIndex: 100, transform: "translateY(-50%)" }}>
                 {totalVotes} Votes
               </Typography>
             }
             {
               voteArr.length > 1 &&
-              <Typography variant='body2' sx={{ position: "absolute", top: "50%", right: 0, zIndex: 100, transform: "translateY(-50%)" }}>
+              <Typography variant='body2' sx={{ position: "absolute", top: "50%", right: 4, zIndex: 100, transform: "translateY(-50%)" }}>
                 {percentageArr.length === 0 ? 0 : percentageArr[index] + "%"}
               </Typography>
             }
@@ -829,12 +1023,12 @@ function PostTimeRender({ days, hours, minutes, seconds, completed, ...props }) 
   const message = completed
 
     ? days > 0
-      ? `${days} days ago`
+      ? `${days}d`
       : hours > 0
-        ? `${hours} hours ago`
+        ? `${hours}h`
         : minutes > 0
-          ? `${minutes} min ago`
-          : `Just now` //`${seconds} sec ago`
+          ? `${minutes}m`
+          : `0m`//`${seconds}s`//`Just now` //`${seconds} sec ago`
     : days > 0
       ? `Remaining ${days}+ days`
       : hours > 0
@@ -867,7 +1061,7 @@ function TimeRender({ days, hours, minutes, seconds, completed, expireTime, tota
       : hours > 0
         ? `${hours}+ hours Left`
         : minutes > 0
-          ? `${minutes}+ minu Left`
+          ? `${minutes}+ min Left`
           : `${seconds} sec Left`
 
   return <Box sx={{ display: "flex", justifyContent: "space-between", paddingLeft: "4px", paddingRight: "4px" }}>
@@ -884,6 +1078,29 @@ function TimeRender({ days, hours, minutes, seconds, completed, expireTime, tota
 
 
 
+
+  // const { ref, inView, entry } = useInView({
+  //   /* Optional options */
+  //   threshold: 0.8,
+  //   triggerOnce: false,
+  //   initialInView: true,
+  //   rootMargin: "0px 0px 0px 0px"
+  // });
+
+  // useEffect(function () {
+  //   // setTimeout(() => {
+  //   if ((inView) && (!isFull)) {
+  //     getSinglePost().then(postArr => {
+  //       //  alert(postCount)
+  //       if (postArr.length === 0) {
+  //         setIsFull(true)
+  //       }
+  //     })
+  //   }
+  //   //  }, 300);
+
+
+  // }, [isFull, postArr, inView])
 
 
 

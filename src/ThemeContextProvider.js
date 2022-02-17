@@ -106,8 +106,21 @@ export default function ThemeContextProvider(props) {
                 ]
               }
             }
-          }
+          },
+          MuiSvgIcon:{
+            styleOverrides:{
+              root: ({ ownerState, theme, ...props }) => {
+             
+                return [
+                //  ownerState.variant === 'body2' &&
+                  sx({
+                    color: theme.palette.text.secondary,
+                  }),
 
+                ]
+              }
+            }
+          }
         }
       }),
     [mode,sizeObj],

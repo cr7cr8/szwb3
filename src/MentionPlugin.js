@@ -210,14 +210,15 @@ export default function createMentionPlugin() {
       return <Typography sx={cssObj} variant="body2">
         {children}
       </Typography>
-      // return (
-      //   <Box sx={{ display: "inline-block" }}>
-      //     <Typography aria-describedby={"sssd"} sx={cssObj} variant="body2" ref={anchor}>
-      //       {children}
-      //     </Typography>
-      //     <PeopleList tabIndex={tabIndex} setShowing={setShowing} setTabName={setTabName} nameList={nameList} insertMention={insertMention} blockType={blockType} />
-      //   </Box>
-      // )
+      return (
+        <Box sx={{ display: "inline-block" }}>
+          <Typography aria-describedby={"sssd"} sx={cssObj} variant="body2" //ref={anchor}
+          >
+            {children}
+          </Typography>
+          <PeopleList tabIndex={tabIndex} setShowing={setShowing} setTabName={setTabName} nameList={nameList} insertMention={insertMention} blockType={blockType} />
+        </Box>
+      )
     }
 
   }

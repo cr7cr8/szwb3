@@ -135,6 +135,10 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
             marginLeft: 0,
             marginRight: "-8px",// theme.scaleSizeObj(-0.3),
             //transform: "scale(0.9)",
+            //  minWidth:"2rem",
+            //  minHeight:"2rem",
+            // marginTop:"8px",
+            // marginBottom:"8px",
 
           }
         }}

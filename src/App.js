@@ -24,15 +24,17 @@ function App() {
   //  const [editorState, setEditorState] = useEditorState()
 
   const [userName, setUserName] = useState("User" + String(Math.random()).substring(3, 6))
+  const [votedArr, setVotedArr] = useState([])
 
   //const [userName, setUserName] = useState("Useraaa")
   const [postArr, setPostArr] = useState([])
 
 
 
+
   return (
     <ThemeContextProvider>
-      <AppContext.Provider value={{ userName, setUserName }}>
+      <AppContext.Provider value={{ userName, setUserName,votedArr, setVotedArr}}>
 
         <Container disableGutters={true} fixed={false} maxWidth={window.innerWidth >= 3000 ? false : "lg"}
         //     sx={{ backgroundColor: { xs: "pink", sm: "yellow", md: "skyblue", lg: "orange", xl: "wheat" } }}
@@ -54,14 +56,25 @@ function App() {
 
                 userName={userName}
                 onSubmit={function (preHtml) {
-                  setPostArr(pre => { return [preHtml, ...pre] })
+                  console.log(preHtml)
+
+            
+                  setPostArr(pre => {
+
+                    pre.unshift(preHtml)
+                    return [...pre]
+                    //  return [preHtml, ...pre] 
+
+
+                  })
                 }} />
             </Grid>
 
 
           </Grid>
 
-          <Content postArr={postArr} setPostArr={setPostArr} userName={userName} />
+          {/* <Content  userName={userName} /> */}
+          <Content postArr={postArr} setPostArr={setPostArr}  userName={userName} />
           {/* <InstantContent editorState={editorState} /> */}
 
 
