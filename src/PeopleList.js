@@ -130,8 +130,8 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
         {...{ src: "data:image/svg+xml;base64," + btoa(avatarString) }}
         sx={{
           "&.MuiAvatar-root.MuiChip-avatar": {
-            width: theme.scaleSizeObj(avatarScale),
-            height: theme.scaleSizeObj(avatarScale),
+            width:title?"2.4rem":theme.scaleSizeObj(avatarScale),
+            height:title?"2.4rem":theme.scaleSizeObj(avatarScale),
             marginLeft: 0,
             marginRight: "-8px",// theme.scaleSizeObj(-0.3),
             //transform: "scale(0.9)",
@@ -157,7 +157,7 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
 
         : theme.palette.panelColor,
 
-      height: theme.scaleSizeObj(avatarScale),
+      height: title?"2.4rem":theme.scaleSizeObj(avatarScale),
       fontSize: theme.scaleSizeObj(textScale),
       boxShadow,
       "&:hover": {

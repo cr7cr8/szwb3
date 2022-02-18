@@ -58,6 +58,12 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
   }, [commentArr])
 
 
+  // useEffect(function () {
+  //  alert(newKey)
+  // }, [newKey])
+
+
+
   useEffect(function () {
     loadComments()
   }, [])
@@ -144,11 +150,11 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
 
           return (
             <React.Fragment key={commentID}>
-
+              <Divider sx={{ marginBottom: "4px", ...(index === 0) && { display: "none" } }} />
               <Box className="bar" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0px" }}>
 
 
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "center", marginBottom: "4px" }}>
                   <AvatarChip name={ownerName} avatarScale={1.2} textScale={0.8} boxShadow={0} title={true} />
                   <PostingTime postingTime={postingTime} />
 
@@ -202,10 +208,10 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
 
 
 
-              <Paper sx={{
+              <Box sx={{
                 marginLeft: theme.scaleSizeObj(0),
-                bgcolor,
-
+                //  bgcolor,
+                bgcolor: "transparent",
                 // bgcolor:theme.palette.divider
                 boxShadow: 0,
                 marginBottom: "4px",
@@ -214,13 +220,16 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
                 flexGrow: 1,
               }}>
                 {toHtml(content, { theme })}
-              </Paper>
+              </Box>
 
 
 
 
               <Collapse in={tabIndex === index} unmountOnExit={unmountEditor}>
-                <Box sx={{ borderRadius: "4px", overflow: "visible", marginTop: "0px", marginBottom: "4px", marginLeft: theme.scaleSizeObj(1.2), }}>
+                <Box sx={{
+                  borderRadius: "4px", overflow: "visible", marginTop: "0px", marginBottom: "4px",
+                  //    marginLeft: theme.scaleSizeObj(1.2),
+                }}>
                   <SimpleDraftProvider postID={postID} userName={userName} subCommentEditor={true} commentID={commentID}
                     openEditor={tabIndex === index}
                     onSubmit={function (newSubComment) {
@@ -333,7 +342,7 @@ function SubCommentSector({ commentID, userName, PostingTime, toHtml, bgcolor, i
           <Paper
             key={subCommentID}
             sx={{
-              marginLeft: theme.scaleSizeObj(1.2),
+              //   marginLeft: theme.scaleSizeObj(1.2),
               bgcolor,
               boxShadow: 0,
               marginBottom: "4px",
@@ -362,7 +371,7 @@ function SubCommentSector({ commentID, userName, PostingTime, toHtml, bgcolor, i
 
 
             </Box>
-            <Divider />
+            {/* <Divider /> */}
             {toHtml(content, { theme })}
           </Paper>
         )

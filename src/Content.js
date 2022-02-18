@@ -53,6 +53,17 @@ import { SimpleDraftProvider } from './ContextProvider';
 import { useInView } from 'react-intersection-observer';
 
 
+
+export const ContentContext = createContext()
+function useContentContext() {
+
+  return useContext(ContentContext)
+
+
+}
+
+
+
 function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn }) {
 
   // console.log(preHtml)
@@ -243,40 +254,24 @@ export default function Content({ postArr, setPostArr, ...props }) {
   }, [isFull, inView, postArr])
 
 
-  const [open, setOpen] = useState(-1);
+  const [openIndex, setOpenIndex] = useState(-1);
   const [lightBoxOn, setLightBoxOn] = useState(false)
-  const [scroll, setScroll] = useState('paper');
-
-  const handleClickOpen = (scrollType) => () => {
-    setOpen(true);
-    setScroll(scrollType);
-  };
-
-  const handleClose = () => {
-    setOpen(-1);
-  };
 
 
 
 
+ // const [votedArr, setVotedArr] = useState([])
+ // const [commentChangeArr, setCommentChangeArr] = useState([])
 
   return (
-    <>
+    <ContentContext.Provider value={{ /*votedArr, setVotedArr, commentChangeArr, setCommentChangeArr*/ }}>
       <Box sx={{
         display: "flex",
         justifyContent: "center",
         fontSize: theme.sizeObj,
-        // backgroundColor: { xs: "pink", sm: "yellow", md: "skyblue", lg: "orange", xl: "wheat" },
-        // backgroundColor: ["pink", "orange", "skyblue", "yellow", "green"][col],
-        //  bgcolor: theme.palette.mode === "light" ? "lightgray" : "darkgray",
-        // bgcolor:  theme.isLight?"rgba(255,255,255,1)":"rgba(18,18,18,1)",  //theme.palette.background.default,  //"rgba(100,123,254,0.8)",
-
-        // bgcolor: "blue",
-
-        //  overflow: "hidden",
         "& p": { fontSize: theme.sizeObj }
       }}
-      // ref={target}
+
       >
 
 
@@ -288,10 +283,10 @@ export default function Content({ postArr, setPostArr, ...props }) {
 
           {postArr.map((item, index) => {
 
-            const { content, postID, ownerName } = item
+            const { content, postID, ownerName, newKey } = item
             return (
               <PostFrame
-                key={postID}
+                key={newKey || postID}
                 postID={postID}
                 item={item}
                 size={size}
@@ -299,7 +294,7 @@ export default function Content({ postArr, setPostArr, ...props }) {
                 isFirstOne={index === 0}
 
                 index={index}
-                setOpen={setOpen}
+                setOpen={setOpenIndex}
                 setLightBoxOn={setLightBoxOn}
 
                 userName={userName}
@@ -329,32 +324,48 @@ export default function Content({ postArr, setPostArr, ...props }) {
 
 
         onBackdropClick={function () {
-          setOpen(-1);
+          setOpenIndex(-1);
         }}
         fullWidth={true}
         //  fullScreen={true}
-        open={open >= 0}
-        onClose={handleClose}
+        open={openIndex >= 0}
+        onClose={function () {
+
+          if (postArr[openIndex].postID) {
+            axios.get(`${url}/api/article/findOne/${postArr[openIndex].postID}`).then((response) => {
+
+              setPostArr(pre => {
+                return pre.map((post, index) => {
+                  if (index !== openIndex) { return post }
+                  else {
+                    console.log(response.data)
+                    return { ...response.data, newKey: Math.random() }
+                  }
+                })
+
+              })
+            })
+          }
+
+
+
+        }}
         scroll={lightBoxOn ? "paper" : "body"}
         sx={{
-
           ...lightBoxOn && { bgcolor: "transparent", display: `none` },
-
-          //    padding: 0,
-
           "& > div > div > div": { marginBottom: 0 }
         }}
       >
 
-        {postArr[open] && <PostFrame
-          key={postArr[open].postID}
-          postID={postArr[open].postID}
-          item={postArr[open]}
+        {postArr[openIndex] && <PostFrame
+          key={postArr[openIndex].newKey || postArr[openIndex].postID}
+          postID={postArr[openIndex].postID}
+          item={postArr[openIndex]}
           size={dialogSize}
           setSize={setDialogSize}
           isFirstOne={true}
 
-          setOpen={setOpen}
+          setOpen={setOpenIndex}
 
           setLightBoxOn={setLightBoxOn}
           userName={userName}
@@ -364,7 +375,7 @@ export default function Content({ postArr, setPostArr, ...props }) {
       </Dialog>
 
 
-    </>
+    </ContentContext.Provider>
   )
 
 
@@ -377,7 +388,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
   const target = useRef(null)
   const currentSize = useRef(0)
 
-  const { content, postID, ownerName, postingTime, commentNum } = item
+  const { content, postID, ownerName, postingTime, commentNum, newKey } = item
 
   const [commentCount, setCommentCount] = useState(commentNum)
 
@@ -839,7 +850,8 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
 export function VoteFrame({ data, avatarColor, postID, ...props }) {
 
   const theme = useTheme()
-  const { userName, setUserName, votedArr, setVotedArr } = useAppContext()
+  const { userName, setUserName } = useAppContext()
+  //const { votedArr, setVotedArr } = useContentContext()
 
   const { voteArr = [], voteTopic = null, pollDuration = null, } = data?.voteDataObj || {}
 
@@ -863,8 +875,8 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
       voteCountRef.current = voteCountArr
 
       setExpireTime(expireTime)
-      setIsVotting(((!whoVoted.includes(userName)) && (Date.parse(expireTime) - Date.now()) > 0) && (!votedArr.includes(postID)))
-
+    //  setIsVotting(((!whoVoted.includes(userName)) && (Date.parse(expireTime) - Date.now()) > 0) && (!votedArr.includes(postID)))
+    setIsVotting(((!whoVoted.includes(userName)) && (Date.parse(expireTime) - Date.now()) > 0))
 
       const totalVotes = voteCountArr.reduce((current, next) => {
 
@@ -881,7 +893,7 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
 
     })
 
-  }, [votedArr])
+  }, [])
 
   // useEffect(function () {
   //   setIsVotting(pre => pre && (!votedArr.includes(postID)))
@@ -937,7 +949,7 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
                 setTotalVotes(totalVotes_)
                 setIsVotting(false)
                 axios.put(`${url}/api/voteBlock`, { choicePos: index, userName, postID, })
-                setVotedArr(pre => [...pre, postID])
+             //   setVotedArr(pre => [...pre, postID])
               }
 
             }}>

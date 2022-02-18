@@ -24,9 +24,7 @@ function App() {
   //  const [editorState, setEditorState] = useEditorState()
 
   const [userName, setUserName] = useState("User" + String(Math.random()).substring(3, 6))
-  const [votedArr, setVotedArr] = useState([])
-
-  //const [userName, setUserName] = useState("Useraaa")
+ 
   const [postArr, setPostArr] = useState([])
 
 
@@ -34,7 +32,7 @@ function App() {
 
   return (
     <ThemeContextProvider>
-      <AppContext.Provider value={{ userName, setUserName,votedArr, setVotedArr}}>
+      <AppContext.Provider value={{ userName, setUserName}}>
 
         <Container disableGutters={true} fixed={false} maxWidth={window.innerWidth >= 3000 ? false : "lg"}
         //     sx={{ backgroundColor: { xs: "pink", sm: "yellow", md: "skyblue", lg: "orange", xl: "wheat" } }}
