@@ -23,7 +23,7 @@ export default function EditingBlock({ VoteBlock, readOnly, setReadOnly, marking
 
   //const arr = [[props.children[0]]]
 
-  const { currentBlockKey, editorState, imageBlockNum } = useContext(Context)
+  const { currentBlockKey, editorState, imageBlockNum,setEditorState } = useContext(Context)
 
 
   const hasVoteBlock = Boolean(editorState.getCurrentContent().getBlocksAsArray().filter(block => {
@@ -42,12 +42,10 @@ export default function EditingBlock({ VoteBlock, readOnly, setReadOnly, marking
   const currentBlockText = block && block.getText()
   const currentBlockType = block && block.getType()
 
-
-  // console.log(block&&block.getText())
-  // console.log(">>>", currentBlockKey)
-
-
   const theme = useTheme()
+
+
+
 
   return (
     < >

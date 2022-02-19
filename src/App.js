@@ -7,15 +7,17 @@ import './App.css';
 import ThemeContextProvider from "./ThemeContextProvider";
 import { ContextProvider as EditorCtx } from "./ContextProvider";
 import Content, { InstantContent } from "./Content";
+import MainPage from "./MainPage";
+
+import { BrowserRouter, Route, Routes, useRoutes, Link } from "react-router-dom";
 
 
-import { BrowserRouter, Route, Routes, useRoutes } from "react-router-dom";
-
-
-import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Chip, Avatar } from '@mui/material';
-
+import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Chip, Avatar, CssBaseline } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
 
 export const AppContext = createContext()
+
+
 
 
 function App() {
@@ -27,59 +29,40 @@ function App() {
 
   const [postArr, setPostArr] = useState([])
 
-
-  const mainElement = <Container disableGutters={true} fixed={false} maxWidth={window.innerWidth >= 3000 ? false : "lg"} >
-    <Grid container
-      direction="row"
-      justifyContent="space-around"
-      alignItems="flex-start"
-      spacing={0}
-    >
-      <Grid item xs={10} sm={10} md={10} lg={6} xl={6} >
-        <EditorCtx
-          userName={userName}
-          onSubmit={function (preHtml) {
-            // console.log(preHtml)
-            setPostArr(pre => {
-
-              pre.unshift(preHtml)
-              return [...pre]
-              //  return [preHtml, ...pre] 
-            })
-          }} />
-      </Grid>
-
-    </Grid>
-
-    <Content postArr={postArr} setPostArr={setPostArr} userName={userName} />
-
-  </Container >
-
+  //let [editorState, setEditorState] = useEditorState()
 
 
   return (
     <ThemeContextProvider>
       <AppContext.Provider value={{ userName, setUserName }}>
 
-        <Routes>
-          <Route path="/" element={mainElement} />
+        <Container disableGutters={true} fixed={false} maxWidth={window.innerWidth >= 3000 ? false : "lg"} >
+          <CssBaseline />
+          {/* <Paper sx={{ bgcolor: "pink", height:"8rem",mx:"4px", my:"8px"  ,boxShadow:3 }} /> */}
+          <Routes>
+            <Route path="/" element={<MainPage postArr={postArr} setPostArr={setPostArr} userName={userName} />} />
 
 
 
-          <Route path="/person"
-
-            element={
-
-                <h3>{JSON.stringify({a:"aaa"})}</h3>
-
-
-            }
-
-          />
 
 
 
-        </Routes>
+            <Route path="/person"
+
+              element={
+
+                <h3>{JSON.stringify({ a: "aaa" })}</h3>
+
+
+              }
+
+            />
+
+
+
+          </Routes>
+
+        </Container>
       </AppContext.Provider>
     </ThemeContextProvider>
 

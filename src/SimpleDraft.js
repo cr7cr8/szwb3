@@ -71,11 +71,31 @@ export default function SimpleDraft({ postID, commentID, userName, typeName, ope
   const [isOnFocus, setIsOnFocus] = useState(false)
 
 
+  const [autoFocused, setAutoFocused] = useState(false)
+
+  useEffect(function () {
+
+
+    setTimeout(function () {
+
+      if (!autoFocused) {
+        setAutoFocused(true)
+        setEditorState(EditorState.forceSelection(editorState, editorState.getSelection()))
+
+      }
+
+    }, 0)
+
+  }, [editorState,autoFocused])
+
+
+
   useEffect(function () {
     if (openEditor) {
-      setTimeout(() => {
-        setEditorState(EditorState.forceSelection(editorState, editorState.getSelection()))
-      }, 0);
+      setAutoFocused(false)
+      // setTimeout(() => {
+      //   setEditorState(EditorState.forceSelection(editorState, editorState.getSelection()))
+      // }, 0);
     }
   }, [openEditor])
 

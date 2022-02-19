@@ -19,8 +19,8 @@ export const Context = createContext();
 
 
 
-export function useEditorState() {
-  const [editorState, setEditorState] = useState(EditorState.createEmpty())
+export function useEditorState(savedEditorState) {
+  const [editorState, setEditorState] = useState(savedEditorState||EditorState.createEmpty())
 
 
   return [editorState, setEditorState]
@@ -36,14 +36,19 @@ function usePeopleListState() {
 
 
 
-export function ContextProvider({ editorState: editorStateProp, setEditorState: setEditorStateProp, userName, onSubmit = function (preHtml) { }, ...props }) {
+export function ContextProvider({ editorState: editorStateProp, setEditorState: setEditorStateProp,
+  userName,
+  onSubmit = function (preHtml) { },
+  open, savedEditorState, 
+  setSavedEditorState,
 
-  let [editorState, setEditorState] = useEditorState()
+  ...props }) {
 
-  if (editorStateProp && setEditorStateProp) {
-    editorState = editorStateProp
-    setEditorState = setEditorStateProp
-  }
+
+  let [editorState, setEditorState] = useEditorState(savedEditorState)
+
+
+  
 
 
   const [peopleList, setPeopleList] = usePeopleListState()                  //useState(["TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
@@ -146,7 +151,17 @@ export function ContextProvider({ editorState: editorStateProp, setEditorState: 
 
   }, [imageObj])
 
-  const [scaleValue, setScaleValue] = useState(1.5)
+  useEffect(function () {
+    if (!open) {
+      setSavedEditorState(editorState)
+    }
+
+
+  }, [open])
+
+
+
+
   return (
 
     <Context.Provider value={{
@@ -163,16 +178,16 @@ export function ContextProvider({ editorState: editorStateProp, setEditorState: 
       imageBlockNum,
       onSubmit,
     }}>
-      <Switch
+      {/* <Switch
         sx={{ left: "92%" }}
         onChange={function (event) {
           event.target.checked
             ? theme.setMode("dark")
             : theme.setMode("light")
         }}
-      />
+      /> */}
 
-      <Slider
+      {/* <Slider
         valueLabelDisplay="auto"
         min={1}
         max={2}
@@ -187,11 +202,7 @@ export function ContextProvider({ editorState: editorStateProp, setEditorState: 
         valueLabelFormat={function (numOfMins_) {
           return numOfMins_ + "rem"
         }}
-      //  step={1}
-      // onChange={function (props) {
-      //   console.log(props)
-      // }}
-      />
+      /> */}
 
       <DraftEditor userName={userName} />
 
@@ -220,6 +231,7 @@ export function SimpleDraftProvider({ postID, commentID, userName, openEditor, b
 
       <SimpleDraft postID={postID} commentID={commentID} userName={userName} typeName="SimpleDraft"
         openEditor={openEditor} bgcolor={bgcolor} onSubmit={onSubmit} subCommentEditor={subCommentEditor} />
+
 
     </Context.Provider>
 

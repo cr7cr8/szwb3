@@ -10,7 +10,7 @@ import {
 import EditingBlock from "./EditingBlock"
 
 
-import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button } from '@mui/material';
+import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button, Switch, Box } from '@mui/material';
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
 import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined } from '@mui/icons-material';
@@ -50,6 +50,8 @@ export default function DraftEditor({ userName, ...props }) {
 
   const editorRef = useRef()
 
+  const frameRef = useRef()
+
   const [shadowValue, setShadowValue] = useState(1)
 
   // const [currentBlockKey, setCurrentBlockKey] = useState(null)
@@ -62,15 +64,142 @@ export default function DraftEditor({ userName, ...props }) {
   const [postDisable, setPostDisable] = useState(false)
 
 
+  const [autoFocused, setAutoFocused] = useState(false)
+
+  useEffect(function () {
+
+
+    setTimeout(function () {
+
+      if (!autoFocused) {
+        setAutoFocused(true)
+        setEditorState(EditorState.forceSelection(editorState, editorState.getSelection()))
+
+      }
+
+    }, 0)
+
+  }, [editorState])
 
   return (
-    <>
-      <Paper style={{
-        position: "relative", wordBreak: "break-all", //top: "5vh"
-      }}
+    <Box>
+      <Stack direction="row" sx={{ //backgroundColor: theme.isLight ? "rgba(167, 202, 237,1)" : "rgba(72, 101, 124,1)",
+        position: "sticky", bottom: 0, justifyContent: "space-between"
+      }}>
 
+        <Stack direction="row" sx={{ width: "10px", flexGrow: 1, /*bgcolor: "pink",*/ }}>
+
+          <EmojiComp editorRef={editorRef} />
+
+          <IconButton size="small" onClick={function (e) {
+            e.preventDefault()
+            e.stopPropagation()
+
+
+            const blockType = editorState.getCurrentContent().getBlockForKey(currentBlockKey).getType()
+            if (blockType === "imageBlock") { return }
+
+
+            const data = editorState.getCurrentContent().getBlockForKey(currentBlockKey).getData().toObject()
+
+
+
+            const newContent = Modifier.setBlockData(
+              editorState.getCurrentContent(),
+              SelectionState.createEmpty(currentBlockKey),//  editorState.getSelection(), // SelectionState.createEmpty(currentBlockKey),
+              Immutable.Map({ isSmallFont: !Boolean(data.isSmallFont) })
+            )
+
+
+            const es = EditorState.push(editorState, newContent, 'change-block-data');
+            setEditorState(es)
+
+          }} >
+            <FormatSize fontSize="large" />
+          </IconButton>
+
+
+          <IconButton size="small" onClick={function () {
+            const es = RichUtils.toggleBlockType(
+              editorState, // write type to editorState
+              "unstyled"
+            )
+            setTimeout(() => {
+              setEditorState(EditorState.forceSelection(es, es.getSelection()))
+            }, 0);
+
+          }}>
+            <FormatAlignLeft fontSize="large" />
+          </IconButton>
+
+          <IconButton size="small" onClick={function () {
+            const es = RichUtils.toggleBlockType(
+              editorState, // write type to editorState
+              "centerBlock"
+            )
+            setTimeout(() => {
+              setEditorState(EditorState.forceSelection(es, es.getSelection()))
+            }, 0);
+          }}>
+            <FormatAlignCenter fontSize="large" />
+          </IconButton>
+
+          <IconButton size="small" onClick={function () {
+            const es = RichUtils.toggleBlockType(
+              editorState, // write type to editorState
+              "rightBlock"
+            )
+            setTimeout(() => {
+              setEditorState(EditorState.forceSelection(es, es.getSelection()))
+            }, 0);
+          }}>
+            <FormatAlignRight fontSize="large" />
+          </IconButton>
+
+          <IconButton size="small" onClick={function () {
+            setEditorState(addEmptyBlock(editorState))
+            // const es = RichUtils.toggleBlockType(
+            //   editorState, // write type to editorState
+            //   "rightBlock"
+            // )
+            // setTimeout(() => {
+            //   setEditorState(EditorState.forceSelection(es, es.getSelection()))
+            // }, 0);
+          }}>
+            <HorizontalSplitOutlined fontSize="large" />
+          </IconButton>
+
+          <Switch
+            sx={{ position: "absolute", right: 0 }}
+            onChange={function (event) {
+              event.target.checked
+                ? theme.setMode("dark")
+                : theme.setMode("light")
+            }}
+          />
+
+
+        </Stack>
+
+      </Stack>
+
+
+      <Paper
+        id="frame-editor"
+        ref={frameRef}
+        style={{
+          position: "relative", wordBreak: "break-all", //top: "5vh"
+          //  minHeight: "8rem"
+        }}
+
+        onClick={function () {
+          // setTimeout(function () {
+          //   const es = EditorState.forceSelection(editorState, editorState.getSelection())
+          //   setEditorState(es)
+          // }, 0)
+        }}
         sx={{
-          //  fontSize: theme.sizeObj, 
+          //  fontSize: theme.sizeObj,
           bgcolor: 'background.default',
           boxShadow: shadowValue
         }}
@@ -82,7 +211,7 @@ export default function DraftEditor({ userName, ...props }) {
           readOnly={readOnly}
           editorState={editorState}
           onChange={(newState) => {
-
+            //  taggingMention()
             //  newState = taggingMention(showHint, newState)
             newState.getCurrentContent()
 
@@ -120,14 +249,14 @@ export default function DraftEditor({ userName, ...props }) {
 
           }}
           plugins={[
-            mentionPlugin,
-            personPlugin,
+
+
             emojiPlugin,
             imagePlugin,
             linkPlugin,
             votePlugin,
-
-
+            mentionPlugin,
+            personPlugin,
           ]}
 
           customStyleFn={function (style, block) {
@@ -411,235 +540,154 @@ export default function DraftEditor({ userName, ...props }) {
         />
 
 
-        <Stack direction="row" sx={{ backgroundColor: theme.isLight ? "rgba(167, 202, 237,1)" : "rgba(72, 101, 124,1)", position: "sticky", bottom: 0, justifyContent: "space-between" }}>
 
-          <Stack direction="row" sx={{ width: "10px", flexGrow: 1, /*bgcolor: "pink",*/ }}>
-
-            <IconButton size="small" onClick={function (e) {
-              e.preventDefault()
-              e.stopPropagation()
-
-
-              const blockType = editorState.getCurrentContent().getBlockForKey(currentBlockKey).getType()
-              if (blockType === "imageBlock") { return }
-
-
-              const data = editorState.getCurrentContent().getBlockForKey(currentBlockKey).getData().toObject()
-
-
-
-              const newContent = Modifier.setBlockData(
-                editorState.getCurrentContent(),
-                SelectionState.createEmpty(currentBlockKey),//  editorState.getSelection(), // SelectionState.createEmpty(currentBlockKey),
-                Immutable.Map({ isSmallFont: !Boolean(data.isSmallFont) })
-              )
-
-
-              const es = EditorState.push(editorState, newContent, 'change-block-data');
-              setEditorState(es)
-
-            }} >
-              <FormatSize fontSize="large" />
-            </IconButton>
-
-
-            <IconButton size="small" onClick={function () {
-              const es = RichUtils.toggleBlockType(
-                editorState, // write type to editorState
-                "unstyled"
-              )
-              setTimeout(() => {
-                setEditorState(EditorState.forceSelection(es, es.getSelection()))
-              }, 0);
-
-            }}>
-              <FormatAlignLeft fontSize="large" />
-            </IconButton>
-
-            <IconButton size="small" onClick={function () {
-              const es = RichUtils.toggleBlockType(
-                editorState, // write type to editorState
-                "centerBlock"
-              )
-              setTimeout(() => {
-                setEditorState(EditorState.forceSelection(es, es.getSelection()))
-              }, 0);
-            }}>
-              <FormatAlignCenter fontSize="large" />
-            </IconButton>
-
-            <IconButton size="small" onClick={function () {
-              const es = RichUtils.toggleBlockType(
-                editorState, // write type to editorState
-                "rightBlock"
-              )
-              setTimeout(() => {
-                setEditorState(EditorState.forceSelection(es, es.getSelection()))
-              }, 0);
-            }}>
-              <FormatAlignRight fontSize="large" />
-            </IconButton>
-
-            <IconButton size="small" onClick={function () {
-              setEditorState(addEmptyBlock(editorState))
-              // const es = RichUtils.toggleBlockType(
-              //   editorState, // write type to editorState
-              //   "rightBlock"
-              // )
-              // setTimeout(() => {
-              //   setEditorState(EditorState.forceSelection(es, es.getSelection()))
-              // }, 0);
-            }}>
-              <HorizontalSplitOutlined fontSize="large" />
-            </IconButton>
-          </Stack>
-
-          <EmojiComp editorRef={editorRef} />
-
-
-        </Stack>
-
-
-        <Button sx={{ width: "100%", borderRadius: 0 }} disabled={postDisable}
-
-          onClick={function () {
-            setPostDisable(true)
-
-
-            const ownerName = userName || ("User" + String(Math.random()).substring(3, 6))
-            const postID = "post" + ownerName + "-" + Date.now()
-
-            const blockTypeArr = []
-            const stepPromiseArr = []
-            let voteBlockKey = null
-            let voteBlockData = null
-
-
-            editorState.getCurrentContent().getBlocksAsArray().forEach(block => {
-              blockTypeArr.push(block.getType())
-              if (block.getType() === "voteBlock") {
-                voteBlockKey = block.getKey()
-                voteBlockData = block.getData().toObject()
-              }
-            })
-
-            if (blockTypeArr.includes("imageBlock")) {
-              const data = new FormData();
-              const data2 = new FormData();
-              const promiseArr = [];
-              const promiseArr2 = [];
-
-              const fileNameArr = []
-              const fileNameArr2 = []
-
-
-              Object.keys(imageObj).forEach(itemKey => {
-                imageObj[itemKey].forEach(img => {
-
-                  promiseArr.push(fetch(img.imgSnap)
-                    .then(res => {
-                      const filename = (String(img.imgSnap).substr(String(img.imgSnap).lastIndexOf("/") + 1)) + "-snap"
-                      fileNameArr.push({ filename })
-                      return res.blob()
-                    })
-                  )
-                  promiseArr2.push(fetch(img.imgUrl)
-                    .then(res => {
-                      const filename = (String(img.imgUrl).substr(String(img.imgUrl).lastIndexOf("/") + 1))
-                      console.log(filename)
-                      fileNameArr2.push({ filename })
-                      return res.blob()
-                    })
-                  )
-                })
-              })
-
-              const promise = Promise.all(promiseArr)
-                .then(blobArr => {
-                  blobArr.forEach((file, index) => {
-                    data.append("file", new File([file], fileNameArr[index].filename, { type: "image/jpeg" }))
-                  })
-                  const obj = { ownerName, postID };
-                  data.append('obj', JSON.stringify(obj));
-
-                  return axios.post(`${url}/api/picture/uploadPicture`, data, {
-                    headers: { 'content-type': 'multipart/form-data' },
-                  })
-                })
-                .then(response => {
-                  console.log(response.data)
-                  return Promise.all(promiseArr2)
-                })
-                .then(blobArr => {
-                  blobArr.forEach((file, index) => {
-                    data2.append("file", new File([file], fileNameArr2[index].filename, { type: "image/jpeg" }))
-                  })
-                  const obj = { ownerName, postID };
-                  data2.append('obj', JSON.stringify(obj));
-
-                  return axios.post(`${url}/api/picture/uploadPicture2`, data2, {
-                    headers: { 'content-type': 'multipart/form-data' },
-                  })
-                })
-
-              stepPromiseArr.push(promise)
-
-
-
-
-            }
-
-            if (blockTypeArr.includes("voteBlock")) {
-
-
-              const promise = axios.post(`${url}/api/voteBlock`, { ...voteBlockData.voteDataObj, postID, ownerName, }).then(response => {
-
-                //    console.log(response.data)
-
-
-              })
-              stepPromiseArr.push(promise)
-
-            }
-
-
-            Promise.all(stepPromiseArr).then(function () {
-              setPostDisable(false)
-              const preHtml = toPreHtml(editorState, theme)
-              axios.post(`${url}/api/article`,
-                {
-                  ownerName,
-
-                  content: preHtml,
-                  postID,
-                  postingTime: Date.now(),
-                }).then(response => {
-                  setPostDisable(false)
-
-                  setImageObj({})
-                  setEditorState(EditorState.createEmpty())
-
-                  onSubmit(response.data)
-
-                  // onSubmit({
-                  //   ownerName,
-                  //   content: preHtml,
-                  //   postID,
-                  //   postingTime: new Date(),
-                  // })
-
-
-                })
-
-
-            })
-
-          }}
-
-
-        > Post</Button>
 
       </Paper>
+
+
+
+
+
+
+
+      <Button sx={{ width: "100%", my: "8px" }} disabled={postDisable}
+
+        onClick={function () {
+          setPostDisable(true)
+
+
+          const ownerName = userName || ("User" + String(Math.random()).substring(3, 6))
+          const postID = "post" + ownerName + "-" + Date.now()
+
+          const blockTypeArr = []
+          const stepPromiseArr = []
+          let voteBlockKey = null
+          let voteBlockData = null
+
+
+          editorState.getCurrentContent().getBlocksAsArray().forEach(block => {
+            blockTypeArr.push(block.getType())
+            if (block.getType() === "voteBlock") {
+              voteBlockKey = block.getKey()
+              voteBlockData = block.getData().toObject()
+            }
+          })
+
+          if (blockTypeArr.includes("imageBlock")) {
+            const data = new FormData();
+            const data2 = new FormData();
+            const promiseArr = [];
+            const promiseArr2 = [];
+
+            const fileNameArr = []
+            const fileNameArr2 = []
+
+
+            Object.keys(imageObj).forEach(itemKey => {
+              imageObj[itemKey].forEach(img => {
+
+                promiseArr.push(fetch(img.imgSnap)
+                  .then(res => {
+                    const filename = (String(img.imgSnap).substr(String(img.imgSnap).lastIndexOf("/") + 1)) + "-snap"
+                    fileNameArr.push({ filename })
+                    return res.blob()
+                  })
+                )
+                promiseArr2.push(fetch(img.imgUrl)
+                  .then(res => {
+                    const filename = (String(img.imgUrl).substr(String(img.imgUrl).lastIndexOf("/") + 1))
+                    console.log(filename)
+                    fileNameArr2.push({ filename })
+                    return res.blob()
+                  })
+                )
+              })
+            })
+
+            const promise = Promise.all(promiseArr)
+              .then(blobArr => {
+                blobArr.forEach((file, index) => {
+                  data.append("file", new File([file], fileNameArr[index].filename, { type: "image/jpeg" }))
+                })
+                const obj = { ownerName, postID };
+                data.append('obj', JSON.stringify(obj));
+
+                return axios.post(`${url}/api/picture/uploadPicture`, data, {
+                  headers: { 'content-type': 'multipart/form-data' },
+                })
+              })
+              .then(response => {
+                console.log(response.data)
+                return Promise.all(promiseArr2)
+              })
+              .then(blobArr => {
+                blobArr.forEach((file, index) => {
+                  data2.append("file", new File([file], fileNameArr2[index].filename, { type: "image/jpeg" }))
+                })
+                const obj = { ownerName, postID };
+                data2.append('obj', JSON.stringify(obj));
+
+                return axios.post(`${url}/api/picture/uploadPicture2`, data2, {
+                  headers: { 'content-type': 'multipart/form-data' },
+                })
+              })
+
+            stepPromiseArr.push(promise)
+
+
+
+
+          }
+
+          if (blockTypeArr.includes("voteBlock")) {
+
+
+            const promise = axios.post(`${url}/api/voteBlock`, { ...voteBlockData.voteDataObj, postID, ownerName, }).then(response => {
+
+              //    console.log(response.data)
+
+
+            })
+            stepPromiseArr.push(promise)
+
+          }
+
+
+          Promise.all(stepPromiseArr).then(function () {
+            setPostDisable(false)
+            const preHtml = toPreHtml(editorState, theme)
+            axios.post(`${url}/api/article`,
+              {
+                ownerName,
+
+                content: preHtml,
+                postID,
+                postingTime: Date.now(),
+              }).then(response => {
+                setPostDisable(false)
+
+                setImageObj({})
+                setEditorState(EditorState.createEmpty())
+
+                onSubmit(response.data)
+
+                // onSubmit({
+                //   ownerName,
+                //   content: preHtml,
+                //   postID,
+                //   postingTime: new Date(),
+                // })
+
+
+              })
+
+
+          })
+
+        }}
+
+
+      > Post</Button>
 
 
       {/* <div style={{ whiteSpace: "pre-wrap", display: "flex", fontSize: 15 }}>
@@ -647,7 +695,7 @@ export default function DraftEditor({ userName, ...props }) {
         <hr />
         <div>{JSON.stringify(convertToRaw(editorState.getCurrentContent()), null, 2)}</div>
       </div> */}
-    </>
+    </Box>
 
   )
 
