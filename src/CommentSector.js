@@ -31,9 +31,22 @@ import useAppContext from './useAppContext';
 //import { ContextProvider as EditorCtx, useEditorState } from "./ContextProvider";
 import { SimpleDraftProvider } from './ContextProvider';
 
+import {
+  BrowserRouter, Route, Routes, useRoutes, Link as LinkRoute, useParams, matchPath, useLocation, useNavigate
+
+} from "react-router-dom";
+
+
 
 
 export default function CommentSector({ item, avatarColor, toHtml, PostingTime, commentCount, setCommentCount, preHtmlEditor, ...props }) {
+
+  const location = useLocation()
+  const isPersonPage = Boolean(matchPath("/person/:personName", location.pathname))
+
+
+
+  const { setNeedReduceArr, postArr } = useAppContext()
   const theme = useTheme()
   const { content, postID, ownerName, postingTime } = item
   const { userName, } = useAppContext()
@@ -74,6 +87,9 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
       comment.subCommentNum = comment.subCommentNum ? (comment.subCommentNum + 1) : 1
       return [...pre]
     })
+
+
+
   }, [commentArr])
 
 
@@ -177,6 +193,13 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
                         deleteComment(commentID)
                         setCommentCount(pre => { return Math.max(0, pre - 1) })
 
+                        if (postArr.length > 0) {
+                          isPersonPage && setNeedReduceArr(pre => {
+
+                            return [...pre, postID]
+
+                          })
+                        }
                       })
                     }}>
                     <DeleteOutline fontSize='medium' />

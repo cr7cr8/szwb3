@@ -15,6 +15,10 @@ import Popover from '@mui/material/Popover';
 
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
+import {
+  BrowserRouter, Route, Routes, useRoutes, Link, useParams, matchPath, useLocation, useNavigate
+
+} from "react-router-dom";
 
 //import multiavatar from '@multiavatar/multiavatar';
 
@@ -65,6 +69,8 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
   }, [])
 
 
+  const { personName } = useParams()
+
   return (
 
     <Stack direction="column" spacing={0.2}
@@ -110,7 +116,11 @@ export default function PeopleList({ tabIndex, setShowing, setTabName, nameList,
 
 }
 
-export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1.2, textScale = 0.8, title = false, inList = false, boxShadow = 0, insertMention = () => { }, ...props }) {
+export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1.2, textScale = 0.8, title = false,
+  inList = false,
+  boxShadow = 0,
+  insertMention = () => { },
+  ...props }) {
 
   const theme = useTheme()
 
@@ -122,6 +132,9 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
 
   const bgcolor = hexToRGB(avatarColor, 0.2)
 
+
+  const navigate = useNavigate()
+
   return (<Chip
     key={index}
     clickable={true}
@@ -130,8 +143,8 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
         {...{ src: "data:image/svg+xml;base64," + btoa(avatarString) }}
         sx={{
           "&.MuiAvatar-root.MuiChip-avatar": {
-            width:title?"2.4rem":theme.scaleSizeObj(avatarScale),
-            height:title?"2.4rem":theme.scaleSizeObj(avatarScale),
+            width: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
+            height: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
             marginLeft: 0,
             marginRight: "-8px",// theme.scaleSizeObj(-0.3),
             //transform: "scale(0.9)",
@@ -157,7 +170,7 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
 
         : theme.palette.panelColor,
 
-      height: title?"2.4rem":theme.scaleSizeObj(avatarScale),
+      height: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
       fontSize: theme.scaleSizeObj(textScale),
       boxShadow,
       "&:hover": {
@@ -170,7 +183,7 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
       }
     }}
     onClick={function () {
-
+      navigate(`/person/${name}`)
     }}
     onMouseDown={function () {
 

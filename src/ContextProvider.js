@@ -20,7 +20,7 @@ export const Context = createContext();
 
 
 export function useEditorState(savedEditorState) {
-  const [editorState, setEditorState] = useState(savedEditorState||EditorState.createEmpty())
+  const [editorState, setEditorState] = useState(savedEditorState || EditorState.createEmpty())
 
 
   return [editorState, setEditorState]
@@ -36,19 +36,32 @@ function usePeopleListState() {
 
 
 
-export function ContextProvider({ editorState: editorStateProp, setEditorState: setEditorStateProp,
+export function ContextProvider({ //editorState: editorStateProp, setEditorState: setEditorStateProp,
   userName,
   onSubmit = function (preHtml) { },
-  open, savedEditorState, 
+  open,
+
+  savedImageObj,
+  setSavedImageObj,
+  savedEditorState,
   setSavedEditorState,
+
+  savedVoteArr, setSavedVoteArr,
+  savedVoteTopic, setSavedVoteTopic,
+  savedPollDuration, setSavedPollDuration,
 
   ...props }) {
 
 
   let [editorState, setEditorState] = useEditorState(savedEditorState)
 
+  const [imageObj, setImageObj] = useState(savedImageObj || {})
 
-  
+
+  const [voteArr, setVoteArr] = useState(savedVoteArr || [])
+  const [voteTopic, setVoteTopic] = useState(savedVoteTopic || "")
+  const [pollDuration, setPollDuration] = useState(savedPollDuration || { d: 3, h: 0, m: 0 })
+
 
 
   const [peopleList, setPeopleList] = usePeopleListState()                  //useState(["TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
@@ -57,11 +70,8 @@ export function ContextProvider({ editorState: editorStateProp, setEditorState: 
 
 
   const [currentBlockKey, setCurrentBlockKey] = useState("ddd")
-  const theme = useTheme()
-  const [imageObj, setImageObj] = useState({})
-  const [voteArr, setVoteArr] = useState([])
-  const [voteTopic, setVoteTopic] = useState("")
-  const [pollDuration, setPollDuration] = useState({ d: 3, h: 0, m: 0 })
+
+
 
 
   const imageBlockNum = editorState.getCurrentContent().getBlocksAsArray().filter(block => block.getType() === "imageBlock").length
@@ -153,7 +163,14 @@ export function ContextProvider({ editorState: editorStateProp, setEditorState: 
 
   useEffect(function () {
     if (!open) {
+      setSavedImageObj(imageObj)
       setSavedEditorState(editorState)
+
+      setSavedVoteArr(voteArr)
+      setSavedVoteTopic(voteTopic)
+      setSavedPollDuration(pollDuration)
+
+
     }
 
 

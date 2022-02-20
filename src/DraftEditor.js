@@ -10,7 +10,7 @@ import {
 import EditingBlock from "./EditingBlock"
 
 
-import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button, Switch, Box } from '@mui/material';
+import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Button, Switch, Box, Hidden } from '@mui/material';
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
 import { EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined } from '@mui/icons-material';
@@ -88,9 +88,9 @@ export default function DraftEditor({ userName, ...props }) {
       }}>
 
         <Stack direction="row" sx={{ width: "10px", flexGrow: 1, /*bgcolor: "pink",*/ }}>
-
-          <EmojiComp editorRef={editorRef} />
-
+          <Hidden smDown={true}>
+            <EmojiComp editorRef={editorRef} />
+          </Hidden>
           <IconButton size="small" onClick={function (e) {
             e.preventDefault()
             e.stopPropagation()
@@ -170,7 +170,8 @@ export default function DraftEditor({ userName, ...props }) {
           </IconButton>
 
           <Switch
-            sx={{ position: "absolute", right: 0 }}
+            sx={{ position: "absolute", right: -10 }}
+            checked={!theme.isLight}
             onChange={function (event) {
               event.target.checked
                 ? theme.setMode("dark")

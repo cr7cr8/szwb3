@@ -64,7 +64,13 @@ export default function MainPage() {
     setClickFn(pre => (function () { setOpen(true) }))
 
 
-    return function () { setClickFn(null) }
+
+
+    return function () {
+
+      setClickFn(null)
+
+    }
 
   }, [])
 
@@ -72,7 +78,59 @@ export default function MainPage() {
     <>
 
 
-      <Content postArr={postArr} setPostArr={setPostArr} userName={userName} />
+
+      {/* <Paper sx={{
+        bgcolor: theme.isLight ? bgcolor : hexToRGB2(avatarColor, 0.6), padding: "4px", my: "8px", mx: "4px", display: "flex", alignItems: "center",
+        justifyContent: "center",
+
+        // transform: `scale(${open ? 0 : 1})`,
+        // transition: "all, 300ms",
+      }}>
+        <Box sx={{ padding: "4px", borderRadius: "1000px", bgcolor: "background.default", width: "fit-content", }}>
+          <Avatar src={userAvatarSrc} sx={{ width: "2.4rem", height: "2.4rem" }} />
+        </Box>
+
+        <Box sx={{
+          bgcolor: "background.default", borderRadius: "8px", width: "60%", mx: "8px", maxWidth: "600px", height: "calc( 2.4rem + 4px)",
+          color: theme.palette.text.secondary, px: "8px"
+        }}
+          onClick={function () {
+
+            setOpen(true)
+
+          }}
+
+        ></Box>
+
+        <Link to={`/person/${userName}`} target="_blank">
+          <Box sx={{
+            padding: "4px", borderRadius: "1000px", bgcolor: "background.default", width: "fit-content",
+          }}>
+            <Avatar sx={{
+              width: "2.4rem", height: "2.4rem",
+              bgcolor: theme.isLight ? bgcolor : hexToRGB2(avatarColor, 0.6),
+              "&:hover": { bgcolor: avatarColor, cursor: "pointer" }
+            }}
+            //</Box> onClick={function () {
+            //  window.open("/person", '_blank')
+            //  navigate(1)
+            //  }}
+            >
+              <SettingsIcon sx={{ color: theme.palette.background.default, }} fontSize='large' />
+            </Avatar>
+          </Box>
+        </Link>
+      </Paper> */}
+
+
+
+
+
+
+      <Content postArr={postArr} setPostArr={setPostArr} userName={userName}
+
+
+      />
 
       <Dialog
 
@@ -80,35 +138,16 @@ export default function MainPage() {
         fullWidth={true}
         //  fullScreen={true}
         open={open}
-        onClose={function () { }}
+        onClose={function () {
 
+
+
+        }}
         scroll={"body"}
-
         sx={{
+          overflow: "visible",
 
-
-
-          "& > div > div": {
-            overflow: "visible",
-            paddingTop: "8px",
-            px: "8px",
-            //   bgcolor: "red",
-
-            // width: "100%",
-            width: { xs: "95%", sm: "95%", md: "95%", lg: "95%", xl: "95%" },
-            mx: 0,
-
-          },
-
-          "& > div > div.MuiPaper-root": {
-
-            maxWidth: "600px",
-          }
-          // "& > div > div ": {
-          //   bgcolor:"red",
-          //   width:"700px",
-          // }
-
+          "& > div > div": { overflow: "visible", paddingTop: "8px", }
         }}
       >
         <Grid container

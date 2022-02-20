@@ -17,13 +17,11 @@ import {
   Container, Grid, Paper, Typography, Box, Chip, Avatar, Link, Button, LinearProgress, Stack, IconButton, Divider, Collapse, Badge,
 
   CircularProgress, Hidden
-} from '@mui/material';
+} from '@mui/material'
 import {
   EmojiEmotions, FormatSize, FormatAlignLeft, FormatAlignCenter, FormatAlignRight, StackedBarChart, HorizontalSplitOutlined,
-  ChatBubbleOutline, Edit, DeleteOutline, OpenInFullOutlined, AspectRatioOutlined,
+  ChatBubbleOutline, Edit, DeleteOutline, AspectRatioOutlined
 } from '@mui/icons-material';
-
-
 
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -53,6 +51,11 @@ import Masonry from 'react-masonry-css';
 import { SimpleDraftProvider } from './ContextProvider';
 
 import { useInView } from 'react-intersection-observer';
+
+import {
+  BrowserRouter, Route, Routes, useRoutes, Link as LinkRoute, useParams, matchPath, useLocation, useNavigate
+
+} from "react-router-dom";
 
 
 
@@ -186,10 +189,13 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, se
 
 
 
-export default function Content({ ...props }) {
+export default function ContentPerson({ ...props }) {
 
   const theme = useTheme()
-  const { userName, savedPostArr, setSavedPostArr, postArr, setPostArr, } = useAppContext()
+  const { userName, savedPostArr, setSavedPostArr, postArr: allPostArr, setPostArr: setAllPostArr } = useAppContext()
+
+
+  const [postArr, setPostArr] = useState([])
 
   const [size, setSize] = useState()
   const [dialogSize, setDialogSize] = useState()
@@ -215,20 +221,18 @@ export default function Content({ ...props }) {
 
   const [freez, setFreez] = useState(postArr.length === 0 ? false : true)
 
-
+  const { personName } = useParams()
   function getSinglePost() {
 
     if (inView) {
       const beforeTime = postArr.length > 0 ? postArr[postArr.length - 1].postingTime : ""
 
 
-      axios.get(`${url}/api/article/getOne/${beforeTime}`).then(response => {
+      axios.get(`${url}/api/article/getPersonOne/${personName}/${beforeTime}`).then(response => {
 
         response.data.length === 0
           ? setIsFull(true)
-          : setPostArr(pre => { return [...pre, ...response.data] })
-
-
+          : setPostArr(pre => { return [...pre, ...response.data].filter(post => post.ownerName === personName) })
 
       })
     }
@@ -263,6 +267,8 @@ export default function Content({ ...props }) {
 
   // const [votedArr, setVotedArr] = useState([])
   // const [commentChangeArr, setCommentChangeArr] = useState([])
+
+
 
   if (freez) { return <></> }
 
@@ -406,36 +412,6 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
   }
   const bgcolor = theme.isLight ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6)
 
-  const { needUpdateArr, setNeedUpdateArr,needReduceArr,setNeedReduceArr } = useAppContext()
-
-  useEffect(function () {
-
-    if (needUpdateArr.includes(postID)) {
-
-      let count = 0;
-      needUpdateArr.forEach(item=>{
-        if (item === postID){
-          count++
-        }
-      })
-
-      needReduceArr.forEach(item=>{
-        if (item === postID){
-          count--
-        }
-      })
-
-
-     // setNeedUpdateArr( needUpdateArr.filter(item => item !== postID))
-
-      setCommentCount(pre => pre + count)
-   
-
-
-
-    }
-
-  },[])
 
   useEffect(function () {
     if (isFirstOne) {
@@ -467,7 +443,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
 
 
-
+  const { needUpdateArr, setNeedUpdateArr, postArr: allPostArr } = useAppContext()
 
   return (
     <Box
@@ -501,41 +477,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
       <Box sx={{
         bgcolor,
       }}>
-        <Stack className="title-line" direction="row" sx={{ padding: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}
-        >
 
-
-          <AvatarChip name={ownerName} avatarScale={1.2} textScale={0.8} boxShadow={0} title={true} />
-
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Countdown date={Date.parse(postingTime)} intervalDelay={1 * 1000}
-              renderer={function ({ days, hours, minutes, seconds, completed, ...props }) {
-                return <PostTimeRender  {...{ days, hours, minutes, seconds, completed, ...props }} />
-              }}
-              overtime={true}
-            />
-            <IconButton size="small" sx={{ ...(userName !== ownerName) && { display: "none" } }}
-
-
-              onClick={function () {
-                axios.post(`${url}/api/article/delete`, { postID }).then(response => {
-
-                  setPostArr(pre => {
-
-                    return pre.filter(post => post.postID !== postID)
-
-                  })
-
-                })
-              }}
-            >
-              <DeleteOutline fontSize='medium' sx={{ color: theme.palette.text.secondary }} />
-            </IconButton>
-
-
-          </Box>
-
-        </Stack>
 
         {toHtml(content, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn })}
 
@@ -543,26 +485,23 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
 
 
-          <Hidden smDown={true}>
-            <IconButton size="small" onClick={function (e) {
-              e.preventDefault()
-              e.stopPropagation()
-              if (index >= 0) {
-                setOpen(index)
-              }
 
-            }}>
-              <AspectRatioOutlined fontSize='medium' sx={{ transform: "scaleX(-1)" }} />
 
-            </IconButton>
-          </Hidden>
 
-          <Hidden mdUp={true}>
-            <Box></Box>
-          </Hidden>
 
+
+
+          <Countdown date={Date.parse(postingTime)} intervalDelay={1 * 1000}
+            renderer={function ({ days, hours, minutes, seconds, completed, ...props }) {
+              return <PostTimeRender  {...{ days, hours, minutes, seconds, completed, ...props }} />
+            }}
+            overtime={true}
+          />
 
           <Box>
+
+
+
             <IconButton size="small" onClick={function (e) {
               e.preventDefault()
               e.stopPropagation()
@@ -573,6 +512,22 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
               <Edit fontSize='medium' />
 
             </IconButton>
+
+
+            <Hidden smDown={true}>
+              <IconButton size="small" onClick={function (e) {
+                e.preventDefault()
+                e.stopPropagation()
+                if (index >= 0) {
+                  setOpen(index)
+                }
+
+              }}>
+                <AspectRatioOutlined fontSize='medium' sx={{ transform: "scaleX(-1)" }} />
+              </IconButton>
+            </Hidden>
+
+
 
             <IconButton size="small" onClick={function (e) {
               e.preventDefault()
@@ -610,6 +565,14 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
                 setOpenComment(true)
                 setUnmountComment(false)
+
+                if (allPostArr.length > 0) {
+                  setNeedUpdateArr(pre => {
+                    return [...pre, postID]
+                  })
+
+                }
+                //  needUpdateArr.push(postID)
 
               }}
             />
