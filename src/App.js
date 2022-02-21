@@ -12,7 +12,7 @@ import ContentPerson from "./ContentPerson";
 import MainPage from "./MainPage";
 
 import {
-  BrowserRouter, Route, Routes, useRoutes, Link, useParams, matchPath, useLocation, useNavigate,
+  BrowserRouter, Route, Routes, useRoutes, Link, useParams, matchPath, useLocation, useNavigate, Outlet
 
 } from "react-router-dom";
 
@@ -43,7 +43,8 @@ function App() {
 
 
   const [postArr, setPostArr] = useState([])
-  const [userName, setUserName] = useState("User" + String(Math.random()).substring(3, 6))
+  //const [userName, setUserName] = useState("User" + String(Math.random()).substring(3, 6))
+  const [userName, setUserName] = useState("UweF22")
 
   const [clickFn, setClickFn] = useState(null)
 
@@ -73,14 +74,13 @@ function App() {
 
 
           <Routes>
-            <Route path="/" element={<><TopBar /><MainPage /></>} />
-            <Route path="/person/:personName" element={
-              <>
-                <Button onClick={function () {
 
-                  navigate("/")
-                }}>Home</Button>
-                <ContentPerson />
+            <Route path="/" element={<><BarMain /><MainPage /></>} />
+            <Route path="/person/*" element={
+              <>
+                <Routes>
+                  <Route path=":personName" element={<><BarPerson /><ContentPerson /></>} />
+                </Routes>
               </>
             } />
           </Routes>
@@ -108,7 +108,15 @@ function ProfilePage() {
 }
 
 
-function TopBar({ ...props }) {
+function BarMain({ ...props }) {
+
+
+  // const navigate = useNavigate()
+  // const location = useLocation()
+  // const isMainPage = Boolean(matchPath("/", location.pathname))
+  // const { personName } = useParams()
+  // console.log(location.pathname, location, personName)
+
 
   const { userName, clickFn, } = useAppContext()
 
@@ -125,9 +133,6 @@ function TopBar({ ...props }) {
   const [settingOn, setSettingOn] = useState(false)
 
 
-  //const navigate = useNavigate()
-  //const location = useLocation()
-  //const isMainPage = Boolean(matchPath("/", location.pathname))
 
 
   return (
@@ -138,7 +143,7 @@ function TopBar({ ...props }) {
 
     }}>
       <Box sx={{
-        padding: "4px", borderRadius: "1000px", bgcolor: "background.default", width: "fit-content",
+        padding: "4px", borderRadius: "1000px", bgcolor: "background.default", width: "fit-content",// opacity: isMainPage ? 1 : 0,
         transition: "transfrom, 300ms",
 
       }}>
@@ -178,11 +183,11 @@ function TopBar({ ...props }) {
                 theme.setSizeObj({ xs: sizeValue, sm: sizeValue, md: sizeValue, lg: sizeValue, xl: sizeValue })
               }}
             >
-              <FormControlLabel value="1rem" control={<Radio />} label="xs" sx={{ "& span": { fontSize: "1rem" } }} checked={Boolean(theme.sizeObj.xs === "1rem")} />
-              <FormControlLabel value="1.25rem" control={<Radio />} label="sm" sx={{ "& span": { fontSize: "1.25rem" } }} checked={theme.sizeObj.sm === "1.25rem"} />
-              <FormControlLabel value="1.5rem" control={<Radio />} label="md" sx={{ "& span": { fontSize: "1.5rem" } }} checked={theme.sizeObj.md === "1.5rem"} />
-              <FormControlLabel value="1.75rem" control={<Radio />} label="lg" sx={{ "& span": { fontSize: "1.75rem" } }} checked={theme.sizeObj.lg === "1.75rem"} />
-              <FormControlLabel value="2rem" control={<Radio />} label="xl" sx={{ "& span": { fontSize: "2rem" } }} checked={theme.sizeObj.xl === "2rem"} />
+              <FormControlLabel value="1rem" control={<Radio />} label="" sx={{ transform: "scale(0.8)", "& span": { fontSize: "1rem" } }} checked={Boolean(theme.sizeObj.xs === "1rem")} />
+              <FormControlLabel value="1.25rem" control={<Radio />} label="" sx={{ transform: "scale(0.9)", "& span": { fontSize: "1.25rem" } }} checked={theme.sizeObj.sm === "1.25rem"} />
+              <FormControlLabel value="1.5rem" control={<Radio />} label="" sx={{ transform: "scale(1)", "& span": { fontSize: "1.5rem" } }} checked={theme.sizeObj.md === "1.5rem"} />
+              <FormControlLabel value="1.75rem" control={<Radio />} label="" sx={{ transform: "scale(1.1)", "& span": { fontSize: "1.75rem" } }} checked={theme.sizeObj.lg === "1.75rem"} />
+              <FormControlLabel value="2rem" control={<Radio />} label="" sx={{ transform: "scale(1.2)", "& span": { fontSize: "2rem" } }} checked={theme.sizeObj.xl === "2rem"} />
             </RadioGroup>
             <Switch
               //   sx={{ position: "absolute", right: -10 }}
@@ -224,4 +229,40 @@ function TopBar({ ...props }) {
 
     </Paper >
   )
+}
+
+
+function BarPerson() {
+
+
+  const navigate = useNavigate()
+  const location = useLocation()
+  const isMainPage = Boolean(matchPath("/", location.pathname))
+  const { personName } = useParams()
+
+
+  const userAvatarSrc = "data:image/svg+xml;base64," + btoa(multiavatar(personName))
+  const avatarString = multiavatar(personName)
+  let avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
+  if (avatarColor.length < 7) {
+    avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
+  }
+  const bgcolor = hexToRGB(avatarColor, 0.2)
+
+  const theme = useTheme()
+
+
+  return (
+
+    <>
+   <Avatar src={userAvatarSrc} sx={{ width: "2.4rem", height: "2.4rem" }} />
+
+
+    </>
+
+
+  )
+
+
+
 }

@@ -135,63 +135,65 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
 
   const navigate = useNavigate()
 
-  return (<Chip
-    key={index}
-    clickable={true}
-    avatar={
-      <Avatar alt={name}
-        {...{ src: "data:image/svg+xml;base64," + btoa(avatarString) }}
-        sx={{
-          "&.MuiAvatar-root.MuiChip-avatar": {
-            width: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
-            height: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
-            marginLeft: 0,
-            marginRight: "-8px",// theme.scaleSizeObj(-0.3),
-            //transform: "scale(0.9)",
-            //  minWidth:"2rem",
-            //  minHeight:"2rem",
-            // marginTop:"8px",
-            // marginBottom:"8px",
+  return (
 
+    <Link to={`/person/${name}`} target="_self" >
+      <Chip
+        key={index}
+        clickable={true}
+        avatar={
+          <Avatar alt={name}
+            {...{ src: "data:image/svg+xml;base64," + btoa(avatarString) }}
+            sx={{
+              "&.MuiAvatar-root.MuiChip-avatar": {
+                width: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
+                height: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
+                marginLeft: 0,
+                marginRight: "-8px",// theme.scaleSizeObj(-0.3),
+                //transform: "scale(0.9)",
+                //  minWidth:"2rem",
+                //  minHeight:"2rem",
+                // marginTop:"8px",
+                // marginBottom:"8px",
+
+              }
+            }}
+          />}
+        label={name}
+        variant="filled"
+        sx={{
+          justifyContent: "flex-start",
+          borderRadius: "1000px",
+          paddingRight: theme.scaleSizeObj(0.25 * 0.85),
+
+          backgroundColor: inTab === index
+            ? theme.palette.mode === "light"
+              ? inList ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, title ? 0.0001 : 0.2)
+              : inList ? hexToRGB(avatarColor, 0.6) : hexToRGB2(avatarColor, title ? 0.0001 : 0.6)
+
+            : theme.palette.panelColor,
+
+          height: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
+          fontSize: theme.scaleSizeObj(textScale),
+          boxShadow,
+          "&:hover": {
+            //    boxShadow: 5,
+            backgroundColor: inList ? hexToRGB(avatarColor, 1) : hexToRGB2(avatarColor, 1),  //hexify(hexToRgbA3(multiavatar(name).match(/#[a-zA-z0-9]*/)[0])),
+          },
+          "& .MuiChip-label": {
+            transform: "translateY(0px)",
+            ...title && { color: theme.palette.text.secondary },
           }
         }}
-      />}
-    label={name}
-    variant="filled"
-    sx={{
-      justifyContent: "flex-start",
-      borderRadius: "1000px",
-      paddingRight: theme.scaleSizeObj(0.25 * 0.85),
+        onClick={function () {
+          //  navigate(`/person/${name}`)
+        }}
+        onMouseDown={function () {
 
-      backgroundColor: inTab === index
-        ? theme.palette.mode === "light"
-          ? inList ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, title ? 0.0001 : 0.2)
-          : inList ? hexToRGB(avatarColor, 0.6) : hexToRGB2(avatarColor, title ? 0.0001 : 0.6)
-
-        : theme.palette.panelColor,
-
-      height: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
-      fontSize: theme.scaleSizeObj(textScale),
-      boxShadow,
-      "&:hover": {
-        //    boxShadow: 5,
-        backgroundColor: inList ? hexToRGB(avatarColor, 1) : hexToRGB2(avatarColor, 1),  //hexify(hexToRgbA3(multiavatar(name).match(/#[a-zA-z0-9]*/)[0])),
-      },
-      "& .MuiChip-label": {
-        transform: "translateY(0px)",
-        ...title && { color: theme.palette.text.secondary },
-      }
-    }}
-    onClick={function () {
-      navigate(`/person/${name}`)
-    }}
-    onMouseDown={function () {
-
-      insertMention(name)
-    }}
-
-
-  />
+          insertMention(name)
+        }}
+      />
+    </Link>
   )
 
 }

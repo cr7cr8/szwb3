@@ -38,7 +38,7 @@ import 'react-image-lightbox/style.css';
 
 
 import axios from "axios";
-import { url, toPreHtml, hexToRGB, hexToRGB2, useScreenState } from "./config";
+import { url, toPreHtml, hexToRGB, hexToRGB2, useScreenState, uniqByKeepFirst } from "./config";
 import { compareAsc, format, formatDistanceToNow } from 'date-fns';
 import { zhCN } from "date-fns/locale";
 import Countdown from "react-countdown";
@@ -52,10 +52,8 @@ import { SimpleDraftProvider } from './ContextProvider';
 
 import { useInView } from 'react-intersection-observer';
 
-import {
-  BrowserRouter, Route, Routes, useRoutes, Link as LinkRoute, useParams, matchPath, useLocation, useNavigate
+import { BrowserRouter, Route, Routes, useRoutes, Link as LinkRoute, useParams, matchPath, useLocation, useNavigate, Outlet } from "react-router-dom";
 
-} from "react-router-dom";
 
 
 
@@ -219,9 +217,15 @@ export default function ContentPerson({ ...props }) {
   });
 
 
-  const [freez, setFreez] = useState(postArr.length === 0 ? false : true)
 
   const { personName } = useParams()
+
+  useEffect(function () {
+
+    setPostArr([])
+
+  }, [personName])
+
   function getSinglePost() {
 
     if (inView) {
@@ -232,13 +236,18 @@ export default function ContentPerson({ ...props }) {
 
         response.data.length === 0
           ? setIsFull(true)
-          : setPostArr(pre => { return [...pre, ...response.data].filter(post => post.ownerName === personName) })
+          : setPostArr(pre => { return uniqByKeepFirst([...pre, ...response.data].filter(post => post.ownerName === personName), (item) => item.postID) })
 
       })
     }
   }
 
+  useEffect(function () {
 
+
+    setIsFull(false)
+
+  }, [personName])
 
 
 
@@ -256,24 +265,11 @@ export default function ContentPerson({ ...props }) {
   const [openIndex, setOpenIndex] = useState(-1);
   const [lightBoxOn, setLightBoxOn] = useState(false)
 
-  useEffect(function () {
-
-    setTimeout(() => {
-      setFreez(false)
-    }, 300);
-
-  }, [])
-
-
-  // const [votedArr, setVotedArr] = useState([])
-  // const [commentChangeArr, setCommentChangeArr] = useState([])
-
-
-
-  if (freez) { return <></> }
 
   return (
     <ContentContext.Provider value={{ /*votedArr, setVotedArr, commentChangeArr, setCommentChangeArr*/ }}>
+
+
       <Box sx={{
         display: "flex",
         justifyContent: "center",
@@ -361,6 +357,7 @@ export default function ContentPerson({ ...props }) {
         }}
         scroll={lightBoxOn ? "paper" : "body"}
         sx={{
+          bgcolor: "rgba(0,0,0,0.7)",
           ...lightBoxOn && { bgcolor: "transparent", display: `none` },
           "& > div > div > div": { marginBottom: 0 }
         }}

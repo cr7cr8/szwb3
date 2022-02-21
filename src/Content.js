@@ -40,7 +40,7 @@ import 'react-image-lightbox/style.css';
 
 
 import axios from "axios";
-import { url, toPreHtml, hexToRGB, hexToRGB2, useScreenState } from "./config";
+import { url, toPreHtml, hexToRGB, hexToRGB2, useScreenState, uniqByKeepFirst } from "./config";
 import { compareAsc, format, formatDistanceToNow } from 'date-fns';
 import { zhCN } from "date-fns/locale";
 import Countdown from "react-countdown";
@@ -213,7 +213,6 @@ export default function Content({ ...props }) {
   });
 
 
-  const [freez, setFreez] = useState(postArr.length === 0 ? false : true)
 
 
   function getSinglePost() {
@@ -226,7 +225,7 @@ export default function Content({ ...props }) {
 
         response.data.length === 0
           ? setIsFull(true)
-          : setPostArr(pre => { return [...pre, ...response.data] })
+          : setPostArr(pre => { return uniqByKeepFirst([...pre, ...response.data], item => item.postID) })
 
 
 
@@ -252,19 +251,7 @@ export default function Content({ ...props }) {
   const [openIndex, setOpenIndex] = useState(-1);
   const [lightBoxOn, setLightBoxOn] = useState(false)
 
-  useEffect(function () {
 
-    setTimeout(() => {
-      setFreez(false)
-    }, 300);
-
-  }, [])
-
-
-  // const [votedArr, setVotedArr] = useState([])
-  // const [commentChangeArr, setCommentChangeArr] = useState([])
-
-  if (freez) { return <></> }
 
   return (
     <ContentContext.Provider value={{ /*votedArr, setVotedArr, commentChangeArr, setCommentChangeArr*/ }}>
@@ -355,6 +342,7 @@ export default function Content({ ...props }) {
         }}
         scroll={lightBoxOn ? "paper" : "body"}
         sx={{
+          bgcolor: "rgba(0,0,0,0.7)",
           ...lightBoxOn && { bgcolor: "transparent", display: `none` },
           "& > div > div > div": { marginBottom: 0 }
         }}
@@ -406,36 +394,36 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
   }
   const bgcolor = theme.isLight ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6)
 
-  const { needUpdateArr, setNeedUpdateArr,needReduceArr,setNeedReduceArr } = useAppContext()
+  const { needUpdateArr, setNeedUpdateArr, needReduceArr, setNeedReduceArr } = useAppContext()
 
   useEffect(function () {
 
     if (needUpdateArr.includes(postID)) {
 
       let count = 0;
-      needUpdateArr.forEach(item=>{
-        if (item === postID){
+      needUpdateArr.forEach(item => {
+        if (item === postID) {
           count++
         }
       })
 
-      needReduceArr.forEach(item=>{
-        if (item === postID){
+      needReduceArr.forEach(item => {
+        if (item === postID) {
           count--
         }
       })
 
 
-     // setNeedUpdateArr( needUpdateArr.filter(item => item !== postID))
+      // setNeedUpdateArr( needUpdateArr.filter(item => item !== postID))
 
       setCommentCount(pre => pre + count)
-   
+
 
 
 
     }
 
-  },[])
+  }, [])
 
   useEffect(function () {
     if (isFirstOne) {
