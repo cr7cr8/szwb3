@@ -26,7 +26,7 @@ export default function createMentionPlugin() {
   let tagEndPos = 0
 
 
-  let tabIndex = 1000;
+  let tabIndex = 1006;
   let isShowing = false;
 
   let tabName = ""
@@ -186,7 +186,7 @@ export default function createMentionPlugin() {
     })
 
 
-   
+
 
 
     if ((mentionType === "mentionOn") && (nameList.length !== 0)) {
@@ -210,15 +210,15 @@ export default function createMentionPlugin() {
       return <Typography sx={cssObj} variant="body2">
         {children}
       </Typography>
-      return (
-        <Box sx={{ display: "inline-block" }}>
-          <Typography aria-describedby={"sssd"} sx={cssObj} variant="body2" //ref={anchor}
-          >
-            {children}
-          </Typography>
-          <PeopleList tabIndex={tabIndex} setShowing={setShowing} setTabName={setTabName} nameList={nameList} insertMention={insertMention} blockType={blockType} />
-        </Box>
-      )
+      // return (
+      //   <Box sx={{ display: "inline-block" }}>
+      //     <Typography aria-describedby={"sssd"} sx={cssObj} variant="body2" //ref={anchor}
+      //     >
+      //       {children}
+      //     </Typography>
+      //     <PeopleList tabIndex={tabIndex} setShowing={setShowing} setTabName={setTabName} nameList={nameList} insertMention={insertMention} blockType={blockType} />
+      //   </Box>
+      // )
     }
 
   }

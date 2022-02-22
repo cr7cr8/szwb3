@@ -28,7 +28,7 @@ export function useEditorState(savedEditorState) {
 
 function usePeopleListState() {
 
-  const [peopleList, setPeopleList] = useState(["TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
+  const [peopleList, setPeopleList] = useState(["UweF23","UweF22","TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
 
 
   return [peopleList, setPeopleList]

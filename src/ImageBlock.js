@@ -19,7 +19,7 @@ import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 
 // import useResizeObserver from '@react-hook/resize-observer';
 // import { IconButton, Zoom } from '@material-ui/core';
-import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Button, Typography, Slider } from '@mui/material';
+import { Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Button, Typography, Slider, } from '@mui/material';
 import { KeyboardArrowUpIcon } from "@mui/icons-material"
 
 import { Context } from "./ContextProvider";
@@ -220,7 +220,7 @@ export default function ImageBlock({ ...props }) {
 
     <>
 
-      <input ref={inputRef} type="file" multiple={true} style={{ display: "none" }}
+      <input ref={inputRef} type="file" multiple={true} style={{ display: "none" }}  accept="image/*"
         onClick={function (e) { e.currentTarget.value = null; }}
         onChange={update}
       />
@@ -469,9 +469,9 @@ function ImageAdjuster({ imageUrl, imageId, imageSnap, blockKey, numOfImage, ...
         if (item.imgId !== imageId) {
           return item
         }
-        else {
-          return { ...item, isEditing: false, imgSnap: croppedImage }
-        }
+        else { return { ...item, isEditing: false, imgSnap: croppedImage } }
+         
+       
       })
 
       return { ...pre, [blockKey]: arr }

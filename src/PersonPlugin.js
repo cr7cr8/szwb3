@@ -11,8 +11,8 @@ import { useTheme } from '@mui/private-theming';
 
 import { AvatarChip } from "./PeopleList";
 
-
-
+import useAppContext from './useAppContext';
+import { url, toPreHtml, hexToRGB, hexToRGB2 } from "./config";
 
 
 export default function createPersonPlugin() {
@@ -31,7 +31,7 @@ export default function createPersonPlugin() {
   function Person({ ...props }) {
 
     const theme = useTheme()
-
+    const { userName, clickFn, userAvatarUrl, setUserAvatarUrl, avatarNameArr, random } = useAppContext()
 
 
     const { contentState, entityKey, blockKey, offsetKey, start, end, decoratedText, children, } = props;
@@ -39,19 +39,26 @@ export default function createPersonPlugin() {
 
     const blockData = contentState.getBlockForKey(blockKey).getData().toObject()
 
+    const backgroundImage = userName === decoratedText
+      ? `url(${userAvatarUrl})`
+      : avatarNameArr.includes(decoratedText)
+        ? `url(${url}/api/user/downloadAvatar/${decoratedText}/${random})`
+        : `url(${"data:image/svg+xml;base64," + btoa(multiavatar(decoratedText))})`
+
+
     const cssObj = {
       // backgroundColor: theme.palette.mode === "light"
       //   ? hexify(hexToRgbA(multiavatar(decoratedText).match(/#[a-zA-z0-9]*/)[0]))
       //   : hexify(hexToRgbA2(multiavatar(decoratedText).match(/#[a-zA-z0-9]*/)[0])),//       "gold",
       display: "inline-block",
       "& span": {
-       
+
         fontSize: theme.scaleSizeObj(blockData.isSmallFont ? 0.8 : 1),
 
         wordWrap: "normal",
         transition: "font-size, 300ms"
       },
- 
+
     }
 
 
@@ -63,7 +70,9 @@ export default function createPersonPlugin() {
             ? hexify(hexToRgbA(multiavatar(decoratedText).match(/#[a-zA-z0-9]*/)[0]))
             : hexify(hexToRgbA2(multiavatar(decoratedText).match(/#[a-zA-z0-9]*/)[0])),
           verticalAlign: "sub",
-          backgroundImage: `url(${"data:image/svg+xml;base64," + btoa(multiavatar(decoratedText))})`,
+          backgroundImage,
+          // backgroundImage: `url(${"data:image/svg+xml;base64," + btoa(multiavatar(decoratedText))})`,
+          backgroundSize:"contain",
           paddingLeft: theme.scaleSizeObj(blockData.isSmallFont ? 1 : 1.2),
           paddingRight: theme.scaleSizeObj(blockData.isSmallFont ? 0.4 : 0.5),
           borderRadius: "1000px",

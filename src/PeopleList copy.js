@@ -144,14 +144,7 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
 
   return (
 
-
-    <ConditionalWrapper condition={!inList} wrapper={function (children) {
-
-      return <Link to={`/person/${name}`} target="_self" style={{ textDecoration: "none" }}> {children}</Link>
-
-    }} >
-
-    
+    <Link to={`/person/${name}`} target="_self" style={{ textDecoration: "none" }}>
       <Chip
         key={index}
         clickable={true}
@@ -208,15 +201,11 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
           insertMention(name)
         }}
       />
- 
-    </ConditionalWrapper >
+    </Link>
   )
 
 }
 
 
-function ConditionalWrapper({ condition, wrapper, children }) {
 
-  return condition ? wrapper(children) : children;
-}
 
