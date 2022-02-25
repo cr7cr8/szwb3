@@ -340,6 +340,10 @@ function BarMain({ ...props }) {
                       localStorage.setItem("userName", newName)
                       window.location.reload();
                     }
+                    else{
+                      alert("name " + newName + " was taken")
+                      setNameBtn(false)
+                    }
                   //  setNameBtn(false)
                   })
 
