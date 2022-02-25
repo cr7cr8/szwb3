@@ -12,7 +12,7 @@ import { useTheme } from '@mui/private-theming';
 import { AvatarChip } from "./PeopleList";
 
 import useAppContext from './useAppContext';
-import { url, toPreHtml, hexToRGB, hexToRGB2 } from "./config";
+import { url, toPreHtml, hexToRGB, hexToRGB2, colorArr, colorIndexArr } from "./config";
 
 
 export default function createPersonPlugin() {
@@ -31,7 +31,7 @@ export default function createPersonPlugin() {
   function Person({ ...props }) {
 
     const theme = useTheme()
-    const { userName, clickFn, userAvatarUrl, setUserAvatarUrl, avatarNameArr, random } = useAppContext()
+    const { userName, clickFn, userAvatarUrl, setUserAvatarUrl, avatarNameArr, userColor, userInfoArr, random } = useAppContext()
 
 
     const { contentState, entityKey, blockKey, offsetKey, start, end, decoratedText, children, } = props;
@@ -61,18 +61,56 @@ export default function createPersonPlugin() {
 
     }
 
+    const name = decoratedText
+    const avatarString = multiavatar(name)
+    let avatarColor = ""
+    let colorItem = ""
+
+    if (!userColor && (userName === name)) {
+
+      let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+      if (colorItem.length < 7) {
+        colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+      }
+      avatarColor = theme.isLight ? hexToRGB(colorItem, 0.4) : hexToRGB2(colorItem, 0.6)
+    }
+    else if (userColor && (userName === name)) {
+      const colorItem = colorArr[colorIndexArr.findIndex(item => item === userColor)]
+      avatarColor = theme.isLight ? colorItem[200] : colorItem[800]
+    }
+    else if (userName !== name) {
+
+      const colorName = userInfoArr.find(userItem => userItem.userName === name)?.colorName
+      let colorItem = ""
+      if (colorName) {
+        colorItem = colorArr[colorIndexArr.findIndex(item => item === colorName)]
+        avatarColor = theme.isLight ? colorItem[200] : colorItem[800]
+      }
+      else {
+        let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+        if (colorItem.length < 7) {
+          colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+        }
+        avatarColor = theme.isLight ? hexToRGB(colorItem, 0.4) : hexToRGB2(colorItem, 0.6)
+      }
+    }
+
+
 
     return (
 
       <Box //contentEditable={false} suppressContentEditableWarning={true}
         sx={{
-          bgcolor: theme.palette.mode === "light"
-            ? hexify(hexToRgbA(multiavatar(decoratedText).match(/#[a-zA-z0-9]*/)[0]))
-            : hexify(hexToRgbA2(multiavatar(decoratedText).match(/#[a-zA-z0-9]*/)[0])),
+          // bgcolor: theme.palette.mode === "light"
+          //   ? hexify(hexToRgbA(multiavatar(decoratedText).match(/#[a-zA-z0-9]*/)[0]))
+          //   : hexify(hexToRgbA2(multiavatar(decoratedText).match(/#[a-zA-z0-9]*/)[0])),
+
+
+          bgcolor: avatarColor,
           verticalAlign: "sub",
           backgroundImage,
           // backgroundImage: `url(${"data:image/svg+xml;base64," + btoa(multiavatar(decoratedText))})`,
-          backgroundSize:"contain",
+          backgroundSize: "contain",
           paddingLeft: theme.scaleSizeObj(blockData.isSmallFont ? 1 : 1.2),
           paddingRight: theme.scaleSizeObj(blockData.isSmallFont ? 0.4 : 0.5),
           borderRadius: "1000px",

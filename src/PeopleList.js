@@ -23,7 +23,8 @@ import {
 //import multiavatar from '@multiavatar/multiavatar';
 
 import multiavatar from '@multiavatar/multiavatar';
-import { url, toPreHtml, hexToRGB, hexToRGB2 } from "./config";
+
+import { url, toPreHtml, hexToRGB, hexToRGB2, colorArr, colorIndexArr } from "./config";
 import { Context } from "./ContextProvider";
 import useAppContext from "./useAppContext";
 
@@ -123,12 +124,119 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
   ...props }) {
 
   const theme = useTheme()
-  const { userName, clickFn, userAvatarUrl, setUserAvatarUrl, avatarNameArr, random } = useAppContext()
+  const { userName, clickFn, userAvatarUrl, setUserAvatarUrl, avatarNameArr, userColor, userInfoArr, random } = useAppContext()
+
+
+
   const avatarString = multiavatar(name)
-  let avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
-  if (avatarColor.length < 7) {
-    avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
+  let avatarColor = ""
+  let hoverColor = ""
+
+
+
+
+
+  if (!userColor && (userName === name)) {
+
+    let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+    if (colorItem.length < 7) {
+      colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+    }
+
+    console.log(name, colorItem)
+    if (title) {
+      avatarColor = "transparent"
+      hoverColor = colorItem
+    }
+    else if (inList && (inTab !== index)) {
+      avatarColor = theme.palette.panelColor
+      hoverColor = colorItem
+    }
+    else if (inList && (inTab === index)) {
+      avatarColor = theme.isLight ? hexToRGB(colorItem, 0.4) : hexToRGB(colorItem, 0.8)
+      hoverColor = colorItem
+    }
+    else {
+      avatarColor = theme.isLight ? hexToRGB(colorItem, 0.4) : hexToRGB2(colorItem, 0.6)
+      hoverColor = colorItem
+    }
+
   }
+  else if (userColor && (userName === name)) {
+
+    const colorItem = colorArr[colorIndexArr.findIndex(item => item === userColor)]
+
+    if (title) {
+      avatarColor = "transparent"
+      hoverColor = colorItem[500]
+
+    }
+    else if (inList && (inTab !== index)) {
+      avatarColor = theme.palette.panelColor
+      hoverColor = colorItem[500]
+    }
+    else if (inList && (inTab === index)) {
+      avatarColor = theme.isLight ? colorItem[200] : colorItem[800]
+      hoverColor = colorItem[500]
+    }
+    else {
+      avatarColor = theme.isLight ? colorItem[200] : colorItem[800]
+      hoverColor = colorItem[500]
+    }
+
+  }
+  else if (userName !== name) {
+
+    const colorName = userInfoArr.find(userItem => userItem.userName === name)?.colorName
+    let colorItem = ""
+    if (colorName) {
+      colorItem = colorArr[colorIndexArr.findIndex(item => item === colorName)]
+      if (title) {
+        avatarColor = "transparent"
+        hoverColor = colorItem[500]
+      }
+      else if (inList && (inTab !== index)) {
+        avatarColor = theme.palette.panelColor
+        hoverColor = colorItem[500]
+      }
+      else if (inList && (inTab === index)) {
+        avatarColor = theme.isLight ? colorItem[200] : colorItem[800]
+        hoverColor = colorItem[500]
+      }
+      else {
+        avatarColor = theme.isLight ? colorItem[200] : colorItem[800]
+        hoverColor = colorItem[500]
+      }
+    }
+    else{
+      let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+      if (colorItem.length < 7) {
+        colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+      }
+
+      if (title) {
+        avatarColor = "transparent"
+        hoverColor = colorItem
+      }
+      else if (inList && (inTab !== index)) {
+        avatarColor = theme.palette.panelColor
+        hoverColor = colorItem
+      }
+      else if (inList && (inTab === index)) {
+        avatarColor = theme.isLight ? hexToRGB(colorItem, 0.4) : hexToRGB(colorItem, 0.8)
+        hoverColor = colorItem
+      }
+      else {
+        avatarColor = theme.isLight ? hexToRGB(colorItem, 0.4) : hexToRGB2(colorItem, 0.6)
+        hoverColor = colorItem
+      }
+
+
+    }
+
+  }
+
+
 
 
   const avatarSrc = userName == name
@@ -137,10 +245,6 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
       ? `${url}/api/user/downloadAvatar/${name}/${random}`
       : "data:image/svg+xml;base64," + btoa(avatarString)
 
-  const bgcolor = hexToRGB(avatarColor, 0.2)
-
-
-  const navigate = useNavigate()
 
   return (
 
@@ -151,7 +255,7 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
 
     }} >
 
-    
+
       <Chip
         key={index}
         clickable={true}
@@ -180,20 +284,25 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
           borderRadius: "1000px",
           paddingRight: theme.scaleSizeObj(0.25 * 0.85),
 
-          backgroundColor: inTab === index
-            ? theme.palette.mode === "light"
-              ? inList ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, title ? 0.0001 : 0.2)
-              : inList ? hexToRGB(avatarColor, 0.6) : hexToRGB2(avatarColor, title ? 0.0001 : 0.6)
+          // backgroundColor: inTab === index
+          //   ? theme.palette.mode === "light"
+          //     ? inList ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, title ? 0.0001 : 0.2)
+          //     : inList ? hexToRGB(avatarColor, 0.6) : hexToRGB2(avatarColor, title ? 0.0001 : 0.6)
 
-            : theme.palette.panelColor,
+          //   : theme.palette.panelColor,
+
+          bgcolor: avatarColor,
+
 
           height: title ? "2.4rem" : theme.scaleSizeObj(avatarScale),
           fontSize: theme.scaleSizeObj(textScale),
 
           boxShadow,
           "&:hover": {
-            //    boxShadow: 5,
-            backgroundColor: inList ? hexToRGB(avatarColor, 1) : hexToRGB2(avatarColor, 1),  //hexify(hexToRgbA3(multiavatar(name).match(/#[a-zA-z0-9]*/)[0])),
+
+            //  backgroundColor: inList ? hexToRGB(avatarColor, 1) : hexToRGB2(avatarColor, 1),  //hexify(hexToRgbA3(multiavatar(name).match(/#[a-zA-z0-9]*/)[0])),
+
+            bgcolor: hoverColor
           },
           "& .MuiChip-label": {
             transform: "translateY(0px)",
@@ -208,7 +317,7 @@ export function AvatarChip({ name = "aaa", inTab = 0, index = 0, avatarScale = 1
           insertMention(name)
         }}
       />
- 
+
     </ConditionalWrapper >
   )
 
@@ -220,3 +329,11 @@ function ConditionalWrapper({ condition, wrapper, children }) {
   return condition ? wrapper(children) : children;
 }
 
+
+
+function getColor(){
+
+
+
+  
+}

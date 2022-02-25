@@ -22,7 +22,7 @@ import {
 import { blue, red, grey } from '@mui/material/colors';
 
 import axios from "axios";
-import { url, toPreHtml, hexToRGB, hexToRGB2, useScreenState } from "./config";
+import { url, toPreHtml, hexToRGB, hexToRGB2, useScreenState, colorArr, colorIndexArr,getColor2,getColor4 } from "./config";
 import { compareAsc, format, formatDistanceToNow } from 'date-fns';
 import { zhCN } from "date-fns/locale";
 import Countdown from "react-countdown";
@@ -39,7 +39,7 @@ import {
 
 
 
-export default function CommentSector({ item, avatarColor, toHtml, PostingTime, commentCount, setCommentCount, preHtmlEditor, ...props }) {
+export default function CommentSector({ item, /*avatarColor,*/ toHtml, PostingTime, commentCount, setCommentCount, preHtmlEditor, ...props }) {
 
   const location = useLocation()
   const isPersonPage = Boolean(matchPath("/person/:personName", location.pathname))
@@ -48,11 +48,12 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
 
   const { setNeedReduceArr, postArr } = useAppContext()
   const theme = useTheme()
-  const { content, postID, ownerName, postingTime } = item
-  const { userName, } = useAppContext()
+  const { content, postID, ownerName, postingTime, } = item
+  const { userName, userInfoArr, userColor } = useAppContext()
 
+  const avatarColor = getColor2({ name: ownerName, userName, userInfoArr, userColor, theme })
+  const bgcolor = getColor4({ name: ownerName, userName, userInfoArr, userColor, theme })
 
-  const bgcolor = hexToRGB2(avatarColor, 0.2)
 
   const [commentArr, setCommentArr] = useState([])
 
@@ -110,8 +111,6 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
 
   }
 
-
-
   const [incomingSubComment, setIncomingSubComment] = useState("")
 
   useEffect(function () {
@@ -134,11 +133,16 @@ export default function CommentSector({ item, avatarColor, toHtml, PostingTime, 
 
 
 
+  //name, userName, userInfoArr, userColor,theme
+
+
+
   return (
     <Box className="comment-sector"
       sx={{
         display: "relative",
-        bgcolor: theme.isLight ? hexToRGB2(avatarColor, 0.1) : hexToRGB2(avatarColor, 0.4),
+        //  bgcolor: theme.isLight ? hexToRGB2(avatarColor, 0.1) : hexToRGB2(avatarColor, 0.4),
+        bgcolor: avatarColor
       }}
     >
 
@@ -437,3 +441,6 @@ function uniqByKeepFirst(a, key) {
     return seen.has(k) ? false : seen.add(k);
   });
 }
+
+
+

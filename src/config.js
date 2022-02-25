@@ -3,9 +3,27 @@ import { stateToHTML } from 'draft-js-export-html';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { ThemeProvider, useTheme, createTheme, styled } from '@mui/material/styles';
+import {
+  red, pink, purple, deepPurple, indigo,
+  blue, lightBlue, cyan, teal, green,
+  lightGreen, lime, yellow, amber, orange,
+  deepOrange, brown, grey, blueGrey
+} from '@mui/material/colors';
+import multiavatar from "@multiavatar/multiavatar";
 
 export const url = "http://192.168.0.100";
 
+
+
+export const colorArr = [red, pink, purple, deepPurple, indigo,
+  blue, lightBlue, cyan, teal, green,
+  lightGreen, lime, yellow, amber, orange,
+  deepOrange, brown, grey, blueGrey]
+
+export const colorIndexArr = ["red", "pink", "purple", "deepPurple", "indigo",
+  "blue", "lightBlue", "cyan", "teal", "green",
+  "lightGreen", "lime", "yellow", "amber", "orange",
+  "deepOrange", "brown", "grey", "blueGrey"]
 
 
 export function toPreHtml(editorState, theme) {
@@ -202,3 +220,170 @@ export function uniqByKeepFirst(a, key) {
   });
 }
 
+export function getColor({ name, userName, userInfoArr, userColor, theme }) {
+
+
+
+  const avatarString = multiavatar(name)
+  let avatarColor = ""
+  let colorItem = ""
+
+  if (!userColor && (userName === name)) {
+
+    let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+    if (colorItem.length < 7) {
+      colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+    }
+    avatarColor = theme.isLight ? hexToRGB(colorItem, 0.4) : hexToRGB2(colorItem, 0.6)
+  }
+  else if (userColor && (userName === name)) {
+    const colorItem = colorArr[colorIndexArr.findIndex(item => item === userColor)]
+    avatarColor = theme.isLight ? colorItem[100] : hexToRGB2(colorItem[500], 0.5)
+  }
+  else if (userName !== name) {
+
+    const colorName = userInfoArr.find(userItem => userItem.userName === name)?.colorName
+    let colorItem = ""
+    if (colorName) {
+      colorItem = colorArr[colorIndexArr.findIndex(item => item === colorName)]
+      avatarColor = theme.isLight ? colorItem[100] : hexToRGB2(colorItem[500], 0.5)
+    }
+    else {
+      let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+      if (colorItem.length < 7) {
+        colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+      }
+      avatarColor = theme.isLight ? hexToRGB(colorItem, 0.4) : hexToRGB2(colorItem, 0.6)
+    }
+  }
+
+  return avatarColor
+
+}
+
+
+export function getColor3({ name, userName, userInfoArr, userColor, theme }) {
+
+
+
+  const avatarString = multiavatar(name)
+  let avatarColor = ""
+  let colorItem = ""
+
+  if (!userColor && (userName === name)) {
+
+    let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+    if (colorItem.length < 7) {
+      colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+    }
+    avatarColor = theme.isLight ? hexToRGB(colorItem, 1) : hexToRGB2(colorItem, 1)
+  }
+  else if (userColor && (userName === name)) {
+    const colorItem = colorArr[colorIndexArr.findIndex(item => item === userColor)]
+    // avatarColor = theme.isLight ? colorItem[100] : colorItem[900]
+    avatarColor = theme.isLight ? hexToRGB(colorItem[500], 0.5) : hexToRGB2(colorItem[500], 0.5)
+  }
+  else if (userName !== name) {
+
+    const colorName = userInfoArr.find(userItem => userItem.userName === name)?.colorName
+    let colorItem = ""
+    if (colorName) {
+      colorItem = colorArr[colorIndexArr.findIndex(item => item === colorName)]
+      // avatarColor = theme.isLight ? colorItem[100] : colorItem[900]
+      avatarColor = theme.isLight ? hexToRGB(colorItem[500], 0.5) : hexToRGB2(colorItem[500], 0.5)
+    }
+    else {
+      let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+      if (colorItem.length < 7) {
+        colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+      }
+      avatarColor = theme.isLight ? hexToRGB(colorItem, 1) : hexToRGB2(colorItem, 1)
+    }
+  }
+
+  return avatarColor
+
+}
+
+
+export function getColor2({ name, userName, userInfoArr, userColor, theme }) {
+
+
+
+  const avatarString = multiavatar(name)
+  let avatarColor = ""
+  let colorItem = ""
+
+  if (!userColor && (userName === name)) {
+
+    let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+    if (colorItem.length < 7) {
+      colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+    }
+    avatarColor = theme.isLight ? hexToRGB(colorItem, 0.1) : hexToRGB2(colorItem, 0.4)
+  }
+  else if (userColor && (userName === name)) {
+    const colorItem = colorArr[colorIndexArr.findIndex(item => item === userColor)]
+    avatarColor = theme.isLight ? hexToRGB2(colorItem[500], 0.1) : hexToRGB2(colorItem[500], 0.4)
+  }
+  else if (userName !== name) {
+
+    const colorName = userInfoArr.find(userItem => userItem.userName === name)?.colorName
+    let colorItem = ""
+    if (colorName) {
+      colorItem = colorArr[colorIndexArr.findIndex(item => item === colorName)]
+      avatarColor = theme.isLight ? hexToRGB2(colorItem[500], 0.1) : hexToRGB2(colorItem[500], 0.4)
+    }
+    else {
+      let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+      if (colorItem.length < 7) {
+        colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+      }
+      avatarColor = theme.isLight ? hexToRGB(colorItem, 0.1) : hexToRGB2(colorItem, 0.4)
+    }
+  }
+
+  return avatarColor
+
+}
+
+export function getColor4({ name, userName, userInfoArr, userColor, theme }) {
+
+
+
+  const avatarString = multiavatar(name)
+  let avatarColor = ""
+  let colorItem = ""
+
+  if (!userColor && (userName === name)) {
+
+    let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+    if (colorItem.length < 7) {
+      colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+    }
+    avatarColor = theme.isLight ? hexToRGB(colorItem, 0.2) : hexToRGB2(colorItem, 0.4)
+  }
+  else if (userColor && (userName === name)) {
+    const colorItem = colorArr[colorIndexArr.findIndex(item => item === userColor)]
+    avatarColor = theme.isLight ? hexToRGB2(colorItem[900], 0.2) : hexToRGB2(colorItem[500], 0.2)
+  }
+  else if (userName !== name) {
+
+    const colorName = userInfoArr.find(userItem => userItem.userName === name)?.colorName
+    let colorItem = ""
+    if (colorName) {
+      colorItem = colorArr[colorIndexArr.findIndex(item => item === colorName)]
+      avatarColor = theme.isLight ? hexToRGB2(colorItem[900], 0.2) : hexToRGB2(colorItem[500], 0.2)
+    }
+    else {
+      let colorItem = avatarString.match(/#[a-zA-z0-9]*/)[0]
+      if (colorItem.length < 7) {
+        colorItem = "#" + colorItem[1] + colorItem[1] + colorItem[2] + colorItem[2] + colorItem[3] + colorItem[3]
+      }
+      avatarColor = theme.isLight ? hexToRGB(colorItem, 0.2) : hexToRGB2(colorItem, 0.4)
+    }
+  }
+
+  return avatarColor
+
+}

@@ -40,7 +40,7 @@ import 'react-image-lightbox/style.css';
 
 
 import axios from "axios";
-import { url, toPreHtml, hexToRGB, hexToRGB2, useScreenState, uniqByKeepFirst } from "./config";
+import { url, toPreHtml, hexToRGB, hexToRGB2, useScreenState, uniqByKeepFirst, colorArr, colorIndexArr, getColor, getColor3 } from "./config";
 import { compareAsc, format, formatDistanceToNow } from 'date-fns';
 import { zhCN } from "date-fns/locale";
 import Countdown from "react-countdown";
@@ -66,7 +66,7 @@ function useContentContext() {
 
 
 
-function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn }) {
+function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn, ownerName }) {
 
   // console.log(preHtml)
 
@@ -173,7 +173,7 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, se
 
 
         //  console.log(data, blockKey)
-        return <VoteFrame data={data} blockKey={blockKey} avatarColor={avatarColor} postID={postID} key={index} />
+        return <VoteFrame data={data} blockKey={blockKey} avatarColor={avatarColor} postID={postID} key={index} ownerName={ownerName} />
       }
 
       //  return null
@@ -392,9 +392,14 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
     avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
     //  avatarColor = "#fffaf6"
   }
-  const bgcolor = theme.isLight ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6)
+  // const bgcolor = theme.isLight ? hexToRGB(avatarColor, 0.2) : hexToRGB2(avatarColor, 0.6)
 
-  const { needUpdateArr, setNeedUpdateArr, needReduceArr, setNeedReduceArr } = useAppContext()
+
+
+  const { needUpdateArr, setNeedUpdateArr, needReduceArr, setNeedReduceArr, userInfoArr, userColor } = useAppContext()
+
+
+  const bgcolor = getColor({ name: ownerName, userName, userInfoArr, userColor, theme })
 
   useEffect(function () {
 
@@ -435,7 +440,6 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
       })
 
       resizeObserver.observe(target.current)
-
       return function () { resizeObserver.disconnect() }
     }
 
@@ -452,10 +456,6 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
   const [openComment, setOpenComment] = useState(false)
   const [unmountComment, setUnmountComment] = useState(true)
-
-
-
-
 
   return (
     <Box
@@ -478,9 +478,9 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
         marginBottom: "8px",
       }}
 
-      onClick={function () {
+      onClick={function () { //  setHeight(pre => { return Number(100 + Math.random() * 600).toFixed(0) + "px" })
 
-        //  setHeight(pre => { return Number(100 + Math.random() * 600).toFixed(0) + "px" })
+
 
       }}
 
@@ -525,7 +525,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
         </Stack>
 
-        {toHtml(content, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn })}
+        {toHtml(content, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn, ownerName })}
 
 
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -538,10 +538,8 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
               if (index >= 0) {
                 setOpen(index)
               }
-
             }}>
               <AspectRatioOutlined fontSize='medium' sx={{ transform: "scaleX(-1)" }} />
-
             </IconButton>
           </Hidden>
 
@@ -549,17 +547,14 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
             <Box></Box>
           </Hidden>
 
-
           <Box>
             <IconButton size="small" onClick={function (e) {
               e.preventDefault()
               e.stopPropagation()
               setOpenEditor(pre => !pre)
               setUnmountEditor(false)
-
             }}>
               <Edit fontSize='medium' />
-
             </IconButton>
 
             <IconButton size="small" onClick={function (e) {
@@ -610,7 +605,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
       {
         (!unmountComment) && <Collapse unmountOnExit={unmountComment} in={openComment} className="collapse">
-          <CommentSector item={item} avatarColor={avatarColor} toHtml={toHtml} PostingTime={PostingTime} commentCount={commentCount} setCommentCount={setCommentCount}
+          <CommentSector item={item} avatarColor={bgcolor} toHtml={toHtml} PostingTime={PostingTime} commentCount={commentCount} setCommentCount={setCommentCount}
             preHtmlEditor={preHtmlEditor}
             setCommentCount={setCommentCount}
           />
@@ -884,10 +879,13 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
 }
 
 
-export function VoteFrame({ data, avatarColor, postID, ...props }) {
+export function VoteFrame({ data, avatarColor, postID, ownerName, ...props }) {
 
   const theme = useTheme()
-  const { userName, setUserName } = useAppContext()
+  const { userName, setUserName,
+
+    needUpdateArr, setNeedUpdateArr, needReduceArr, setNeedReduceArr, userInfoArr, userColor
+  } = useAppContext()
   //const { votedArr, setVotedArr } = useContentContext()
 
   const { voteArr = [], voteTopic = null, pollDuration = null, } = data?.voteDataObj || {}
@@ -938,6 +936,9 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
 
 
 
+  const bgcolor = getColor3({ name: ownerName, userName, userInfoArr, userColor, theme })
+
+
   return (
     <Box className="vote-frame" sx={{ "& p": { fontSize: theme.scaleSizeObj(1) }, "& .count-down": { fontSize: "1rem" } }} >
       {voteTopic && <Typography variant='body2' sx={{ textAlign: "center" }} >{voteTopic || "no"}</Typography>}
@@ -952,19 +953,31 @@ export function VoteFrame({ data, avatarColor, postID, ...props }) {
 
             ...isVotting && {
               "& > span": { bgcolor: theme.palette.action.disabledBackground },
-              "& > span > span": { bgcolor: hexToRGB(avatarColor, 0.5), transition: "all, 300ms" },
-
-
+              "& > span > span": {
+                bgcolor,
+                //bgcolor: hexToRGB(avatarColor, 0.5),
+              //  transition: "all, 300ms",
+              //  opacity:0.6,
+              },
               "&:hover": {
                 cursor: "pointer", transition: "all, 300ms",
                 "& > span": { bgcolor: theme.palette.action.disabled },
-                "& > span > span": { bgcolor: hexToRGB(avatarColor, 1), transition: "all, 300ms" },
+                "& > span > span": {
+                  bgcolor,
+                //  bgcolor: hexToRGB(avatarColor, 1),
+              //    transition: "all, 300ms",
+              //    opacity:1,
+                },
               }
             },
 
             ...!isVotting && {
               "& > span": { bgcolor: "rgba(0,0,0,0)" },
-              "& > span > span": { bgcolor: hexToRGB(avatarColor, 0.5), transition: "all, 300ms" },
+              "& > span > span": {
+                bgcolor:
+                  bgcolor,
+                // hexToRGB(avatarColor, 0.5), transition: "all, 300ms"
+              },
             }
 
 
@@ -1124,34 +1137,5 @@ function TimeRender({ days, hours, minutes, seconds, completed, expireTime, tota
 
 
 }
-
-
-
-
-  // const { ref, inView, entry } = useInView({
-  //   /* Optional options */
-  //   threshold: 0.8,
-  //   triggerOnce: false,
-  //   initialInView: true,
-  //   rootMargin: "0px 0px 0px 0px"
-  // });
-
-  // useEffect(function () {
-  //   // setTimeout(() => {
-  //   if ((inView) && (!isFull)) {
-  //     getSinglePost().then(postArr => {
-  //       //  alert(postCount)
-  //       if (postArr.length === 0) {
-  //         setIsFull(true)
-  //       }
-  //     })
-  //   }
-  //   //  }, 300);
-
-
-  // }, [isFull, postArr, inView])
-
-
-
 
 

@@ -12,7 +12,8 @@ import SimpleDraft from './SimpleDraft';
 
 import Immutable from "immutable";
 
-
+import { url, toPreHtml, hexToRGB, hexToRGB2, colorArr, colorIndexArr } from "./config";
+import axios from 'axios';
 
 export const Context = createContext();
 
@@ -23,12 +24,22 @@ export function useEditorState(savedEditorState) {
   const [editorState, setEditorState] = useState(savedEditorState || EditorState.createEmpty())
 
 
+
   return [editorState, setEditorState]
 }
 
 function usePeopleListState() {
 
-  const [peopleList, setPeopleList] = useState(["UweF23","UweF22","TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
+  const [peopleList, setPeopleList] = useState(["UweF23", "UweF22", "TonyCerl", "JimWil", "大发发", "Jimberg", "m大Gsd哈"])
+
+  useEffect(function () {
+    axios.get(`${url}/api/user/getAllUser`).then(response => {
+
+      setPeopleList(response.data.map(item => item.userName))
+
+    })
+
+  }, [])
 
 
   return [peopleList, setPeopleList]

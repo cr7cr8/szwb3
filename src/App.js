@@ -18,15 +18,18 @@ import {
 
 import {
   Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Button, Chip, Avatar, CssBaseline, Typography, Collapse, Switch, Divider,
-  Slider,
+  Slider, TextField,
 } from '@mui/material';
 
 import { Crop, DoneRounded, Close, AddCircleOutline } from '@mui/icons-material';
 import Dialog from '@mui/material/Dialog';
 
 import SettingsIcon from '@mui/icons-material/Settings';
+import DoDisturbIcon from '@mui/icons-material/DoDisturb';
+
+
 import multiavatar from '@multiavatar/multiavatar'
-import { url, toPreHtml, hexToRGB, hexToRGB2 } from "./config";
+import { url, toPreHtml, hexToRGB, hexToRGB2, colorArr, colorIndexArr, getColor } from "./config";
 
 import { ThemeProvider, useTheme, createTheme, styled, } from '@mui/material/styles';
 import useAppContext from './useAppContext';
@@ -43,20 +46,20 @@ import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined
 
 export const AppContext = createContext()
 
-
-
-
 function App() {
 
 
   const [postArr, setPostArr] = useState([])
   //const [userName, setUserName] = useState("User" + String(Math.random()).substring(3, 6))
-  const [userName, setUserName] = useState("UweF23")
+  const [userName, setUserName] = useState(localStorage.getItem("userName") || ("User" + String(Math.random()).substring(3, 6)))
+  const [userColor, setUserColor] = useState()
+
+
   const [userAvatarUrl, setUserAvatarUrl] = useState("data:image/svg+xml;base64," + btoa(multiavatar(userName)))
 
   const [clickFn, setClickFn] = useState(null)
 
-  //const [isAnimiDone, setIsAnimiDone] = useState(false)
+
 
   const [savedPostArr, setSavedPostArr] = useState()
 
@@ -64,44 +67,69 @@ function App() {
   const [needReduceArr, setNeedReduceArr] = useState([])
 
   const [avatarNameArr, setAvatarNameArr] = useState([])
+  const [userInfoArr, setUserInfoArr] = useState([])
 
-  const [random,setRandom] = useState(Math.random())
+
+  const [random, setRandom] = useState(Math.random())
 
   useEffect(function () {
-    axios.get(`${url}/api/user/getAllAvatarName`).then(response => {
-      setAvatarNameArr(response.data)
+    // axios.get(`${url}/api/user/getAllAvatarName`).then(response => {
+    //   setAvatarNameArr(response.data)
+    // })
+
+    axios.get(`${url}/api/user/getAllUser`).then(response => {
+      // setAvatarNameArr(response.data)
+      const arr = response.data.filter(userItem => {
+        return userItem.hasAvatar
+      }).map(userItem => userItem.userName)
+      setAvatarNameArr(arr)
+
+      const colorName = response.data.find(userItem => userItem.userName === userName)?.colorName
+
+      colorName && setUserColor(colorName)
+      setUserInfoArr(response.data)
+
     })
-  }, [])
-
-  useEffect(function () {
 
 
-    if (avatarNameArr.includes(userName)) {
-      setUserAvatarUrl(`${url}/api/user/downloadAvatar/${userName}/${random}`)
+    if (!localStorage.getItem("userName")) {
 
+      axios.post(`${url}/api/user/regist`, { userName }).then(response => {
+        Boolean(response.data)
+          ? localStorage.setItem("userName", userName)
+          : setUserName("User" + String(Math.random()).substring(3, 6))
+      })
     }
 
+  }, [userName])
 
-
-
-
-
+  useEffect(function () {
+    if (avatarNameArr.includes(userName)) {
+      setUserAvatarUrl(`${url}/api/user/downloadAvatar/${userName}/${random}`)
+    }
   }, [avatarNameArr])
 
+  useEffect(function () {
+
+
+
+  }, [userColor])
 
 
   return (
     <ThemeContextProvider>
       <AppContext.Provider value={{
         userName, setUserName, clickFn, setClickFn,
-        //isAnimiDone, setIsAnimiDone, 
+        userColor, setUserColor,
+
         savedPostArr, setSavedPostArr,
         postArr, setPostArr,
         needUpdateArr, setNeedUpdateArr,
         needReduceArr, setNeedReduceArr,
         userAvatarUrl, setUserAvatarUrl,
         avatarNameArr, setAvatarNameArr,
-        random,setRandom,
+        userInfoArr, setUserInfoArr,
+        random, setRandom,
       }}>
 
         <Container disableGutters={true} fixed={false} maxWidth={window.innerWidth >= 3000 ? false : "lg"} >
@@ -132,35 +160,24 @@ function App() {
 
 export default App;
 
-function ProfilePage() {
-
-  const { personName } = useParams()
-  const location = useLocation()
-  console.log(matchPath("/person/:personName", location.pathname))
-  return (
-    <Box>{personName}</Box>
-
-  )
-}
-
-
 function BarMain({ ...props }) {
 
 
 
-
-
-  const { userName, clickFn, userAvatarUrl, setUserAvatarUrl,random,setRandom } = useAppContext()
-
-  const userAvatarSrc = "data:image/svg+xml;base64," + btoa(multiavatar(userName))
-  const avatarString = multiavatar(userName)
-  let avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
-  if (avatarColor.length < 7) {
-    avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
-  }
-  const bgcolor = hexToRGB(avatarColor, 0.2)
-
   const theme = useTheme()
+
+  const { userName, setUserName, clickFn, userAvatarUrl, setUserAvatarUrl, random, setRandom, userColor, setUserColor, userInfoArr, setPostArr } = useAppContext()
+
+
+  // const avatarString = multiavatar(userName)
+  // let avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
+  // if (avatarColor.length < 7) {
+  //   avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
+  // }
+  //const bgcolor = hexToRGB(avatarColor, 0.2)
+  const bgcolor = getColor({ name: userName, userName, userInfoArr, userColor, theme })
+
+
 
   const [settingOn, setSettingOn] = useState(false)
 
@@ -169,12 +186,14 @@ function BarMain({ ...props }) {
 
 
 
-
-
+  const [newName, setNewName] = useState(userName)
+  const nameInputRef = useRef()
+  const [nameBtn, setNameBtn] = useState(true)
 
   return (
     <Paper sx={{
-      bgcolor: theme.isLight ? bgcolor : hexToRGB2(avatarColor, 0.6), padding: "4px", my: "8px", mx: "4px", display: "flex", alignItems: "flex-end",
+      bgcolor: bgcolor,// theme.isLight ? bgcolor : hexToRGB2(avatarColor, 0.6),
+      padding: "4px", my: "8px", mx: "4px", display: "flex", alignItems: "flex-end",
       justifyContent: "center",
 
 
@@ -231,10 +250,8 @@ function BarMain({ ...props }) {
               <FormControlLabel value="1.25rem" control={<Radio />} label="" sx={{ transform: "scale(0.9)", "& span": { fontSize: "1.25rem" } }} checked={theme.sizeObj.sm === "1.25rem"} />
               <FormControlLabel value="1.5rem" control={<Radio />} label="" sx={{ transform: "scale(1)", "& span": { fontSize: "1.5rem" } }} checked={theme.sizeObj.md === "1.5rem"} />
               <FormControlLabel value="1.75rem" control={<Radio />} label="" sx={{ transform: "scale(1.1)", "& span": { fontSize: "1.75rem" } }} checked={theme.sizeObj.lg === "1.75rem"} />
-              <FormControlLabel value="2rem" control={<Radio />} label="" sx={{ transform: "scale(1.2)", "& span": { fontSize: "2rem" } }} checked={theme.sizeObj.xl === "2rem"} />
+              <FormControlLabel value="2rem" control={<Radio />} label="" sx={{ transform: "scale(1.25)", "& span": { fontSize: "2rem" } }} checked={theme.sizeObj.xl === "2rem"} />
             </RadioGroup>
-
-
 
             <Switch
               //   sx={{ position: "absolute", right: -10 }}
@@ -246,8 +263,90 @@ function BarMain({ ...props }) {
               }}
             />
           </Box>
+          <Box sx={{ display: "flex", justifyContent: "flex-start", width: "100%", gap: "4px", flexWrap: "wrap" }}>
+            {colorArr.map((colorItem, index) => {
+
+              return (
+                <Box key={index} sx={{
+                  width: "2.4rem", height: "2.4rem",
+                  borderRadius: "1000px",
+                  borderWidth: "2px", borderColor: theme.palette.background.default, borderStyle: "solid",
+                  "&:hover": { transform: "scale(1.2)", cursor: "pointer" },
+                  transition: "all 300ms", overflow: "hidden",
+                }}
+                  onClick={function () {
+                    setUserColor(colorIndexArr[index])
+                    axios.put(`${url}/api/user/changeColor`, { userName, colorName: colorIndexArr[index] }).then(response => {
+                      //      console.log(response.data)
+                    })
+                  }}
+                >
+                  <Box sx={{
+                    width: "100%", height: "100%", bgcolor: colorItem[500] //bgcolor: theme.isLight ? colorItem[100] : hexToRGB2(colorItem[500], 0.7) 
+                  }}></Box>
+                </Box>
+              )
 
 
+            })}
+
+            <DoDisturbIcon
+              onClick={function () {
+                setUserColor(null)
+                axios.put(`${url}/api/user/changeColor`, { userName, colorName: "" }).then(response => {
+                  //      console.log(response.data)
+                })
+              }}
+              sx={{
+                width: "2.4rem", height: "2.4rem", "&:hover": { transform: "scale(1.2)", cursor: "pointer" },
+                transition: "all 300ms", overflow: "hidden",
+              }} fontSize='large' />
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+            <TextField label="New Name" variant="filled" sx={{ marginTop: "4px", "& input": { fontSize: theme.sizeObj, maxWidth: "200px" } }}
+              value={newName}
+              inputProps={{ maxLength: 10 }}
+              ref={nameInputRef}
+              onChange={function (e) {
+                const text = e.target.value
+                const regx = /^([\w_\[\u4E00-\u9FCA\]]{2,10})$/g
+
+                setNameBtn(pre => {
+                  if (userName === text) { return true }
+                  return !Boolean(text.match(regx))
+
+                })
+                setNewName(e.target.value)
+              }}
+            />
+            <Button disabled={nameBtn} variant='outlined' sx={{ mx: "4px" }}
+              onClick={function (e) {
+                setNameBtn(true)
+                axios.get(`${url}/api/user/isUserThere/${newName}`)
+                  .then(response => {
+                    return response.data
+                  })
+                  .then(isThere => {
+                    if (!isThere) {
+                      return axios.put(`${url}/api/user/updateUserName`, { userName, newName })
+                    }
+                    else return false
+                  })
+                  .then(result => {
+
+                    if (result) {
+                     // setPostArr([])
+                     // setUserName(newName)
+                      localStorage.setItem("userName", newName)
+                      window.location.reload();
+                    }
+                  //  setNameBtn(false)
+                  })
+
+
+              }}
+            >Change</Button>
+          </Box>
         </Collapse>
 
 
@@ -256,13 +355,15 @@ function BarMain({ ...props }) {
       </Box>
 
       <Box sx={{
-        padding: "4px", borderRadius: "1000px", bgcolor: "background.default", width: "fit-content",
+        padding: "4px", borderRadius: "1000px", bgcolor: "background.default", width: "fit-content"
 
       }}>
         <Avatar sx={{
           width: "2.4rem", height: "2.4rem",
-          bgcolor: theme.isLight ? bgcolor : hexToRGB2(avatarColor, 0.6),
-          "&:hover": { bgcolor: avatarColor, cursor: "pointer" }
+          // bgcolor: theme.isLight ? bgcolor : hexToRGB2(avatarColor, 0.6),
+          // "&:hover": { bgcolor: avatarColor, cursor: "pointer" }
+          bgcolor: bgcolor,
+          "&:hover": { bgcolor: theme.palette.background.default, cursor: "pointer" }
         }}
           onClick={function () {
             // window.open("/person", '_blank')
@@ -270,7 +371,7 @@ function BarMain({ ...props }) {
             setSettingOn(pre => !pre)
           }}
         >
-          <SettingsIcon sx={{ color: theme.palette.background.default, }} fontSize='large' />
+          <SettingsIcon sx={{ color: theme.palette.background.default, "&:hover": { color: bgcolor, } }} fontSize='large' />
         </Avatar>
       </Box>
 
@@ -297,19 +398,22 @@ function BarMain({ ...props }) {
 
 
 function BarPerson() {
-
-  const { userName, clickFn, userAvatarUrl, setUserAvatarUrl,avatarNameArr,random } = useAppContext()
+  const theme = useTheme()
+  const { userName, clickFn, userAvatarUrl, setUserAvatarUrl, avatarNameArr, random, userInfoArr, userColor, } = useAppContext()
   const navigate = useNavigate()
   const location = useLocation()
   const isMainPage = Boolean(matchPath("/", location.pathname))
   const { personName } = useParams()
 
 
+  const bgcolor = getColor({ name: personName, userName, userInfoArr, userColor, theme })
+
+
   const userAvatarSrc = userName === personName
     ? userAvatarUrl
     : avatarNameArr.includes(personName)
-    ?`${url}/api/user/downloadAvatar/${personName}/${random}`
-    :"data:image/svg+xml;base64," + btoa(multiavatar(personName))
+      ? `${url}/api/user/downloadAvatar/${personName}/${random}`
+      : "data:image/svg+xml;base64," + btoa(multiavatar(personName))
 
 
   const avatarString = multiavatar(personName)
@@ -317,9 +421,9 @@ function BarPerson() {
   if (avatarColor.length < 7) {
     avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
   }
-  const bgcolor = hexToRGB(avatarColor, 0.2)
+  //const bgcolor = hexToRGB(avatarColor, 0.2)
 
-  const theme = useTheme()
+
 
   const banerRef = useRef()
   const [height, setHeight] = useState(1)
@@ -358,7 +462,8 @@ function BarPerson() {
           ref={banerRef}
           sx={{
             width: "100%",// maxWidth: "600px",
-            bgcolor: "pink",
+            bgcolor,
+            // bgcolor: "pink",
             // overflow: "hidden",
             height,
             position: "relative"
@@ -541,3 +646,7 @@ function ImageAdjuster({ setOpen, ...props }) {
   )
 
 }
+
+
+
+
