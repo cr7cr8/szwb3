@@ -796,68 +796,42 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
 
 
 
-  // const lightBox = images.length > 0
-  //   ? <Lightbox
-  //     mainSrc={images[photoIndex]?.imgUrl}
-  //     nextSrc={images[(photoIndex + 1) % images.length]?.imgUrl}
-  //     prevSrc={images[(photoIndex + images.length - 1) % images.length]?.imgUrl}
-  //     onCloseRequest={() => {
-  //       setIsOpen(false);
+  const lightBox = images.length > 0
+    ? <Lightbox
+      mainSrc={images[photoIndex]?.imgUrl}
+      nextSrc={images[(photoIndex + 1) % images.length]?.imgUrl}
+      prevSrc={images[(photoIndex + images.length - 1) % images.length]?.imgUrl}
+      onCloseRequest={() => {
+        setIsOpen(false);
 
-  //       setLightBoxOn(false)
-  //     }}
-  //     onMovePrevRequest={() =>
-  //       setPhotoIndex(
-  //         pre => (pre + images.length - 1) % images.length,
-  //       )
-  //     }
-  //     onMoveNextRequest={() =>
-  //       setPhotoIndex(
-  //         pre => (pre + images.length + 1) % images.length,
-  //       )
-  //     }
-  //     onAfterOpen={() => {
+        setLightBoxOn(false)
+      }}
+      onMovePrevRequest={() =>
+        setPhotoIndex(
+          pre => (pre + images.length - 1) % images.length,
+        )
+      }
+      onMoveNextRequest={() =>
+        setPhotoIndex(
+          pre => (pre + images.length + 1) % images.length,
+        )
+      }
+      onAfterOpen={() => {
 
 
-  //       setLightBoxOn(true)
-  //     }
-  //     }
+        setLightBoxOn(true)
+      }
+      }
 
-  //   />
-  //   : <></>
+    />
+    : <></>
 
 
   return (
 
     <Box className="image-frame" sx={cssObj}>
 
-      {isOpen && <Lightbox
-        mainSrc={images[photoIndex]?.imgUrl}
-        nextSrc={images[(photoIndex + 1) % images.length]?.imgUrl}
-        prevSrc={images[(photoIndex + images.length - 1) % images.length]?.imgUrl}
-        onCloseRequest={() => {
-          setIsOpen(false);
-
-          setLightBoxOn(false)
-        }}
-        onMovePrevRequest={() =>
-          setPhotoIndex(
-            pre => (pre + images.length - 1) % images.length,
-          )
-        }
-        onMoveNextRequest={() =>
-          setPhotoIndex(
-            pre => (pre + images.length + 1) % images.length,
-          )
-        }
-        onAfterOpen={() => {
-
-
-          setLightBoxOn(true)
-        }
-        }
-
-      />}
+      {isOpen && lightBox}
       {imgDataArr.map((pic, index) => {
 
         //   const imageSnap = pic.imgSnap
@@ -880,15 +854,12 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
 
             <img src={imageSnap} style={{ objectFit: "cover", width: "100%", height: "100%" }}
               onClick={function (e) {
-                // alert(JSON.stringify(images))
-                // alert(JSON.stringify(e.target.src))
-                // setIsOpen(true)
-                // setPhotoIndex(index)
 
+                alert("aa")
                 const pos = images.findIndex(function (img) {
-                  return img.imgSnap === imageSnap //e.target.src
+                  return img.imgSnap === e.target.src
                 })
-                // alert(JSON.stringify(images))
+
                 if (pos >= 0) {
                   setIsOpen(true)
                   setPhotoIndex(pos)
@@ -985,17 +956,17 @@ export function VoteFrame({ data, avatarColor, postID, ownerName, ...props }) {
               "& > span > span": {
                 bgcolor,
                 //bgcolor: hexToRGB(avatarColor, 0.5),
-                //  transition: "all, 300ms",
-                //  opacity:0.6,
+              //  transition: "all, 300ms",
+              //  opacity:0.6,
               },
               "&:hover": {
                 cursor: "pointer", transition: "all, 300ms",
                 "& > span": { bgcolor: theme.palette.action.disabled },
                 "& > span > span": {
                   bgcolor,
-                  //  bgcolor: hexToRGB(avatarColor, 1),
-                  //    transition: "all, 300ms",
-                  //    opacity:1,
+                //  bgcolor: hexToRGB(avatarColor, 1),
+              //    transition: "all, 300ms",
+              //    opacity:1,
                 },
               }
             },

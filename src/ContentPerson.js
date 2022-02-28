@@ -779,42 +779,68 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
 
 
 
-  const lightBox = images.length > 0
-    ? <Lightbox
-      mainSrc={images[photoIndex]?.imgUrl}
-      nextSrc={images[(photoIndex + 1) % images.length]?.imgUrl}
-      prevSrc={images[(photoIndex + images.length - 1) % images.length]?.imgUrl}
-      onCloseRequest={() => {
-        setIsOpen(false);
+  // const lightBox = images.length > 0
+  //   ? <Lightbox
+  //     mainSrc={images[photoIndex]?.imgUrl}
+  //     nextSrc={images[(photoIndex + 1) % images.length]?.imgUrl}
+  //     prevSrc={images[(photoIndex + images.length - 1) % images.length]?.imgUrl}
+  //     onCloseRequest={() => {
+  //       setIsOpen(false);
 
-        setLightBoxOn(false)
-      }}
-      onMovePrevRequest={() =>
-        setPhotoIndex(
-          pre => (pre + images.length - 1) % images.length,
-        )
-      }
-      onMoveNextRequest={() =>
-        setPhotoIndex(
-          pre => (pre + images.length + 1) % images.length,
-        )
-      }
-      onAfterOpen={() => {
+  //       setLightBoxOn(false)
+  //     }}
+  //     onMovePrevRequest={() =>
+  //       setPhotoIndex(
+  //         pre => (pre + images.length - 1) % images.length,
+  //       )
+  //     }
+  //     onMoveNextRequest={() =>
+  //       setPhotoIndex(
+  //         pre => (pre + images.length + 1) % images.length,
+  //       )
+  //     }
+  //     onAfterOpen={() => {
 
 
-        setLightBoxOn(true)
-      }
-      }
+  //       setLightBoxOn(true)
+  //     }
+  //     }
 
-    />
-    : <></>
+  //   />
+  //   : <></>
 
 
   return (
 
     <Box className="image-frame" sx={cssObj}>
 
-      {isOpen && lightBox}
+      {isOpen && <Lightbox
+        mainSrc={images[photoIndex]?.imgUrl}
+        nextSrc={images[(photoIndex + 1) % images.length]?.imgUrl}
+        prevSrc={images[(photoIndex + images.length - 1) % images.length]?.imgUrl}
+        onCloseRequest={() => {
+          setIsOpen(false);
+
+          setLightBoxOn(false)
+        }}
+        onMovePrevRequest={() =>
+          setPhotoIndex(
+            pre => (pre + images.length - 1) % images.length,
+          )
+        }
+        onMoveNextRequest={() =>
+          setPhotoIndex(
+            pre => (pre + images.length + 1) % images.length,
+          )
+        }
+        onAfterOpen={() => {
+
+
+          setLightBoxOn(true)
+        }
+        }
+
+      />}
       {imgDataArr.map((pic, index) => {
 
         //   const imageSnap = pic.imgSnap
@@ -840,7 +866,7 @@ export function Images({ imgDataArr, allImageArr, target, size, setSize, postID,
 
 
                 const pos = images.findIndex(function (img) {
-                  return img.imgSnap === e.target.src
+                  return img.imgSnap === imageSnap // e.target.src
                 })
 
                 if (pos >= 0) {

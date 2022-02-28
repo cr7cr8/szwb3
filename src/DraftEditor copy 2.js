@@ -560,8 +560,6 @@ export default function DraftEditor({ userName, ...props }) {
           }, 0)
 
 
-          const preHtml = toPreHtml(editorState, theme)
-
 
           const ownerName = userName || ("User" + String(Math.random()).substring(3, 6))
           const postID = "post" + ownerName + "-" + Date.now()
@@ -570,9 +568,6 @@ export default function DraftEditor({ userName, ...props }) {
           const stepPromiseArr = []
           let voteBlockKey = null
           let voteBlockData = null
-
-
-
 
 
           editorState.getCurrentContent().getBlocksAsArray().forEach(block => {
@@ -665,22 +660,11 @@ export default function DraftEditor({ userName, ...props }) {
 
           Promise.all(stepPromiseArr).then(function () {
             setPostDisable(false)
-            //   const preHtml = toPreHtml(editorState, theme)
+            const preHtml = toPreHtml(editorState, theme)
 
 
             setPostDisable(false)
-
-            onSubmit({
-              ownerName,
-              content: preHtml,
-              postID,
-              postingTime: new Date(),
-            }, function () {
-              setImageObj({})
-              setEditorState(EditorState.createEmpty())
-            })
-
-
+        
 
 
 
@@ -694,10 +678,19 @@ export default function DraftEditor({ userName, ...props }) {
               }).then(response => {
 
 
-                // setImageObj({})
-                // setEditorState(EditorState.createEmpty())
+                setTimeout(function () {
+                  onSubmit({
+                    ownerName,
+                    content: preHtml,
+                    postID,
+                    postingTime: new Date(),
+                  })
+                }, 0)
+    
+                setImageObj({})
+                setEditorState(EditorState.createEmpty())
 
-
+            
 
               })
 

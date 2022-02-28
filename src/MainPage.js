@@ -136,9 +136,11 @@ export default function MainPage() {
                 savedPollDuration, setSavedPollDuration
               }}
 
-              onSubmit={function (preHtml) {
-                setOpen(false)
+              onSubmit={function (preHtml,callBack) {
+               
                 setPostArr(pre => { return [preHtml, ...pre] })
+                callBack()
+                setOpen(false)
               }} />
           </Grid>
         </Grid>
