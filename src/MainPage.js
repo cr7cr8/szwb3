@@ -56,7 +56,7 @@ export default function MainPage() {
 
   const navigate = useNavigate()
 
-
+  //const [disableBtn, setDisableBtn] = useState(false)
 
 
   useEffect(function () {
@@ -86,14 +86,14 @@ export default function MainPage() {
 
         sx={{
 
-         // bgcolor:"rgba(0,0,0,0.7)",
+          // bgcolor:"rgba(0,0,0,0.7)",
 
           "& > div > div": {
             overflow: "visible",
             paddingTop: "8px",
             px: "8px",
             //   bgcolor: "red",
-          
+
             // width: "100%",
             width: { xs: "95%", sm: "95%", md: "95%", lg: "95%", xl: "95%" },
             mx: 0,

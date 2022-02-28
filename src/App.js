@@ -18,14 +18,15 @@ import {
 
 import {
   Container, Grid, Paper, IconButton, ButtonGroup, Stack, Box, Button, Chip, Avatar, CssBaseline, Typography, Collapse, Switch, Divider,
-  Slider, TextField,
+  Slider, TextField
 } from '@mui/material';
 
-import { Crop, DoneRounded, Close, AddCircleOutline } from '@mui/icons-material';
+import { Crop, DoneRounded, Close, AddCircleOutline, AddAPhoto } from '@mui/icons-material';
 import Dialog from '@mui/material/Dialog';
 
 import SettingsIcon from '@mui/icons-material/Settings';
 import DoDisturbIcon from '@mui/icons-material/DoDisturb';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 import multiavatar from '@multiavatar/multiavatar'
@@ -43,6 +44,8 @@ import FormLabel from '@mui/material/FormLabel';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from './cropImage';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+
+import TextareaAutosize from '@mui/material/TextareaAutosize';
 
 export const AppContext = createContext()
 
@@ -135,10 +138,7 @@ function App() {
         <Container disableGutters={true} fixed={false} maxWidth={window.innerWidth >= 3000 ? false : "lg"} >
           <CssBaseline />
 
-
-
           <Routes>
-
             <Route path="/" element={<><BarMain /><MainPage /></>} />
             <Route path="/person/*" element={
               <>
@@ -162,29 +162,11 @@ export default App;
 
 function BarMain({ ...props }) {
 
-
-
   const theme = useTheme()
-
   const { userName, setUserName, clickFn, userAvatarUrl, setUserAvatarUrl, random, setRandom, userColor, setUserColor, userInfoArr, setPostArr } = useAppContext()
-
-
-  // const avatarString = multiavatar(userName)
-  // let avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
-  // if (avatarColor.length < 7) {
-  //   avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
-  // }
-  //const bgcolor = hexToRGB(avatarColor, 0.2)
   const bgcolor = getColor({ name: userName, userName, userInfoArr, userColor, theme })
-
-
-
   const [settingOn, setSettingOn] = useState(false)
-
   const [open, setOpen] = useState(false)
-
-
-
 
   const [newName, setNewName] = useState(userName)
   const nameInputRef = useRef()
@@ -195,20 +177,13 @@ function BarMain({ ...props }) {
       bgcolor: bgcolor,// theme.isLight ? bgcolor : hexToRGB2(avatarColor, 0.6),
       padding: "4px", my: "8px", mx: "4px", display: "flex", alignItems: "flex-end",
       justifyContent: "center",
-
-
     }}>
       <Box sx={{
         padding: "4px", borderRadius: "1000px", bgcolor: "background.default", width: "fit-content",// opacity: isMainPage ? 1 : 0,
         transition: "transfrom, 300ms",
-
       }}>
         <Avatar src={userAvatarUrl} sx={{ width: "2.4rem", height: "2.4rem", "&:hover": { cursor: "pointer", opacity: "0.8" } }}
-
-          onClick={function () {
-
-            setOpen(true)
-          }}
+          onClick={function () { setOpen(true) }}
         />
       </Box>
 
@@ -228,7 +203,7 @@ function BarMain({ ...props }) {
         }}
           onClick={clickFn}
         >
-          <Typography sx={{ fontSize: theme.sizeObj, color: theme.palette.text.default, display: "inline-block" }}>{userName} ....</Typography>
+          <Typography sx={{ fontSize: theme.sizeObj, color: theme.palette.text.default, display: "inline-block" }}>{userName}</Typography>
         </Box>
 
         <Collapse unmountOnExit={false} in={settingOn}>
@@ -335,16 +310,16 @@ function BarMain({ ...props }) {
                   .then(result => {
 
                     if (result) {
-                     // setPostArr([])
-                     // setUserName(newName)
+                      // setPostArr([])
+                      // setUserName(newName)
                       localStorage.setItem("userName", newName)
                       window.location.reload();
                     }
-                    else{
+                    else {
                       alert("name " + newName + " was taken")
                       setNameBtn(false)
                     }
-                  //  setNameBtn(false)
+                    //  setNameBtn(false)
                   })
 
 
@@ -409,58 +384,67 @@ function BarPerson() {
   const isMainPage = Boolean(matchPath("/", location.pathname))
   const { personName } = useParams()
 
-
   const bgcolor = getColor({ name: personName, userName, userInfoArr, userColor, theme })
-
-
+  const [newDescription, setNewDescription] = useState("")
   const userAvatarSrc = userName === personName
     ? userAvatarUrl
     : avatarNameArr.includes(personName)
       ? `${url}/api/user/downloadAvatar/${personName}/${random}`
       : "data:image/svg+xml;base64," + btoa(multiavatar(personName))
 
-
   const avatarString = multiavatar(personName)
   let avatarColor = avatarString.match(/#[a-zA-z0-9]*/)[0]
   if (avatarColor.length < 7) {
     avatarColor = "#" + avatarColor[1] + avatarColor[1] + avatarColor[2] + avatarColor[2] + avatarColor[3] + avatarColor[3]
   }
-  //const bgcolor = hexToRGB(avatarColor, 0.2)
-
-
 
   const banerRef = useRef()
-  const [height, setHeight] = useState(1)
+  const [height, setHeight] = useState(10)
+  const [imageUrl, setImageUrl] = useState()
+  const [open, setOpen] = useState(false)
 
   useEffect(function () {
 
 
-
     const resizeObserver = new ResizeObserver(entries => {
-      console.log(entries[0].contentRect.width)
-
-      setHeight(entries[0].contentRect.width / 12)
-
+      //  console.log(entries[0].contentRect.width)
+      setHeight(entries[0].contentRect.width / 6)
     })
 
     resizeObserver.observe(banerRef.current)
 
+
+    axios.get(`${url}/api/user/userDescription${personName}`).then(response => {
+      setNewDescription(response.data)
+    })
+
     return function () { resizeObserver.disconnect() }
 
 
-    // const w = window.getComputedStyle(banerRef.current).width
-    // setHeight(Number(w.replace("px", "")) / 16 * 9)
+
+
   }, [])
+
+  //  useEffect(function () { console.log(imageUrl) }, [imageUrl])
 
   return (
     <>
+      <Box sx={{
+        //    bgcolor:"lightsalmon", 
+        //     padding: "4px",
+        my: "8px", mx: "4px",
+        //display: "flex",
+        // alignItems: "center",
+        // justifyContent: "flex-end",
+        position: "relative",
+        // flexDirection: "column",
+        maxHeight: 1.5 * height,
+        overflow: "visible",
 
-      <Paper sx={{
-        bgcolor: theme.isLight ? bgcolor : hexToRGB2(avatarColor, 0.6), padding: "4px", my: "8px", mx: "4px", display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        postion: "relative",
+        //  height: height 
       }}>
+
+
 
         <Box
           ref={banerRef}
@@ -470,30 +454,149 @@ function BarPerson() {
             // bgcolor: "pink",
             // overflow: "hidden",
             height,
-            position: "relative"
+            position: "relative",
+            overflow: "visible",
+            boxShadow: 3,
+            display: "flex",
+            alignItems: "flex-end",
+            backgroundSize: "cover",
+            ...!open && { backgroundImage: `url(${imageUrl || `${url}/api/user/downloadBanerPic/${personName}/${random}`})` },
           }}>
-          <Box sx={{
-            borderRadius: "1000px", bgcolor, width: "fit-content",// opacity: isMainPage ? 1 : 0,
-            transform: `translateY(${height * 0.35}px)`,
-            transition: "transfrom, 300ms",
+          {open && <ImageAdjuster2 setOpen={setOpen} open={open} imageUrl={imageUrl} setImageUrl={setImageUrl} />}
+
+
+          {personName === userName && <IconButton size="small" sx={{
+            transform: { xs: "scale(1.2)", sx: "scale(1.2)", md: "scale(1.5)", lg: "scale(1.5)", xl: "scale(1.5)" },
+            display: "block",
+            bottom: 0,
+            right: 0,
             position: "absolute",
-            zIndex: 100,
-            left: "7%",
-            padding: "4px",
-          }}>
-
-            <Avatar src={userAvatarSrc} sx={{
-              width: `calc( ${height * 1.2}px )`, height: `calc( ${height * 1.2}px )`, //maxWidth: "4.8rem", maxHeight: "4.8rem"
-            }} />
-
-          </Box>
+            zIndex: 300,
+            transform: "translateY(100%)",
+          }}
+            onClick={function () { setOpen(pre => !pre) }}
+          >
+            {open
+              ? <Close fontSize='large' sx={{ color: theme.palette.text.secondary }} />
+              : <SettingsIcon fontSize='large' sx={{ color: theme.palette.text.secondary }} />
+            }
+          </IconButton>
+          }
         </Box>
 
 
 
+        <Grid container
+          direction="row"
+          justifyContent="center"
+          // alignItems="flex-end"
+          spacing={0}
+          sx={{
+            //   bgcolor: "rgba(122,122,122,0.5)",
+            transform: "translateY(-50%)",
+            //  top: "50%",
+            height,
+            zIndex: 200,
+            //   top: "50%",
+            overflow: "hidden",
+            //  position: "absolute",
+          }}
+        >
+          <Grid item xs={1} sm={1} md={1} lg={1} xl={1} sx={{
+            //  bgcolor: "pink",
+            height,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
+            <IconButton size="small" sx={{ transform: { xs: "scale(1.2)", sx: "scale(1.2)", md: "scale(1.5)", lg: "scale(1.5)", xl: "scale(1.5)" }, }}
+              onClick={function () {
 
-      </Paper >
-      <Box sx={{ height: height / 1.5, width: "100%", }} />
+                navigate("/")
+
+              }} >
+              <ArrowBackIcon fontSize='large' sx={{ color: theme.palette.text.secondary }} />
+            </IconButton>
+          </Grid>
+
+          {/* <IconButton size="small" sx={{ postion:"absolute", transform: { xs: "scale(1.2)", sx: "scale(1.2)", md: "scale(1.5)", lg: "scale(1.5)", xl: "scale(1.5)" }, }}
+            onClick={function () { }} >
+            <ArrowBackIcon fontSize='large' sx={{ color: theme.palette.text.secondary }} />
+          </IconButton> */}
+
+
+          <Grid item xs={2} sm={2} md={2} lg={2} xl={2} sx={{
+            position: "relative",
+            transform: "translateX(-16px)",
+            height,
+          }}>
+            <Avatar src={userAvatarSrc} sx={{
+        
+              width: height,
+              height: height,
+              borderWidth: "4px",
+              borderColor: theme.palette.background.default,
+              borderStyle: "solid",
+              boxShadow: 3,
+              transform: { xs: "scale(0.7)", sx: "scale(0.7)", md: "scale(0.7)", lg: "scale(0.7)", xl: "scale(0.7)" },
+         
+              ...open && { display: "none" },
+           
+            
+            }}
+            
+            onClick={function(){
+              alert("fff")
+            }}
+            />
+          </Grid>
+
+          <Grid item xs={9} sm={9} md={9} lg={9} xl={9} sx={{
+            //  bgcolor: "rgba(156,124,12,0.5)", //height: height / 2, 
+            // transform: "translateY(60%)"
+            //   bgcolor: "lightblue",
+            display: "flex", flexDirection: "column", justifyContent: "center",
+            height,
+            transform: "translateX(-16px)",
+          }}>
+            <Typography sx={{ fontSize: theme.sizeObj, height: "50%", display: "flex", alignItems: "flex-end", }}>{personName}</Typography>
+
+            {!open
+              ? <Typography sx={{ fontSize: theme.sizeObj, height: "50%", textOverflow: "ellipsis", overflow: "auto", }}>
+                {newDescription}
+              </Typography>
+              :
+              <>
+                <TextField
+                  value={newDescription}
+                  onChange={function (e) { setNewDescription(e.target.value) }}
+                  autoFocus sx={{ width: "80%", bgcolor: "pink", "& textarea": { fontSize: theme.sizeObj, height: "100%" + " !important" } }}
+                  multiline
+                />
+                <Button sx={{ width: "80%" }} onClick={function () {
+                  setOpen(false)
+                  axios.post(`${url}/api/user/updateDescription`, { userName: personName, description: newDescription })
+
+
+                }}>OK</Button>
+              </>
+
+
+
+
+              //<TextareaAutosize
+              //style={{ fontSize: theme.sizeObj, }}
+              //sx={{ fontSize: theme.sizeObj, width: "80%", "& input": { fontSize: theme.sizeObj, } }} 
+              // />
+            }
+          </Grid>
+        </Grid>
+
+      </Box >
+
+
+
+
     </>
   )
 
@@ -651,6 +754,151 @@ function ImageAdjuster({ setOpen, ...props }) {
 
 }
 
+
+function ImageAdjuster2({ open, setOpen, imageUrl, setImageUrl, ...props }) {
+
+  const { userName, clickFn, } = useAppContext()
+  // const [imageUrl, setImageUrl] = useState(userAvatarUrl)
+
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [rotation, setRotation] = useState(0)
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }, [])
+
+  // const aspectArr = [1 / 1, 16 / 9, 1 / 1, 1 / 1, 16 / 9]
+
+  const inputRef = useRef()
+  function update(e) {
+    e.stopPropagation()
+    if (e.currentTarget.files[0].name.trim().match(/\.(gif|jpe?g|tiff|png|webp|bmp)$/i)) {
+      const file = URL.createObjectURL(e.currentTarget.files[0])
+      setImageUrl(file)
+    }
+  }
+
+
+
+  return (
+
+    <>
+      <input ref={inputRef} type="file" multiple={false} accept="image/*" style={{ display: "none" }}
+        onClick={function (e) { e.currentTarget.value = null; }}
+        onChange={update}
+      />
+
+
+      <IconButton sx={{
+        fontSize: "2rem", width: "2.5rem", height: "2.5rem",
+        position: "absolute", top: 8, left: 8,
+        zIndex: 80,
+        bgcolor: "rgba(255,255,255,0.3)"
+      }}
+        size="small"
+        contentEditable={false} suppressContentEditableWarning={true}
+        onClick={async function (e) {
+
+          inputRef.current.click()
+
+        }}
+      >
+        <AddAPhoto fontSize="large" sx={{ "&:hover": { bgcolor: "rgba(255,255,255,0.5)", borderRadius: "1000px" } }} />
+      </IconButton>
+
+      <IconButton sx={{
+        fontSize: "2rem", width: "2.5rem", height: "2.5rem",
+        position: "absolute", top: 8, right: 8,
+        zIndex: 80,
+        bgcolor: "rgba(255,255,255,0.3)"
+      }}
+        size="small"
+        onClick={async function () {
+
+          if (!imageUrl) return
+
+          const croppedImage = await getCroppedImg(
+            imageUrl,
+            croppedAreaPixels,
+            rotation,
+          )
+
+          setOpen(false)
+          setImageUrl(croppedImage)
+
+          fetch(croppedImage)
+            .then(file => {
+              return file.blob()
+            })
+            .then(blobData => {
+
+              const data = new FormData();
+
+              data.append("file", new File([blobData], userName, { type: "image/jpeg" }))
+              data.append('obj', JSON.stringify({ ownerName: userName }));
+
+              return axios.post(`${url}/api/user/uploadBanerPic`, data, {
+                headers: { 'content-type': 'multipart/form-data' },
+              }).then(response => {
+                console.log(response.data)
+              })
+            })
+        }}
+      >
+        <Crop fontSize="large" sx={{ "&:hover": { bgcolor: "rgba(255,255,255,0.5)", borderRadius: "1000px" } }} />
+      </IconButton >
+
+
+
+
+      <Box sx={{ width: "100%", height: "100%", }}>
+        <Cropper image={imageUrl}  //"https://img.huffingtonpost.com/asset/5ab4d4ac2000007d06eb2c56.jpeg?cache=sih0jwle4e&ops=1910_1000"
+          aspect={6 / 1}
+          crop={crop}
+          rotation={rotation}
+          zoom={zoom}
+
+          onCropChange={setCrop}
+          onRotationChange={setRotation}
+          onCropComplete={onCropComplete}
+          onZoomChange={setZoom}
+        />
+      </Box>
+
+      {imageUrl && <Slider
+        size="medium"
+        value={zoom}
+        min={1}
+        max={3}
+        step={0.1}
+        aria-labelledby="Zoom"
+        //  classes={{ root: classes.slider }}
+        onChange={(e, zoom) => setZoom(zoom)}
+        sx={{
+          //  padding: '22px 0px',
+          //  marginLeft: "",
+          marginLeft: "20px",
+          marginRight: "20px",
+          position: "absolute",
+          bottom: 10,
+          left: 0,
+          right: 0,
+          my: "0",
+          width: "85%",
+          mx: "auto",
+          color: "skyblue",
+          zIndex: 600,
+        }}
+      />
+      }
+
+    </>
+  )
+
+}
 
 
 

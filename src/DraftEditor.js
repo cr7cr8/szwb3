@@ -554,7 +554,11 @@ export default function DraftEditor({ userName, ...props }) {
       <Button sx={{ width: "100%", my: "8px" }} disabled={postDisable}
 
         onClick={function () {
-          setPostDisable(true)
+
+          setTimeout(function () {
+            setPostDisable(true)
+          }, 0)
+
 
 
           const ownerName = userName || ("User" + String(Math.random()).substring(3, 6))
