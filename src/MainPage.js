@@ -85,9 +85,9 @@ export default function MainPage() {
         scroll={"body"}
 
         sx={{
-
+          // transform: `scale(${open ? 1 : 0})`,
           // bgcolor:"rgba(0,0,0,0.7)",
-
+          // display: open ? "block" : "none",
           "& > div > div": {
             overflow: "visible",
             paddingTop: "8px",
@@ -137,14 +137,8 @@ export default function MainPage() {
               }}
 
               onSubmit={function (preHtml) {
-                // console.log(preHtml)
-                setPostArr(pre => {
-
-                  pre.unshift(preHtml)
-                  return [...pre]
-                  //  return [preHtml, ...pre]
-                })
                 setOpen(false)
+                setPostArr(pre => { return [preHtml, ...pre] })
               }} />
           </Grid>
         </Grid>

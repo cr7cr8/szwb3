@@ -414,7 +414,7 @@ function BarPerson() {
     resizeObserver.observe(banerRef.current)
 
 
-    axios.get(`${url}/api/user/userDescription${personName}`).then(response => {
+    axios.get(`${url}/api/user/userDescription/${personName}/${random}`).then(response => {
       setNewDescription(response.data)
     })
 
@@ -543,10 +543,6 @@ function BarPerson() {
               ...open && { display: "none" },
            
             
-            }}
-            
-            onClick={function(){
-              alert("fff")
             }}
             />
           </Grid>

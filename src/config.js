@@ -11,9 +11,9 @@ import {
 } from '@mui/material/colors';
 import multiavatar from "@multiavatar/multiavatar";
 
-//export const url = "http://192.168.0.100";
+export const url = "http://192.168.0.100";
 
-export const url = "https://passport-js.herokuapp.com";
+//export const url = "https://passport-js.herokuapp.com";
 
 export const colorArr = [red, pink, purple, deepPurple, indigo,
   blue, lightBlue, cyan, teal, green,

@@ -661,6 +661,23 @@ export default function DraftEditor({ userName, ...props }) {
           Promise.all(stepPromiseArr).then(function () {
             setPostDisable(false)
             const preHtml = toPreHtml(editorState, theme)
+
+
+            setPostDisable(false)
+            setTimeout(function () {
+              onSubmit({
+                ownerName,
+                content: preHtml,
+                postID,
+                postingTime: new Date(),
+              })
+            }, 0)
+
+            setImageObj({})
+            setEditorState(EditorState.createEmpty())
+
+
+
             axios.post(`${url}/api/article`,
               {
                 ownerName,
@@ -669,12 +686,11 @@ export default function DraftEditor({ userName, ...props }) {
                 postID,
                 postingTime: Date.now(),
               }).then(response => {
-                setPostDisable(false)
 
-                setImageObj({})
-                setEditorState(EditorState.createEmpty())
 
-                onSubmit(response.data)
+
+
+                // onSubmit(response.data)
 
                 // onSubmit({
                 //   ownerName,
