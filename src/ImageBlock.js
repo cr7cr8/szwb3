@@ -328,11 +328,11 @@ export default function ImageBlock({ ...props }) {
                   {item.isEditing
                     ? <ImageAdjuster
                       imageUrl={item.imgUrl} imageSnap={item.imgSnap} imageId={item.imgId} image={item.imgSnap}
-                      imageId={item.imgId}
+                
                       blockKey={blockKey} numOfImage={numOfImage}
                     />
                     : <ImageSnap imageUrl={item.imgUrl} imageSnap={item.imgSnap} imageId={item.imgId} image={item.imgSnap}
-                      imageId={item.imgId}
+                   
                       blockKey={blockKey}
                       numOfImage={numOfImage}
                     />
