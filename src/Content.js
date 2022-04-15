@@ -607,7 +607,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
         (!unmountComment) && <Collapse unmountOnExit={unmountComment} in={openComment} className="collapse">
           <CommentSector item={item} avatarColor={bgcolor} toHtml={toHtml} PostingTime={PostingTime} commentCount={commentCount} setCommentCount={setCommentCount}
             preHtmlEditor={preHtmlEditor}
-            setCommentCount={setCommentCount}
+         
           />
         </Collapse>
       }
