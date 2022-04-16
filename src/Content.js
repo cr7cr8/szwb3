@@ -75,8 +75,8 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, se
   return ReactHtmlParser(preHtml, {
     transform: function transformFn(node, index) {
 
+      //  if (node.name === "div" && node.attribs["small-font"]) {
       if (node.name === "div" && node.attribs["small-font"]) {
-
         const element = node.children.map((child, index) => {
 
           if (child.name === "object" && child.attribs["data-type"] === "person-tag") {
@@ -84,7 +84,7 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, se
             const avatarElement = convertNodeToElement(child)
             const personName = reactElementToJSXString(<>{avatarElement}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
 
-            return <AvatarChip name={personName} key={index} avatarScale={0.8} textScale={0.8} boxShadow={0} />
+            return <AvatarChip name={personName} key={index} avatarScale={1.0} textScale={0.7} boxShadow={0} />
           }
           else if (child.name === "span" && child.attribs["data-type"] === "link") {
             const element = convertNodeToElement(child)
@@ -104,6 +104,7 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, se
 
         return <Box
           key={index}
+          style={{ paddingLeft: "4px", paddingRight: "4px" }}
           sx={{
             fontSize: theme.scaleSizeObj(0.8),
 
@@ -114,6 +115,48 @@ function toHtml(preHtml, { theme, target, size, setSize, avatarColor, postID, se
         </Box>
 
       }
+      else if (node.name === "div" ) {
+        const element = node.children.map((child, index) => {
+
+          if (child.name === "object" && child.attribs["data-type"] === "person-tag") {
+
+            const avatarElement = convertNodeToElement(child)
+            const personName = reactElementToJSXString(<>{avatarElement}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
+
+            return <AvatarChip name={personName} key={index} avatarScale={1.2} textScale={0.8}  boxShadow={0} />
+          }
+          else if (child.name === "span" && child.attribs["data-type"] === "link") {
+            const element = convertNodeToElement(child)
+            const linkAdd = reactElementToJSXString(<>{element}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
+
+            // return <a href={linkAdd} style={{ color: blue[800], textDecoration:"none" }} >{linkAdd}</a >
+            return <LinkTag linkAdd={linkAdd} key={index} />
+          }
+
+          return convertNodeToElement(child, index, transformFn)
+        })
+
+        //  toHtml(reactElementToJSXString(<>{element}</>),theme,target)
+
+        //  console.log(reactElementToJSXString(<>{element}</>))
+
+
+        return <Box
+          key={index}
+          style={{ paddingLeft: "4px", paddingRight: "4px" }}
+          sx={{
+        
+
+            ...(node.attribs["text-align"]) && { textAlign: node.attribs["text-align"] }
+          }} >
+          {/* {toHtml(reactElementToJSXString(<div>{element}</div>), theme, target)} */}
+          {element}
+        </Box>
+
+      }
+
+
+
       else if (node.name === "span" && node.attribs["data-type"] === "link") {
         const element = convertNodeToElement(node)
         const linkAdd = reactElementToJSXString(<>{element}</>).replace(/(<([^>]*)>)/ig, '').replace(/\s/g, '')
@@ -372,6 +415,56 @@ export default function Content({ ...props }) {
 
 }
 
+function MainContent({ children, bgcolor, ...props }) {
+  const theme = useTheme()
+  const target = useRef()
+
+  const [maxHeight, setMaxHeight] = useState("300px")
+
+
+  useEffect(function () {
+
+    const resizeObserver = new ResizeObserver(([element]) => {
+
+      console.log(element.contentRect.height)
+      if (element.contentRect.height < 300) {
+        setMaxHeight && setMaxHeight(false)
+      }
+
+    })
+
+    resizeObserver.observe(target.current);
+    return function () {
+      resizeObserver.disconnect()
+    }
+
+  }, [])
+
+  return (
+    <Box ref={target} sx={{
+      height: "auto", ...maxHeight && { maxHeight }, overflow: "hidden",
+
+
+      //   px: "0px !important",
+      position: "relative"
+    }}
+      style={{ padding: "0px" }}
+    >
+      {children}
+      {maxHeight && <Button variant='contained' sx={{
+        fontWeight: "bold",
+        position: "absolute", bottom: 0, zIndex: 300, bgcolor, color: theme.palette.text.secondary, opacity: 0.7
+      }} fullWidth
+        onClick={function () {
+          setMaxHeight(false)
+        }}
+      >
+        show
+      </Button>}
+    </Box>
+  )
+
+}
 
 
 export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, setPostArr, setOpen, index = -1, setLightBoxOn, ...props }) {
@@ -525,8 +618,13 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
 
         </Stack>
 
-        {toHtml(content, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn, ownerName })}
-
+        {/* <Box sx={{maxHeight:"100px", overflow:"hidden",bgcolor:"lightgray",px:"0px !important", position:"relative"}}>
+          {toHtml(content, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn, ownerName })}
+          <Button sx={{position:"absolute",bottom:0,zIndex:300}} fullWidth>show</Button>
+        </Box> */}
+        <MainContent bgcolor={bgcolor}>
+          {toHtml(content, { theme, target, size, setSize, avatarColor, postID, setLightBoxOn, ownerName })}
+        </MainContent>
 
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
 
@@ -607,7 +705,7 @@ export function PostFrame({ preHtml, item, size, setSize, isFirstOne, userName, 
         (!unmountComment) && <Collapse unmountOnExit={unmountComment} in={openComment} className="collapse">
           <CommentSector item={item} avatarColor={bgcolor} toHtml={toHtml} PostingTime={PostingTime} commentCount={commentCount} setCommentCount={setCommentCount}
             preHtmlEditor={preHtmlEditor}
-         
+
           />
         </Collapse>
       }
