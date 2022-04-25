@@ -55,6 +55,13 @@ export default function ThemeContextProvider(props) {
   const myTheme = React.useMemo(
     () =>
       createTheme({
+        // typography: {
+        //   button: {
+        //     textTransform: 'none'
+        //   }
+        // },
+
+
         palette: {
           mode,
           panelColor: mode === "light" ? "lightgray" : "darkgray",
@@ -83,22 +90,22 @@ export default function ThemeContextProvider(props) {
           //     }
           //   }
           // },
-          MuiButton:{
-            defaultProps:{
-              variant:"contained",
-              disableRipple:false,
+          MuiButton: {
+            defaultProps: {
+              variant: "contained",
+              disableRipple: false,
             }
           },
-          MuiPaper:{
-            defaultProps:{
+          MuiPaper: {
+            defaultProps: {
 
             },
 
             styleOverrides: {
               root: ({ ownerState, theme, ...props }) => {
-             
+
                 return [
-                //  ownerState.variant === 'body2' &&
+                  //  ownerState.variant === 'body2' &&
                   sx({
                     fontSize: theme.sizeObj,
                   }),
@@ -107,12 +114,12 @@ export default function ThemeContextProvider(props) {
               }
             }
           },
-          MuiSvgIcon:{
-            styleOverrides:{
+          MuiSvgIcon: {
+            styleOverrides: {
               root: ({ ownerState, theme, ...props }) => {
-             
+
                 return [
-                //  ownerState.variant === 'body2' &&
+                  //  ownerState.variant === 'body2' &&
                   sx({
                     color: theme.palette.text.secondary,
                   }),
@@ -123,7 +130,7 @@ export default function ThemeContextProvider(props) {
           }
         }
       }),
-    [mode,sizeObj],
+    [mode, sizeObj],
   );
 
   return (
