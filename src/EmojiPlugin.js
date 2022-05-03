@@ -6,7 +6,7 @@ import EmojiPanel from "./EmojiPanel";
 
 
 
-export default function createImagePlugin() {
+export default function createEmojiPlugin() {
 
   let editorState = null
   let setEditorState = null
