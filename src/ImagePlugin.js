@@ -9,7 +9,7 @@ import { useTheme } from '@mui/private-theming';
 import ImageBlock from "./ImageBlock";
 
 
-export default function createMentionPlugin() {
+export default function createImagePlugin() {
 
   let editorState = null
   let setEditorState = null
