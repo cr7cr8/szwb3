@@ -55,7 +55,7 @@ export default function DraftEditor({ userName, ...props }) {
   const [shadowValue, setShadowValue] = useState(1)
 
   // const [currentBlockKey, setCurrentBlockKey] = useState(null)
-  const specialBakcSpace = useRef(false)
+  const specialBackSpace = useRef(false)
 
   // console.log(theme.isLight)
 
@@ -220,10 +220,10 @@ export default function DraftEditor({ userName, ...props }) {
             const isCollapsed = selection.isCollapsed()
             const startKey = selection.getStartKey()
 
-            if (specialBakcSpace.current) {
+            if (specialBackSpace.current) {
               const newContentState = Modifier.replaceText(newState.getCurrentContent(), newState.getSelection(), "")
               newState = EditorState.push(newState, newContentState, "insert-characters")
-              specialBakcSpace.current = false
+              specialBackSpace.current = false
             }
 
 
@@ -402,7 +402,7 @@ export default function DraftEditor({ userName, ...props }) {
 
               es = EditorState.forceSelection(es, newSelection)
 
-              specialBakcSpace.current = true
+              specialBackSpace.current = true
 
               setCurrentBlockKey(es.getSelection().getStartKey())
               setEditorState(es)
