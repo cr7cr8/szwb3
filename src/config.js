@@ -40,18 +40,13 @@ export function toPreHtml(editorState, theme) {
     {
       defaultBlockTag: "div",
 
-
-
       inlineStyleFn: function (styleNameSet) {
 
         const styleObj = {
-
           element: "span",
           style: {},
           attributes: {}
-
         }
-
 
         if (styleNameSet.toArray().includes("linkTagOn")) {
           //  styleObj.style = { color: blue[800] }
@@ -61,11 +56,7 @@ export function toPreHtml(editorState, theme) {
           //    styleObj.style = { color: blue[800] }
           styleObj.attributes["data-type"] = "link"
         }
-
-
-
         return styleObj
-
       },
 
 
@@ -127,14 +118,9 @@ export function toPreHtml(editorState, theme) {
           }
         }
 
-
       },
 
-
       blockRenderers: {
-
-
-
 
         imageBlock: function (block) {
           const text = block.getText()
@@ -154,8 +140,6 @@ export function toPreHtml(editorState, theme) {
           const key = block.getKey()
           return `<object  data-type="vote-block"  data-block_key="${key}" data-block_data="${data}" >` + escape(block.getText()) + '</object>'
         },
-
-
 
       },
 
