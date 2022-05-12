@@ -1139,7 +1139,7 @@ export function VoteFrame({ data, avatarColor, postID, ownerName, ...props }) {
             <Typography variant='body2'
               alt="sdfsddf"
               sx={{
-                position: "absolute", top: "50%", left: 4, zIndex: 100, transform: "translateY(-50%)", display: "block", width: "calc(100% - 64px )",
+                position: "absolute", top: "50%", left: 4, zIndex: 50, transform: "translateY(-50%)", display: "block", width: "calc(100% - 64px )",
                 //bgcolor: "yellow", 
                 whiteSpace: "nowrap",
                 overflow: "hidden",
